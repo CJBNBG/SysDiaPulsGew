@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,11 +28,41 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() {
+    return _MyHomePageState();
+  }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  Widget _infoTile(String title, String subtitle) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subtitle.isEmpty ? 'Not set' : subtitle),
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -77,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-        drawer: myMenuWidget(),
+        drawer: myMenuWidget(ThePackageInfo: _packageInfo),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
           child: Row(
@@ -190,11 +221,11 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class myMenuWidget extends StatelessWidget {
-  int _selectedMenuIndex = 0;
+  final PackageInfo ThePackageInfo;
 
   myMenuWidget({
-    Key? key,
-  }) : super(key: key);
+    Key? key, required this.ThePackageInfo,
+  }) : super(key: key,);
 
   static TapRoutine(BuildContext context, int Index)  {
     String x = "?";
@@ -245,11 +276,11 @@ class myMenuWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'SysDiaPulsGew',
+                  this.ThePackageInfo.appName,
                   textScaleFactor: 2.0,
                 ),
                 Text(
-                  'info@clausjbauer.de',
+                  'Version: ' + this.ThePackageInfo.version,
                   textScaleFactor: 1.3,
                   style: TextStyle(
                     color: Colors.grey[500],
@@ -266,7 +297,7 @@ class myMenuWidget extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              TapRoutine(context, 1);
+              TapRoutine(context, 1,);
             },
           ),
           ListTile(
