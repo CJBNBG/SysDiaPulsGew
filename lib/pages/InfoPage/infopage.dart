@@ -263,11 +263,11 @@ class myListRowWidget extends StatelessWidget {
         Container(
           width: this.Breite,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(this.Titel1,),
-              Text(this.Titel2,),
+              Text(this.Titel1, textScaleFactor: 1.0,),
+              Text(this.Titel2, textScaleFactor: 1.0,),
             ],
           ),
           decoration: BoxDecoration(
