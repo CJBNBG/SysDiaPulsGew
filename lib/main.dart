@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
+import 'my-globals.dart' as globals;
+import 'dart:ui';
 
 void main() {
   runApp(const MyApp());
@@ -17,6 +21,20 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.lightBlue,
       ),
       home: const MyHomePage(title: 'SysDiaPulsGew'),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/infopage':
+            return PageTransition(
+              child: InfoPage(),
+              type: PageTransitionType.fade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            //break;
+          default:
+            return null;
+        }
+      },
     );
 
   }
@@ -50,18 +68,18 @@ class _MyHomePageState extends State<MyHomePage> {
     _initPackageInfo();
   }
 
+  PackageInfo get getPackageInfo {
+    return _packageInfo;
+  }
+
   Future<void> _initPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
     setState(() {
       _packageInfo = info;
+      globals.gPackageInfo = info;
+      globals.screenwidth = window.physicalSize.width.toInt();
+      globals.screenheight = window.physicalSize.height.toInt();
     });
-  }
-
-  Widget _infoTile(String title, String subtitle) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(subtitle.isEmpty ? 'Not set' : subtitle),
-    );
   }
 
   void _onItemTapped(int index) {
@@ -85,23 +103,25 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: <Widget>[
             // die Widgets werden von rechts außen nach links aufgeführt
             IconButton(
+              icon: Icon(Icons.info_outlined),
+              onPressed: () {
+                //Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: InfoPage(),
+                    alignment: Alignment.topCenter,
+                    type: PageTransitionType.leftToRightWithFade,),
+                );
+              },
+            ),
+            IconButton(
               icon: Icon(Icons.settings_sharp),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('noch zu programmieren...'),
                     backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
-                  )
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('noch zu programmieren...'),
-                      backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
                   )
                 );
               },
@@ -198,10 +218,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         bottomNavigationBar:
         BottomNavigationBar(items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Start',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.home),
+          //   label: 'Start',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.analytics_outlined),
             label: 'Statistik',
@@ -245,20 +265,34 @@ class myMenuWidget extends StatelessWidget {
       case 5:
         x = "Über diese App...";
         break;
+      default:
+        x = "unbekannter Aufruf!";
+        break;
     }
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('noch zu programmieren...'),
-        content: Text(x),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    if (Index == 5 ) {
+      Navigator.push(
+        context,
+        PageTransition(
+          child: InfoPage(),
+          alignment: Alignment.topCenter,
+          type: PageTransitionType.leftToRightWithFade,),
+      );
+    } else {
+      return showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+            AlertDialog(
+              title: const Text('noch zu programmieren...'),
+              content: Text(x),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'OK'),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
+    }
   }
 
   @override
