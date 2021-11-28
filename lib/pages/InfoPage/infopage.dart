@@ -142,7 +142,7 @@ class InfoPage extends StatelessWidget {
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '120 - 129', Farbe1: Colors.green, Farbe2: Colors.green[200], Breite: EntryWidthSysDia,),
+                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '120 - 129', Farbe1: Colors.green, Farbe2: Colors.green[100], Breite: EntryWidthSysDia,),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
@@ -179,7 +179,7 @@ class InfoPage extends StatelessWidget {
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '120 - 129', Farbe1: Colors.green, Farbe2: Colors.green[200], Breite: EntryWidthSysDia,),
+                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '120 - 129', Farbe1: Colors.green, Farbe2: Colors.green[100], Breite: EntryWidthSysDia,),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
