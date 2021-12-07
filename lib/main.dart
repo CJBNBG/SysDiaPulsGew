@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
+import 'package:sysdiapulsgew/services/dbhelper.dart';
 import 'my-globals.dart' as globals;
 import 'dart:ui';
 
@@ -53,19 +54,39 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  String strSysAVG = '---';
+  String strDiaAVG = '---';
+  String strPulsAVG = '---';
+  String strAnzahl = '---';
+  // List<Map<String, dynamic>> _datamap = [
+  //   { "SysAVG": -1, "DiaAVG": -1, "PulsAVG": -1 }
+  // ];
+
+  void _loadData() async {
+    final data = await dbHelper.getDataDays(7);
+    setState(() {
+      if ( data[0]['SysAVG'] != null && data[0]['DiaAVG'] != null && data[0]['PulsAVG'] != null ) {
+        strAnzahl = data.length.toString();
+        strSysAVG = data[0]['SysAVG'].toString() + ' mmHg';
+        strDiaAVG = data[0]['DiaAVG'].toString() + ' mmHg';
+        strPulsAVG = data[0]['PulsAVG'].toString() + ' bps';
+      }
+    });
+  }
 
   PackageInfo _packageInfo = PackageInfo(
-    appName: 'Unknown',
-    packageName: 'Unknown',
-    version: 'Unknown',
-    buildNumber: 'Unknown',
-    buildSignature: 'Unknown',
+    appName: '?',
+    packageName: '?',
+    version: '?',
+    buildNumber: '?',
+    buildSignature: '?',
   );
 
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
+    _loadData();
   }
 
   PackageInfo get getPackageInfo {
@@ -187,14 +208,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 )
                               ],
                             ),
-                            meineZeile(
-                                Beschreibung: 'berücksichtigte Einträge:',
-                                Wert: '15'),
-                            meineZeile(
-                                Beschreibung: 'Systole:', Wert: '123,3 mmHg'),
-                            meineZeile(
-                                Beschreibung: 'Diastole:', Wert: '81,3 mmHg'),
-                            meineZeile(Beschreibung: 'Puls:', Wert: '78,4 bps'),
+                            meineZeile( Beschreibung: 'berücksichtigte Einträge:', Wert: strAnzahl ),
+                            meineZeile( Beschreibung: 'Systole:', Wert: strSysAVG ),
+                            meineZeile( Beschreibung: 'Diastole:', Wert: strDiaAVG ),
+                            meineZeile( Beschreibung: 'Puls:', Wert: strPulsAVG ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                               child: Text(
@@ -218,10 +235,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         bottomNavigationBar:
         BottomNavigationBar(items: const <BottomNavigationBarItem>[
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.home),
-          //   label: 'Start',
-          // ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Start',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.analytics_outlined),
             label: 'Statistik',
