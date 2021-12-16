@@ -1,10 +1,12 @@
+import 'dart:io';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:sysdiapulsgew/services/DataInterface.dart';
 import 'package:sysdiapulsgew/services/SettingsInterface.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:flutter/foundation.dart';
+import '../../my-globals.dart' as globals;
 
 class dbHelper {
-  static const _databaseName = 'SysDiaPuls.db';
   static const _databaseVersion = 1;
 
   static Future _onCreateDB(sql.Database db) async {
@@ -17,9 +19,7 @@ class dbHelper {
         ${DataInterface.colDiastole} INTEGER NOT NULL,
         ${DataInterface.colPuls} INTEGER NULL,
         ${DataInterface.colGewicht} FLOAT NULL,
-        ${DataInterface.colBemerkung} TEXT NULL,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ${DataInterface.colBemerkung} TEXT NULL
       )
       ''');
     await db.execute('''
@@ -29,16 +29,14 @@ class dbHelper {
         ${SettingsInterface.colTyp} TEXT NOT NULL,
         ${SettingsInterface.colWertInt} INTEGER NULL,
         ${SettingsInterface.colWertFloat} FLOAT NULL,
-        ${SettingsInterface.colWertText} TEXT NULL,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ${SettingsInterface.colWertText} TEXT NULL
       )
       ''');
   }
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(
-      _databaseName,
+      globals.lokalDBNameOhnePfad,
       version: _databaseVersion,
       onCreate: (sql.Database thisdb, int ver) async {
         await _onCreateDB(thisdb);
@@ -46,8 +44,93 @@ class dbHelper {
     );
   }
 
+  // Die Datenbank importieren
+  // -------------------------
+  static Future<bool> importiereDatenbank(String strDBName) async {
+    String strQuelle = globals.lokalDBPfad + strDBName;
+    String strZiel = await sql.getDatabasesPath() + "/" + globals.lokalDBNameOhnePfad;
+    try {
+      if ( await File(strQuelle).exists() == true ) {
+        Future<File> f = new File(strQuelle).copy(strZiel);
+        if (f != null) {
+          print("Datenbank importiert: " + strDBName);
+          return true;
+        }
+        else {
+          return false;
+        }
+      } else {
+        print("Die zu importierende Datei existiert nicht: " + strQuelle);
+        return false;
+      }
+    } on Error catch( _, e ){
+      print("Fehler beim Importieren der Datei: " + strZiel );
+      return false;
+    }
+  }
+
+  // die Datenbank exportieren
+  // -------------------------
+  static Future<bool> exportiereDatenbank() async {
+    String frompath = await sql.getDatabasesPath();
+    //String topath = await Directory(globals.lokalDBNameMitPfad).toString();
+    DateTime jetzt = DateTime.now();
+    String strJahr = jetzt.year.toString();
+    if (strJahr.length < 4) strJahr = '20' + strJahr;
+    String strMonat = jetzt.month.toString();
+    if (strMonat.length < 2) strMonat = '0' + strMonat;
+    String strTag = jetzt.day.toString();
+    if (strTag.length < 2) strTag = '0' + strTag;
+    String strStunde = jetzt.hour.toString();
+    if (strStunde.length < 2) strStunde = '0' + strStunde;
+    String strMinute = jetzt.minute.toString();
+    if (strMinute.length < 2) strMinute = '0' + strMinute;
+    String strSekunde = jetzt.second.toString();
+    if (strSekunde.length < 2) strSekunde = '0' + strSekunde;
+    String strMillisekunde = jetzt.millisecond.toString();
+    if (strMillisekunde.length < 2)
+      strMillisekunde = '00' + strMillisekunde;
+    else
+    if (strMillisekunde.length < 3) strMillisekunde = '0' + strMillisekunde;
+    String strZiel = globals.lokalDBPfad + strJahr + strMonat + strTag + "_" + strStunde +
+        strMinute + "_" + strSekunde + strMillisekunde + "_V" +
+        _databaseVersion.toString() + "_" + globals.lokalDBNameOhnePfad;
+    String strQuelle = frompath + "/" + globals.lokalDBNameOhnePfad;
+    try {
+      if ( Directory(globals.lokalDBPfad).exists() == true ) {
+        Future<File> f = new File(strQuelle).copy(strZiel);
+        if (f != null) {
+          print("Exportdatei geschrieben: " + strZiel);
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        print("Das Zielverzeichnis existiert nicht: " + globals.lokalDBPfad);
+        return false;
+      }
+    } on Error catch( _, e ){
+      print("Fehler beim schreiben der Exportdatei: " + strZiel );
+      return false;
+    }
+  }
+
   // Daten-Tabelle
   // -------------
+
+  // Anzahl Einträge
+  static Future<List<Map<String, dynamic>>> getEntryCount() async {
+    final db = await dbHelper.db();
+    String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
+    return db.rawQuery(SQL_Statement, []);
+  }
+
+  // letzter Eintrag
+  static Future<List<Map<String, dynamic>>> getLastEntry() async {
+    final db = await dbHelper.db();
+    String SQL_Statement = "SELECT Systole,Diastole,Puls,Gewicht,strftime('%d.%m.%Y %H:%M',Zeitpunkt) AS Zeitpkt FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)";
+    return db.rawQuery(SQL_Statement, []);
+  }
 
   // neuer Eintrag
   static Future<int> createDataItem(DateTime Zeitpunkt, int Systole, int Diastole, int? Puls, double? Gewicht, String? Bemerkung) async {
@@ -76,16 +159,53 @@ class dbHelper {
     return db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
   }
 
+  // letzter Eintrag
+  static Future<List<Map<String, dynamic>>> getDataDaysCount(int Tage) async {
+    final db = await dbHelper.db();
+    // feststellen, wann der letzte Eintrag erfasst wurde
+    String SQL_Statement = "SELECT Zeitpunkt FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)";
+    List<Map<String, Object?>>zpkt = await db.rawQuery(SQL_Statement, []);
+    String strZpkt = zpkt[0]['Zeitpunkt'].toString();
+
+    SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
+    SQL_Statement += " WHERE Zeitpunkt BETWEEN";
+    if ( Tage < 0 ) {
+      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+      SQL_Statement += " AND";
+      SQL_Statement += " Date('" + strZpkt + "')";
+    } else {
+      SQL_Statement += " Date('" + strZpkt + "')";
+      SQL_Statement += " AND";
+      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+    }
+    return db.rawQuery(SQL_Statement, []);
+  }
+
   // alle Einträge der letzten angegebenen Anzahl von Tagen
   static Future<List<Map<String, dynamic>>> getDataDays(int Tage) async {
     final db = await dbHelper.db();
-    String SQL_Statement = "SELECT AVG(Systole) AS SysAVG";
-    SQL_Statement += ", AVG(Diastole) AS DiaAVG";
-    SQL_Statement += ", AVG(Puls) AS PulsAVG";
-    SQL_Statement += " FROM tDaten";
-    SQL_Statement += " WHERE Zeitpunkt BETWEEN ? AND ?";
+    // feststellen, wann der letzte Eintrag erfasst wurde
+    String SQL_Statement = "SELECT Zeitpunkt FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)";
+    List<Map<String, Object?>>zpkt = await db.rawQuery(SQL_Statement, []);
+    String strZpkt = zpkt[0]['Zeitpunkt'].toString();
 
-    return db.rawQuery(SQL_Statement, ["Date('now')", "Date('now','-7 days')"]);
+    // jetzt diesen Zeitpunkt als Grundlage verwenden
+    SQL_Statement = "SELECT printf('%.2f',AVG(Systole)) AS SysAVG";
+    SQL_Statement += ", printf('%.2f',AVG(Diastole)) AS DiaAVG";
+    SQL_Statement += ", printf('%.2f',AVG(Puls)) AS PulsAVG";
+    SQL_Statement += " FROM tDaten";
+    SQL_Statement += " WHERE Zeitpunkt BETWEEN";
+    if ( Tage < 0 ) {
+      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+      SQL_Statement += " AND";
+      SQL_Statement += " Date('" + strZpkt + "')";
+    } else {
+      SQL_Statement += " Date('" + strZpkt + "')";
+      SQL_Statement += " AND";
+      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+    }
+    print(SQL_Statement);
+    return db.rawQuery(SQL_Statement, []);
   }
 
   // den Eintrag mit der angegebenen ID ändern
@@ -104,8 +224,7 @@ class dbHelper {
       DataInterface.colDiastole: Diastole,
       DataInterface.colPuls: Puls,
       DataInterface.colGewicht: Gewicht,
-      DataInterface.colBemerkung: Bemerkung,
-      'updatedAt': DateTime.now().toString()
+      DataInterface.colBemerkung: Bemerkung
     };
 
     final result =
@@ -169,8 +288,7 @@ class dbHelper {
       SettingsInterface.colTyp: Typ,
       SettingsInterface.colWertInt: Wert_INT,
       SettingsInterface.colWertFloat: Wert_FLOAT,
-      SettingsInterface.colWertText: Wert_TEXT,
-      'updatedAt': DateTime.now().toString()
+      SettingsInterface.colWertText: Wert_TEXT
     };
 
     final result =

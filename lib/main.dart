@@ -1,21 +1,39 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
+import 'package:sysdiapulsgew/pages/ImportExportPage/importexportpage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
 import 'dart:ui';
+import 'package:badges/badges.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+var _platform;
+
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _platform = Theme.of(context).platform;
     return MaterialApp(
       title: 'SysDiaPulsGew',
       theme: ThemeData(
@@ -24,6 +42,13 @@ class MyApp extends StatelessWidget {
       home: const MyHomePage(title: 'SysDiaPulsGew'),
       onGenerateRoute: (settings) {
         switch (settings.name) {
+          case '/importexportpage':
+            return PageTransition(
+              child: ImportExportPage(),
+              type: PageTransitionType.fade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
           case '/infopage':
             return PageTransition(
               child: InfoPage(),
@@ -57,19 +82,20 @@ class _MyHomePageState extends State<MyHomePage> {
   String strSysAVG = '---';
   String strDiaAVG = '---';
   String strPulsAVG = '---';
-  String strAnzahl = '---';
-  // List<Map<String, dynamic>> _datamap = [
-  //   { "SysAVG": -1, "DiaAVG": -1, "PulsAVG": -1 }
-  // ];
+  String strAnzDSe = '?';
 
   void _loadData() async {
-    final data = await dbHelper.getDataDays(7);
+    final d1 = await dbHelper.getEntryCount();
+    final data = await dbHelper.getDataDays(-7);
     setState(() {
+      strAnzDSe = d1[0]['Cnt'].toString();
       if ( data[0]['SysAVG'] != null && data[0]['DiaAVG'] != null && data[0]['PulsAVG'] != null ) {
-        strAnzahl = data.length.toString();
         strSysAVG = data[0]['SysAVG'].toString() + ' mmHg';
         strDiaAVG = data[0]['DiaAVG'].toString() + ' mmHg';
         strPulsAVG = data[0]['PulsAVG'].toString() + ' bps';
+        print(strSysAVG + ' / ' + strDiaAVG + ' / ' + strPulsAVG);
+      } else {
+        print("keine Daten als Mittelwerte");
       }
     });
   }
@@ -85,12 +111,57 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _getStoragePermission();
     _initPackageInfo();
     _loadData();
   }
 
   PackageInfo get getPackageInfo {
     return _packageInfo;
+  }
+
+  bool permissionGranted = false;
+  Future _getStoragePermission() async {
+    if (await Permission.storage.request().isGranted) {
+      setState(() {
+        permissionGranted = true;
+      });
+    } else if (await Permission.storage.request().isPermanentlyDenied) {
+      await openAppSettings();
+    } else if (await Permission.storage.request().isDenied) {
+      setState(() {
+        permissionGranted = false;
+      });
+    }
+    if ( permissionGranted == true ) {
+      try {
+        FileStat _stat = await Directory(globals.lokalDBDir).stat();
+        print("_stat: " + _stat.toString() );
+        if ( Directory(globals.lokalDBPfad).exists() == false ) {
+          print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
+        } else {
+          print("Verzeichnis " + globals.lokalDBPfad + " existiert bereits");
+        }
+      } on Error catch (_,e) {
+        print('Fehler beim Erzeugen des Verzeichnisses ' + globals.lokalDBPfad + ' - ' + e.toString());
+      }
+    }
+  }
+
+  Future<Directory?> getExternalStorageDirectory() async {
+    final String? path = await _platform.getExternalStoragePath();
+    if (path == null) {
+      return null;
+    } else {
+      globals.lokalDBDir = path;
+      globals.lokalDBPfad = path + "SysDiaPuls/";
+      globals.lokalDBNameMitPfad = globals.lokalDBPfad + globals.lokalDBNameOhnePfad;
+    }
+    print("getExternalStorageDirectory: " + path);
+    print("lokalDBDir: " + globals.lokalDBDir);
+    print("lokalDBPfad: " + globals.lokalDBPfad);
+    print("lokalDBNameMitPfad: " + globals.lokalDBNameMitPfad);
+    return Directory(path);
   }
 
   Future<void> _initPackageInfo() async {
@@ -208,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 )
                               ],
                             ),
-                            meineZeile( Beschreibung: 'berücksichtigte Einträge:', Wert: strAnzahl ),
+                            //meineZeile( Beschreibung: 'berücksichtigte Einträge:', Wert: strAnzDSe ),
                             meineZeile( Beschreibung: 'Systole:', Wert: strSysAVG ),
                             meineZeile( Beschreibung: 'Diastole:', Wert: strDiaAVG ),
                             meineZeile( Beschreibung: 'Puls:', Wert: strPulsAVG ),
@@ -234,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         bottomNavigationBar:
-        BottomNavigationBar(items: const <BottomNavigationBarItem>[
+        BottomNavigationBar(items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Start',
@@ -244,12 +315,20 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Statistik',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.table_rows),
+            icon: Badge(
+              child: Icon(Icons.table_rows),
+              badgeColor: Colors.blue,
+              position: BadgePosition.topEnd(),
+              shape: BadgeShape.square,
+              borderRadius: BorderRadius.circular(8),
+              padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+              badgeContent: Text(strAnzDSe,style: TextStyle(color: Colors.white),textScaleFactor: 0.8,),
+            ),
             label: 'Einträge',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue[800],
+        selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
         ),
       ),
@@ -257,7 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class myMenuWidget extends StatelessWidget {
+class myMenuWidget extends StatefulWidget {
   final PackageInfo ThePackageInfo;
 
   myMenuWidget({
@@ -286,7 +365,15 @@ class myMenuWidget extends StatelessWidget {
         x = "unbekannter Aufruf!";
         break;
     }
-    if (Index == 5 ) {
+    if (Index == 4 ) {
+      Navigator.push(
+        context,
+        PageTransition(
+          child: ImportExportPage(),
+          alignment: Alignment.topCenter,
+          type: PageTransitionType.leftToRightWithFade,),
+      );
+    } else if (Index == 5 ) {
       Navigator.push(
         context,
         PageTransition(
@@ -313,6 +400,23 @@ class myMenuWidget extends StatelessWidget {
   }
 
   @override
+  State<myMenuWidget> createState() => _myMenuWidgetState();
+}
+
+class _myMenuWidgetState extends State<myMenuWidget> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _setState() async {
+    setState(() {
+      _MyHomePageState();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -327,11 +431,11 @@ class myMenuWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  this.ThePackageInfo.appName,
+                  this.widget.ThePackageInfo.appName,
                   textScaleFactor: 2.0,
                 ),
                 Text(
-                  'Version: ' + this.ThePackageInfo.version,
+                  'Version: ' + this.widget.ThePackageInfo.version,
                   textScaleFactor: 1.3,
                   style: TextStyle(
                     color: Colors.grey[500],
@@ -348,7 +452,7 @@ class myMenuWidget extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              TapRoutine(context, 1,);
+              myMenuWidget.TapRoutine(context, 1,);
             },
           ),
           ListTile(
@@ -359,7 +463,7 @@ class myMenuWidget extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              TapRoutine(context, 2);
+              myMenuWidget.TapRoutine(context, 2);
             },
           ),
           ListTile(
@@ -370,7 +474,7 @@ class myMenuWidget extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              TapRoutine(context, 3);
+              myMenuWidget.TapRoutine(context, 3);
             },
           ),
           ListTile(
@@ -380,8 +484,8 @@ class myMenuWidget extends StatelessWidget {
               textScaleFactor: 1.5,
             ),
             onTap: () {
-              Navigator.pop(context);
-              TapRoutine(context, 4);
+              Navigator.pop(context);     // nimmt das Menü wieder weg
+              myMenuWidget.TapRoutine(context, 4);
             },
           ),
           ListTile(
@@ -392,7 +496,7 @@ class myMenuWidget extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              TapRoutine(context, 5);
+              myMenuWidget.TapRoutine(context, 5);
             },
           ),
         ],
@@ -438,10 +542,10 @@ class meineZeile extends StatelessWidget {
 
 void _launchURL() async {
   const _url =
-      'https://pixabay.com/de/photos/stethoskop-arzt-medizin-medizinisch-1584222/';
+      'https://pixabay.com/vectors/stethoscope-icon-medical-medicine-3725131/';
   if (await canLaunch(_url)) {
     await launch(_url);
   } else {
-    throw 'Fehler beim Aufruf von $_url';
+    throw 'Fehler beim Aufruf von ' + _url;
   }
 }
