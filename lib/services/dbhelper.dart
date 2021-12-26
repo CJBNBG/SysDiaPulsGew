@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:sysdiapulsgew/services/DataInterface.dart';
 import 'package:sysdiapulsgew/services/SettingsInterface.dart';
 import 'package:sqflite/sqflite.dart' as sql;
@@ -32,6 +31,10 @@ class dbHelper {
         ${SettingsInterface.colWertText} TEXT NULL
       )
       ''');
+    final data = {SettingsInterface.colBezeichnung: 'AnzTabEintraege',
+      SettingsInterface.colTyp: 'INT',
+      SettingsInterface.colWertInt: 50};
+    await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
   static Future<sql.Database> db() async {
@@ -133,7 +136,7 @@ class dbHelper {
   }
 
   // neuer Eintrag
-  static Future<int> createDataItem(DateTime Zeitpunkt, int Systole, int Diastole, int? Puls, double? Gewicht, String? Bemerkung) async {
+  static Future<int> createDataItem(String Zeitpunkt, int Systole, int Diastole, int? Puls, double? Gewicht, String? Bemerkung) async {
     final db = await dbHelper.db();
 
     final data = {DataInterface.colZeitpunkt: Zeitpunkt,
@@ -142,15 +145,17 @@ class dbHelper {
                   DataInterface.colPuls: Puls,
                   DataInterface.colGewicht: Gewicht,
                   DataInterface.colBemerkung: Bemerkung};
-    final id = await db.insert(DataInterface.tblData, data,
-        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    print("neuer Eintrag - data: $data");
+    final id = await db.insert(DataInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    print("neuer Eintrag - id: $id");
     return id;
   }
 
   // alle Einträge nach Zeitpunkt sortiert
-  static Future<List<Map<String, dynamic>>> getDataItems() async {
+  static Future<List<Map<String, dynamic>>> getDataItems(int Lmt) async {
     final db = await dbHelper.db();
-    return db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt);
+    if ( Lmt > 0 ) return db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt, limit: Lmt);
+    else return db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt);
   }
 
   // der Eintrag mit der angegebenen ID
@@ -162,21 +167,17 @@ class dbHelper {
   // letzter Eintrag
   static Future<List<Map<String, dynamic>>> getDataDaysCount(int Tage) async {
     final db = await dbHelper.db();
-    // feststellen, wann der letzte Eintrag erfasst wurde
-    String SQL_Statement = "SELECT Zeitpunkt FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)";
-    List<Map<String, Object?>>zpkt = await db.rawQuery(SQL_Statement, []);
-    String strZpkt = zpkt[0]['Zeitpunkt'].toString();
 
-    SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
+    String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
     SQL_Statement += " WHERE Zeitpunkt BETWEEN";
     if ( Tage < 0 ) {
-      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
       SQL_Statement += " AND";
-      SQL_Statement += " Date('" + strZpkt + "')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt) FROM tDaten)";
     } else {
-      SQL_Statement += " Date('" + strZpkt + "')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt) FROM tDaten)";
       SQL_Statement += " AND";
-      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
     }
     return db.rawQuery(SQL_Statement, []);
   }
@@ -184,28 +185,23 @@ class dbHelper {
   // alle Einträge der letzten angegebenen Anzahl von Tagen
   static Future<List<Map<String, dynamic>>> getDataDays(int Tage) async {
     final db = await dbHelper.db();
-    // feststellen, wann der letzte Eintrag erfasst wurde
-    String SQL_Statement = "SELECT Zeitpunkt FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)";
-    List<Map<String, Object?>>zpkt = await db.rawQuery(SQL_Statement, []);
-    String strZpkt = zpkt[0]['Zeitpunkt'].toString();
 
-    // jetzt diesen Zeitpunkt als Grundlage verwenden
-    SQL_Statement = "SELECT printf('%.2f',AVG(Systole)) AS SysAVG";
+    String SQL_Statement = "SELECT printf('%.2f',AVG(Systole)) AS SysAVG";
     SQL_Statement += ", printf('%.2f',AVG(Diastole)) AS DiaAVG";
     SQL_Statement += ", printf('%.2f',AVG(Puls)) AS PulsAVG";
     SQL_Statement += " FROM tDaten";
     SQL_Statement += " WHERE Zeitpunkt BETWEEN";
     if ( Tage < 0 ) {
-      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
       SQL_Statement += " AND";
-      SQL_Statement += " Date('" + strZpkt + "')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt) FROM tDaten)";
     } else {
-      SQL_Statement += " Date('" + strZpkt + "')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt) FROM tDaten)";
       SQL_Statement += " AND";
-      SQL_Statement += " Date('" + strZpkt + "','" + Tage.toString() + " days')";
+      SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
     }
     print(SQL_Statement);
-    return db.rawQuery(SQL_Statement, []);
+    return db.rawQuery(SQL_Statement);
   }
 
   // den Eintrag mit der angegebenen ID ändern
@@ -303,6 +299,24 @@ class dbHelper {
       await db.delete(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
     } catch (err) {
       debugPrint("Irgendetwas ging schief beim Löschen des Einstellungs-Eintrags: $err");
+    }
+  }
+
+  // den Eintrag mit der Anzahl der Einträge in der Tabelle ermitteln
+  static Future<int> getTabEntryCount() async {
+    int Result = -1;
+    List<Map<String, dynamic>> theList = [];
+    final db = await dbHelper.db();
+
+    try {
+      theList = await db.rawQuery("SELECT Wert_INT AS cnt FROM tSettings WHERE Bezeichnung LIKE 'AnzTabEintraege' AND Typ='INT'");
+    } catch (err) {
+      print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
+    }
+    if ( theList.length > 0 ) {
+      return theList[0]['cnt'];
+    } else {
+      return -1;
     }
   }
 }

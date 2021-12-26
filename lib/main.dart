@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,6 +7,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
 import 'package:sysdiapulsgew/pages/ImportExportPage/importexportpage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
+import 'package:sysdiapulsgew/pages/EntriesTablePage/entriestablepage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
 import 'dart:ui';
@@ -34,6 +36,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     _platform = Theme.of(context).platform;
+    globals.BgColorNeutral = Theme.of(context).scaffoldBackgroundColor;
     return MaterialApp(
       title: 'SysDiaPulsGew',
       theme: ThemeData(
@@ -42,6 +45,17 @@ class _MyAppState extends State<MyApp> {
       home: const MyHomePage(title: 'SysDiaPulsGew'),
       onGenerateRoute: (settings) {
         switch (settings.name) {
+          case '/entriestablepage':
+            // return PageTransition(
+            //   child: EntriesTablePage(),
+            //   type: PageTransitionType.fade,
+            //   settings: settings,
+            //   reverseDuration: const Duration(seconds: 3),
+            // );
+            return new MaterialPageRoute(
+              builder: (_) => EntriesTablePage(),
+              maintainState: false,
+            );
           case '/importexportpage':
             return PageTransition(
               child: ImportExportPage(),
@@ -50,19 +64,22 @@ class _MyAppState extends State<MyApp> {
               reverseDuration: const Duration(seconds: 3),
             );
           case '/infopage':
-            return PageTransition(
-              child: InfoPage(),
-              type: PageTransitionType.fade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
+            return new MaterialPageRoute(
+              builder: (_) => InfoPage(),
+              maintainState: false,
             );
+            // return PageTransition(
+            //   child: InfoPage(),
+            //   type: PageTransitionType.fade,
+            //   settings: settings,
+            //   reverseDuration: const Duration(seconds: 3),
+            // );
             //break;
           default:
             return null;
         }
       },
     );
-
   }
 }
 
@@ -84,16 +101,21 @@ class _MyHomePageState extends State<MyHomePage> {
   String strPulsAVG = '---';
   String strAnzDSe = '?';
 
-  void _loadData() async {
+  void _loadAVGData() async {
     final d1 = await dbHelper.getEntryCount();
     final data = await dbHelper.getDataDays(-7);
-    setState(() {
-      strAnzDSe = d1[0]['Cnt'].toString();
+    if ( mounted ) setState(() {
+      print("d1=" + d1.toString());
+      if (d1[0]['Cnt'] != null) {
+        strAnzDSe = d1[0]['Cnt'].toString();
+      } else {
+        strAnzDSe = "0";
+      }
       if ( data[0]['SysAVG'] != null && data[0]['DiaAVG'] != null && data[0]['PulsAVG'] != null ) {
-        strSysAVG = data[0]['SysAVG'].toString() + ' mmHg';
-        strDiaAVG = data[0]['DiaAVG'].toString() + ' mmHg';
-        strPulsAVG = data[0]['PulsAVG'].toString() + ' bps';
-        print(strSysAVG + ' / ' + strDiaAVG + ' / ' + strPulsAVG);
+        strSysAVG = data[0]['SysAVG'].toString();
+        strDiaAVG = data[0]['DiaAVG'].toString();
+        strPulsAVG = data[0]['PulsAVG'].toString();
+        print(data);
       } else {
         print("keine Daten als Mittelwerte");
       }
@@ -108,12 +130,18 @@ class _MyHomePageState extends State<MyHomePage> {
     buildSignature: '?',
   );
 
+  void loadAllData() async {
+    _getStoragePermission();
+    _initPackageInfo();
+    _loadAVGData();
+  }
+
   @override
   void initState() {
     super.initState();
-    _getStoragePermission();
-    _initPackageInfo();
-    _loadData();
+    loadAllData();
+    // mit dem Timer wird regelmäßig dafür gesorgt, dass die Mittelwerte aktuell angezeigt werden
+    Timer myTimer = new Timer.periodic(Duration(seconds: 1), (Timer t) => setState((){_loadAVGData();}));
   }
 
   PackageInfo get getPackageInfo {
@@ -123,24 +151,24 @@ class _MyHomePageState extends State<MyHomePage> {
   bool permissionGranted = false;
   Future _getStoragePermission() async {
     if (await Permission.storage.request().isGranted) {
-      setState(() {
+      if ( mounted ) setState(() {
         permissionGranted = true;
       });
     } else if (await Permission.storage.request().isPermanentlyDenied) {
       await openAppSettings();
     } else if (await Permission.storage.request().isDenied) {
-      setState(() {
+      if ( mounted ) setState(() {
         permissionGranted = false;
       });
     }
     if ( permissionGranted == true ) {
       try {
         FileStat _stat = await Directory(globals.lokalDBDir).stat();
-        print("_stat: " + _stat.toString() );
+        //print("_stat: " + _stat.toString() );
         if ( Directory(globals.lokalDBPfad).exists() == false ) {
           print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
         } else {
-          print("Verzeichnis " + globals.lokalDBPfad + " existiert bereits");
+          print("Verzeichnis " + globals.lokalDBPfad + " existiert");
         }
       } on Error catch (_,e) {
         print('Fehler beim Erzeugen des Verzeichnisses ' + globals.lokalDBPfad + ' - ' + e.toString());
@@ -166,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _initPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
-    setState(() {
+    if ( mounted ) setState(() {
       _packageInfo = info;
       globals.gPackageInfo = info;
       globals.screenwidth = window.physicalSize.width.toInt();
@@ -175,14 +203,38 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
+    if ( mounted ) setState(() {
       _selectedIndex = index;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('noch zu programmieren...'),
-              backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
-          )
-      );
+      switch (index) {
+        case 0:                     // Start oder Home
+          print("index: 0");
+          break;
+        case 1:                     // Statistik
+          print("index: 1");
+          break;
+        case 2:                     // Einträge
+          //Navigator.pop(context);
+          Navigator.push(
+            context,
+            PageTransition(
+              child: EntriesTablePage(),
+              alignment: Alignment.topCenter,
+              type: PageTransitionType.leftToRightWithFade,),
+          );
+          print("index: 2");
+          break;
+        default:
+          print("index: " + index.toString());
+          break;
+      }
+      if ( index != 2 ) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('noch zu programmieren...'),
+                backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
+            )
+        );
+      }
     });
   }
 
@@ -280,13 +332,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             ),
                             //meineZeile( Beschreibung: 'berücksichtigte Einträge:', Wert: strAnzDSe ),
-                            meineZeile( Beschreibung: 'Systole:', Wert: strSysAVG ),
-                            meineZeile( Beschreibung: 'Diastole:', Wert: strDiaAVG ),
-                            meineZeile( Beschreibung: 'Puls:', Wert: strPulsAVG ),
+                            meineZeile( Beschreibung: 'Systole (mmHg):', Wert: strSysAVG ),
+                            meineZeile( Beschreibung: 'Diastole (mmHg):', Wert: strDiaAVG ),
+                            meineZeile( Beschreibung: 'Puls (bps):', Wert: strPulsAVG ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                               child: Text(
-                                'Bei diesen Werten handelt es sich um Mittelwerte der letzten 7 Tage.',
+                                'Bei diesen Werten handelt es sich um Mittelwerte der letzten 7 erfassten Tage.',
                                 textScaleFactor: 0.8,
                                 textAlign: TextAlign.justify,
                                 style: TextStyle(
@@ -322,7 +374,7 @@ class _MyHomePageState extends State<MyHomePage> {
               shape: BadgeShape.square,
               borderRadius: BorderRadius.circular(8),
               padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
-              badgeContent: Text(strAnzDSe,style: TextStyle(color: Colors.white),textScaleFactor: 0.8,),
+              badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),
             ),
             label: 'Einträge',
           ),
@@ -365,7 +417,15 @@ class myMenuWidget extends StatefulWidget {
         x = "unbekannter Aufruf!";
         break;
     }
-    if (Index == 4 ) {
+    if (Index == 1 ) {
+      Navigator.push(
+        context,
+        PageTransition(
+          child: EntriesTablePage(),
+          alignment: Alignment.topCenter,
+          type: PageTransitionType.leftToRightWithFade,),
+      );
+    } else if (Index == 4 ) {
       Navigator.push(
         context,
         PageTransition(
@@ -411,7 +471,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
   }
 
   void _setState() async {
-    setState(() {
+    if ( mounted ) setState(() {
       _MyHomePageState();
     });
   }
@@ -484,8 +544,17 @@ class _myMenuWidgetState extends State<myMenuWidget> {
               textScaleFactor: 1.5,
             ),
             onTap: () {
-              Navigator.pop(context);     // nimmt das Menü wieder weg
-              myMenuWidget.TapRoutine(context, 4);
+              Navigator.pop(context); // nimmt das Menü wieder weg
+              //myMenuWidget.TapRoutine(context, 4);
+              Navigator.of(context)
+                .push(MaterialPageRoute(
+                  builder: (context) => ImportExportPage(),
+                ))
+                .then((value) =>
+                {
+                  if ( mounted ) setState(() { _setState(); } )
+                }
+              );
             },
           ),
           ListTile(

@@ -62,7 +62,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
     } on Error catch( _, e ) {
       print("keine Dateien gefunden");
     }
-    setState(() {
+    if ( mounted ) setState(() {
       _isLoading = false;
     });
   }
@@ -81,7 +81,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
   void _exportiereDatenbank() async {
     bool ret = await dbHelper.exportiereDatenbank();
     if ( ret == true ){
-      setState(() {
+      if ( mounted ) setState(() {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Datenbank erfolgreich exportiert.'),
@@ -110,7 +110,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
     } else if ( i1 == 1 ) { // Datenbank löschen
       String _strAusgabe = i1 == 0 ? 'Datenbank laden' : 'Datenbank löschen';
       _strAusgabe += ': ' + dateiNamen[i2];
-      setState(() {
+      if ( mounted ) setState(() {
         // ...
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -152,7 +152,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
                         context: context,
                         builder: (BuildContext context) =>
                         AlertDialog(
-                          title: const Text("ACHTUNG: kann nicht rückgängig gemacht werden!"),
+                          title: const Text("ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!"),
                           content: Text("Soll der aktuelle Datenbestand durch den importierten Datenbestand ersetzt werden?"),
                           actions: <Widget>[
                             TextButton(
