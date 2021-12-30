@@ -340,15 +340,15 @@ class myListRowWidget extends StatelessWidget {
             border: Border(
               top: BorderSide(
                   width: 0.0,
-                  color: this.Farbe1
+                  color: globals.BgColorNeutral
               ),
               left: BorderSide(
                   width: 0.0,
-                  color: this.Farbe1
+                  color: globals.BgColorNeutral
               ),
               right: BorderSide(
                   width: 0.0,
-                  color: this.Farbe1
+                  color: globals.BgColorNeutral
               ),
               bottom: BorderSide(
                 width: 3.0,
