@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import '../../my-globals.dart' as globals;
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ImportExportPage extends StatefulWidget {
   const ImportExportPage({Key? key}) : super(key: key);
@@ -95,13 +97,23 @@ class _ImportExportPageState extends State<ImportExportPage> {
 
   void _doImport(String strDBName) async {
     bool ret = await dbHelper.importiereDatenbank(strDBName);
-    Navigator.pop(context, 'OK');
-    ScaffoldMessenger.of(context).showSnackBar(
+    if ( ret == true ) {
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(strDBName + " erfolgreich importiert."),
-            backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
+          content: Text("erfolgreich importiert"),
+          backgroundColor: Colors.green
         )
-    );
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("NICHT erfolgreich importiert!!!"),
+          backgroundColor: Colors.red
+        )
+      );
+    }
+    Navigator.pop(context, 'OK');
+    globals.updAVG_needed = true;
   }
 
   void _onItemTapped(int i1, int i2) {
@@ -113,13 +125,70 @@ class _ImportExportPageState extends State<ImportExportPage> {
       if ( mounted ) setState(() {
         // ...
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(_strAusgabe),
-                backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
-            )
+          SnackBar(
+            content: Text(_strAusgabe),
+            backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
+          )
         );
       });
     }
+  }
+
+  _doLoeschen(int ndx) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("löschen - index: $ndx"),
+        backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
+      )
+    );
+  }
+
+  doImportieren(BuildContext context, int index) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) =>
+      AlertDialog(
+        elevation: 5.0,
+        backgroundColor: Color.fromRGBO(255, 235, 235, 1),
+        title: Container(
+          color: Color.fromRGBO(255, 219, 219, 1),
+          child: Row(
+            children:[
+              Icon(Icons.priority_high, color: Colors.red,),
+              Container(
+                child: Center(
+                  child: const Text(
+                    "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red, ),
+                  ),
+                ),
+              ),
+              Icon(Icons.priority_high, color: Colors.red,),
+            ]
+          ),
+        ),
+        content: Text(
+          "Soll der aktuelle Datenbestand durch den importierten Datenbestand ersetzt werden?",
+          textAlign: TextAlign.center,
+          softWrap: true,),
+        actions: <Widget>[
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, 'Nein'),
+            child: const Text('Nein')
+          ),
+          ElevatedButton(
+            onPressed: () => _doImport(dateiNamenVoll[index]),
+            child: const Text('Ja'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void doNothing(BuildContext context) {
+
   }
 
   @override
@@ -133,50 +202,60 @@ class _ImportExportPageState extends State<ImportExportPage> {
           ? const Center(
             child: CircularProgressIndicator(),
             )
-          : ListView.builder(
-            itemCount: dateiNamen.length,
-            itemBuilder: (context, index) => ListTile(
-              title: Text(dateiNamen[index]),
-              subtitle: Text(dateiDaten[index]),
-              leading: SizedBox(
-                width: 50,
-                child: const Icon(MdiIcons.database)     // heartHalfFull
-              ),
-              trailing: SizedBox(
-                width: 100,
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () =>
-                        showDialog<String>(
-                        context: context,
-                        builder: (BuildContext context) =>
-                        AlertDialog(
-                          title: const Text("ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!"),
-                          content: Text("Soll der aktuelle Datenbestand durch den importierten Datenbestand ersetzt werden?"),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, 'Nein'),
-                              child: const Text('Nein')
-                            ),
-                            TextButton(
-                              onPressed: () => _doImport(dateiNamenVoll[index]),
-                              child: const Text('Ja'),
-                            ),
-                          ],
+          : Center(
+            child: Container(
+              width: 350.0,
+              child: Card(
+                elevation: 5.0,
+                child: ListView.builder(
+                  itemCount: dateiNamen.length,
+                  itemBuilder: (context, index) => Slidable(
+                    startActionPane: ActionPane(
+                      // A motion is a widget used to control how the pane animates.
+                      motion: const ScrollMotion(),
+                      // All actions are defined in the children parameter.
+                      children: [
+                        // A SlidableAction can have an icon and/or a label.
+                        SlidableAction(
+                          onPressed: (context) => {
+                            doImportieren(context, index)
+                          },
+                          backgroundColor: Color(0xFF21B7CA),
+                          foregroundColor: globals.BgColorNeutral,
+                          icon: MdiIcons.arrowDown,
+                          label: 'importieren',
+                          flex: 2,
                         ),
+                      ],
+                    ),
+                    endActionPane: ActionPane(
+                      // A motion is a widget used to control how the pane animates.
+                      motion: const ScrollMotion(),
+                      // All actions are defined in the children parameter.
+                      children: [
+                        SlidableAction(
+                          onPressed: doNothing,
+                          backgroundColor: Color(0xFFFE4A49),
+                          foregroundColor: globals.BgColorNeutral,
+                          icon: Icons.delete,
+                          label: 'löschen',
+                          flex: 4,
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      title: Text(dateiNamen[index]),
+                      subtitle: Text(dateiDaten[index]),
+                      leading: SizedBox(
+                        width: 50,
+                        child: const Icon(MdiIcons.database)     // heartHalfFull
                       ),
-                      icon: const Icon(Icons.arrow_downward_outlined)
                     ),
-                    IconButton(
-                        onPressed: () => _onItemTapped(1, index),
-                        icon: const Icon(Icons.delete)
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            )
-        ),
+            ),
+          ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             if ( _dirExists ) {
