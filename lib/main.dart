@@ -141,7 +141,12 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     loadAllData();
     // mit dem Timer wird regelmäßig dafür gesorgt, dass die Mittelwerte aktuell angezeigt werden
-    Timer myTimer = new Timer.periodic(Duration(seconds: 1), (Timer t) => setState((){_loadAVGData();}));
+    Timer myTimer = new Timer.periodic(Duration(seconds: 1), (Timer t) => setState((){
+      if ( globals.updAVG_needed == true ) {
+        _loadAVGData();
+        globals.updAVG_needed = false;
+      }
+    }));
   }
 
   PackageInfo get getPackageInfo {
