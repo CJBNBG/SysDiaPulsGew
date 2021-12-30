@@ -11,9 +11,10 @@ String lokalDBDir = "/sdcard/";
 String lokalDBPfad = lokalDBDir + "SysDiaPuls/";
 String lokalDBNameOhnePfad = "SysDiaPuls.db";
 String lokalDBNameMitPfad = lokalDBPfad + lokalDBNameOhnePfad;
+bool updAVG_needed = true;
 
 // Farbdefinitionen
-Color BgColorNeutral = Colors.white;
+Color BgColorNeutral = Colors.white;        // wird in der build-Methode der Klasse _MyAppState gesetzt
 
 Color SysDia_optimal = Color.fromRGBO(0, 114, 67, 1);          // 007243
 Color SysDia_normal = Color.fromRGBO(0, 255, 0, 1);            // 00ff00
