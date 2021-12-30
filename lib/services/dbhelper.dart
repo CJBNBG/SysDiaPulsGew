@@ -31,10 +31,8 @@ class dbHelper {
         ${SettingsInterface.colWertText} TEXT NULL
       )
       ''');
-    final data = {SettingsInterface.colBezeichnung: 'AnzTabEintraege',
-      SettingsInterface.colTyp: 'INT',
-      SettingsInterface.colWertInt: 50};
-    await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+
+    await istDB_OK();
   }
 
   static Future<sql.Database> db() async {
@@ -45,6 +43,24 @@ class dbHelper {
         await _onCreateDB(thisdb);
       },
     );
+  }
+
+  // prüft, ob die benötigten Einstellungen in der Tabelle tSettings vorhanden sind
+  static Future<bool> istDB_OK() async {
+    bool retVal = false;
+    final db = await dbHelper.db();
+
+    if ( getTabEntryCount() == -1 ) {
+      final data = {
+        SettingsInterface.colBezeichnung: 'AnzTabEintraege',
+        SettingsInterface.colTyp: 'INT',
+        SettingsInterface.colWertInt: 50
+      };
+      final int id = await db.insert(SettingsInterface.tblData, data,
+          conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    }
+
+    return retVal;
   }
 
   // Die Datenbank importieren
