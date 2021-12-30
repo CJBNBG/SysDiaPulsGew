@@ -21,6 +21,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
   List<Map<String, dynamic>>_alleEintraege = [];
 
   void _editItem(int ndx, int id) async {
+    globals.updAVG_needed = true;
     print("editiere (index: $ndx - ID: $id)");
   }
 
@@ -28,6 +29,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
     try {
       _LimitFromSettings = await dbHelper.getTabEntryCount();
       _alleEintraege = await dbHelper.getDataItems(_Limit);
+      if ( _LimitFromSettings > _alleEintraege.length ) _LimitFromSettings = _alleEintraege.length;
       print(_alleEintraege);
       //_alleEintraege.forEach((element) {print(element.toString());});
     } on Error catch( _, e ) {
