@@ -98,6 +98,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
   void _doImport(String strDBName) async {
     bool ret = await dbHelper.importiereDatenbank(strDBName);
     if ( ret == true ) {
+      globals.updAVG_needed = true;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("erfolgreich importiert"),
@@ -113,7 +114,6 @@ class _ImportExportPageState extends State<ImportExportPage> {
       );
     }
     Navigator.pop(context, 'OK');
-    globals.updAVG_needed = true;
   }
 
   void _onItemTapped(int i1, int i2) {
