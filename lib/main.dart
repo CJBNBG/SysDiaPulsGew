@@ -12,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
 import 'dart:ui';
 import 'package:badges/badges.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,15 +44,15 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.lightBlue,
       ),
       home: const MyHomePage(title: 'SysDiaPulsGew'),
+      localizationsDelegates: [
+        GlobalWidgetsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('de', 'DE')], //, Locale('pt', 'BR')],
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/entriestablepage':
-            // return PageTransition(
-            //   child: EntriesTablePage(),
-            //   type: PageTransitionType.fade,
-            //   settings: settings,
-            //   reverseDuration: const Duration(seconds: 3),
-            // );
             return new MaterialPageRoute(
               builder: (_) => EntriesTablePage(),
               maintainState: false,
@@ -68,13 +69,6 @@ class _MyAppState extends State<MyApp> {
               builder: (_) => InfoPage(),
               maintainState: false,
             );
-            // return PageTransition(
-            //   child: InfoPage(),
-            //   type: PageTransitionType.fade,
-            //   settings: settings,
-            //   reverseDuration: const Duration(seconds: 3),
-            // );
-            //break;
           default:
             return null;
         }
@@ -100,8 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
   String strDiaAVG = '---';
   String strPulsAVG = '---';
   String strAnzDSe = '?';
+  Timer? myTimer;
 
-  void _loadAVGData() async {
+  Future<void> _loadAVGData() async {
     final d1 = await dbHelper.getEntryCount();
     final data = await dbHelper.getDataDays(-7);
     if ( mounted ) setState(() {
@@ -130,23 +125,38 @@ class _MyHomePageState extends State<MyHomePage> {
     buildSignature: '?',
   );
 
-  void loadAllData() async {
-    _getStoragePermission();
-    _initPackageInfo();
-    _loadAVGData();
+  Future<void> loadAllData() async {
+    if ( await dbHelper.istDB_OK() ) {
+      await _getStoragePermission();
+      await _initPackageInfo();
+      await _loadAVGData();
+    }
   }
 
+  Future<void> myTimerTick() async {
+    if ( globals.updAVG_needed == true ) {
+      print('myTimerTick Anfang: ' + DateTime.now().toString());
+      await _loadAVGData();
+      setState(() {
+        globals.updAVG_needed = false;
+      });
+      print('myTimerTick Ende: ' + DateTime.now().toString());
+    }
+  }
   @override
   void initState() {
     super.initState();
     loadAllData();
     // mit dem Timer wird regelmäßig dafür gesorgt, dass die Mittelwerte aktuell angezeigt werden
-    Timer myTimer = new Timer.periodic(Duration(seconds: 1), (Timer t) => setState((){
-      if ( globals.updAVG_needed == true ) {
-        _loadAVGData();
-        globals.updAVG_needed = false;
-      }
-    }));
+    myTimer = new Timer.periodic(Duration(seconds: 1), (Timer t) async {
+      await myTimerTick();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    myTimer!.cancel();
   }
 
   PackageInfo get getPackageInfo {
@@ -168,8 +178,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if ( permissionGranted == true ) {
       try {
-        FileStat _stat = await Directory(globals.lokalDBDir).stat();
-        //print("_stat: " + _stat.toString() );
         if ( Directory(globals.lokalDBPfad).exists() == false ) {
           print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
         } else {
@@ -477,7 +485,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
 
   void _setState() async {
     if ( mounted ) setState(() {
-      _MyHomePageState();
+      // _MyHomePageState();
     });
   }
 
