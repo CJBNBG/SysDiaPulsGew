@@ -31,34 +31,43 @@ class dbHelper {
         ${SettingsInterface.colWertText} TEXT NULL
       )
       ''');
-
-    await istDB_OK();
+    print( DateTime.now().toString() + " - Datenbank _onCreateDB");
   }
 
   static Future<sql.Database> db() async {
-    return sql.openDatabase(
+    sql.Database myDB = await sql.openDatabase(
       globals.lokalDBNameOhnePfad,
       version: _databaseVersion,
+      onOpen: (sql.Database thisdb) async {
+        print( DateTime.now().toString() + " - Datenbank geöffnet");
+      },
       onCreate: (sql.Database thisdb, int ver) async {
         await _onCreateDB(thisdb);
       },
     );
+    return myDB;
   }
 
   // prüft, ob die benötigten Einstellungen in der Tabelle tSettings vorhanden sind
   static Future<bool> istDB_OK() async {
     bool retVal = false;
-    final db = await dbHelper.db();
 
-    if ( getTabEntryCount() == -1 ) {
+    int anz = await getTabEntryCount();
+    final db = await dbHelper.db();
+    if ( anz == -1 ) {
       final data = {
         SettingsInterface.colBezeichnung: 'AnzTabEintraege',
         SettingsInterface.colTyp: 'INT',
         SettingsInterface.colWertInt: 50
       };
-      final int id = await db.insert(SettingsInterface.tblData, data,
-          conflictAlgorithm: sql.ConflictAlgorithm.replace);
+      final int id = await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+      print(DateTime.now().toString() + " - AnzTabEintraege erzeugt $id");
+    } else {
+      print(DateTime.now().toString() + " - AnzTabEintraege=$anz");
     }
+    await db.close();
+    print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
+    retVal = true;
 
     return retVal;
   }
@@ -66,24 +75,31 @@ class dbHelper {
   // Die Datenbank importieren
   // -------------------------
   static Future<bool> importiereDatenbank(String strDBName) async {
+    print( DateTime.now().toString() + " - importiere Datenbank aufgerufen");
     String strQuelle = globals.lokalDBPfad + strDBName;
     String strZiel = await sql.getDatabasesPath() + "/" + globals.lokalDBNameOhnePfad;
     try {
+      final db = await dbHelper.db();
+      if ( db.isOpen ) {
+        await db.close();
+        print( DateTime.now().toString() + " - importiereDatenbank(): Datenbank geschlossen");
+      }
       if ( await File(strQuelle).exists() == true ) {
         Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
-          print("Datenbank importiert: " + strDBName);
+          print( DateTime.now().toString() + " - Datenbank importiert: " + strDBName);
           return true;
         }
         else {
+          print( DateTime.now().toString() + " - Datenbank NICHT importiert: " + strDBName);
           return false;
         }
       } else {
-        print("Die zu importierende Datei existiert nicht: " + strQuelle);
+        print( DateTime.now().toString() + " - Die zu importierende Datei existiert nicht: " + strQuelle);
         return false;
       }
     } on Error catch( _, e ){
-      print("Fehler beim Importieren der Datei: " + strZiel );
+      print( DateTime.now().toString() + " - Fehler beim Importieren der Datei: " + strZiel + ": $e");
       return false;
     }
   }
@@ -91,6 +107,7 @@ class dbHelper {
   // die Datenbank exportieren
   // -------------------------
   static Future<bool> exportiereDatenbank() async {
+    print( DateTime.now().toString() + " - exportiere Datenbank aufgerufen");
     String frompath = await sql.getDatabasesPath();
     //String topath = await Directory(globals.lokalDBNameMitPfad).toString();
     DateTime jetzt = DateTime.now();
@@ -116,20 +133,26 @@ class dbHelper {
         _databaseVersion.toString() + "_" + globals.lokalDBNameOhnePfad;
     String strQuelle = frompath + "/" + globals.lokalDBNameOhnePfad;
     try {
+      final db = await dbHelper.db();
+      if ( db.isOpen ) {
+        await db.close();
+        print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
+      }
       if ( Directory(globals.lokalDBPfad).exists() == true ) {
         Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
-          print("Exportdatei geschrieben: " + strZiel);
+          print( DateTime.now().toString() + " - Datenbank exportiert: " + strZiel);
           return true;
         } else {
+          print( DateTime.now().toString() + " - Datenbank NICHT exportiert: " + strZiel);
           return false;
         }
       } else {
-        print("Das Zielverzeichnis existiert nicht: " + globals.lokalDBPfad);
+        print( DateTime.now().toString() + " - Das Zielverzeichnis existiert nicht: " + globals.lokalDBPfad);
         return false;
       }
     } on Error catch( _, e ){
-      print("Fehler beim schreiben der Exportdatei: " + strZiel );
+      print( DateTime.now().toString() + " - Fehler beim Exportieren der Datei: " + strZiel + ": $e");
       return false;
     }
   }
@@ -141,14 +164,21 @@ class dbHelper {
   static Future<List<Map<String, dynamic>>> getEntryCount() async {
     final db = await dbHelper.db();
     String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
-    return db.rawQuery(SQL_Statement, []);
+    final result = await db.rawQuery(SQL_Statement, []);
+    await db.close();
+    print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
+    return result;
   }
 
   // letzter Eintrag
   static Future<List<Map<String, dynamic>>> getLastEntry() async {
     final db = await dbHelper.db();
-    String SQL_Statement = "SELECT Systole,Diastole,Puls,Gewicht,strftime('%d.%m.%Y %H:%M',Zeitpunkt) AS Zeitpkt FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)";
-    return db.rawQuery(SQL_Statement, []);
+    final id = await db.rawQuery("SELECT pid FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)", []);
+    print( DateTime.now().toString() + " - getLastEntry(): pid - $id");
+    final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id[0]['pid']], limit: 1);
+    await db.close();
+    print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
+    return result;
   }
 
   // neuer Eintrag
@@ -161,23 +191,36 @@ class dbHelper {
                   DataInterface.colPuls: Puls,
                   DataInterface.colGewicht: Gewicht,
                   DataInterface.colBemerkung: Bemerkung};
-    print("neuer Eintrag - data: $data");
     final id = await db.insert(DataInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-    print("neuer Eintrag - id: $id");
+    await db.close();
+    print( DateTime.now().toString() + " - createDataItem(): Datenbank geschlossen - $id");
     return id;
   }
 
   // alle Einträge nach Zeitpunkt sortiert
   static Future<List<Map<String, dynamic>>> getDataItems(int Lmt) async {
     final db = await dbHelper.db();
-    if ( Lmt > 0 ) return db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt, limit: Lmt);
-    else return db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt);
+    if ( Lmt > 0 ) {
+      final result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC', limit: Lmt);
+      await db.close();
+      print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
+      return result;
+    }
+    else {
+      final result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
+      await db.close();
+      print( DateTime.now().toString() + " - getDataItems(): Datenbank geschlossen - $result");
+      return result;
+    }
   }
 
   // der Eintrag mit der angegebenen ID
   static Future<List<Map<String, dynamic>>> getDataItem(int id) async {
     final db = await dbHelper.db();
-    return db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
+    final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
+    await db.close();
+    print( DateTime.now().toString() + " - getDataItem($id): Datenbank geschlossen - $result");
+    return result;
   }
 
   // letzter Eintrag
@@ -195,7 +238,10 @@ class dbHelper {
       SQL_Statement += " AND";
       SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
     }
-    return db.rawQuery(SQL_Statement, []);
+    final result = await db.rawQuery(SQL_Statement, []);
+    await db.close();
+    print( DateTime.now().toString() + " - getDataDaysCount($Tage): Datenbank geschlossen - $result");
+    return result;
   }
 
   // alle Einträge der letzten angegebenen Anzahl von Tagen
@@ -216,8 +262,10 @@ class dbHelper {
       SQL_Statement += " AND";
       SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
     }
-    print(SQL_Statement);
-    return db.rawQuery(SQL_Statement);
+    final result = await db.rawQuery(SQL_Statement);
+    await db.close();
+    print( DateTime.now().toString() + " - getDataDays($Tage): Datenbank geschlossen - $result");
+    return result;
   }
 
   // den Eintrag mit der angegebenen ID ändern
@@ -226,7 +274,7 @@ class dbHelper {
   static Future<int> updateDataItem(
       int id,
       int Systole, int Diastole, int Puls,
-      DateTime? Zeitpunkt,
+      String Zeitpunkt,
       double? Gewicht,
       String? Bemerkung) async {
     final db = await dbHelper.db();
@@ -239,8 +287,9 @@ class dbHelper {
       DataInterface.colBemerkung: Bemerkung
     };
 
-    final result =
-    await db.update(DataInterface.tblData, data, where: DataInterface.colID + " = ?", whereArgs: [id]);
+    final result = await db.update(DataInterface.tblData, data, where: DataInterface.colID + " = ?", whereArgs: [id]);
+    await db.close();
+    print( DateTime.now().toString() + " - updateDataItem($id): Datenbank geschlossen - $result");
     return result;
   }
 
@@ -248,7 +297,9 @@ class dbHelper {
   static Future<void> deleteDataItem(int id) async {
     final db = await dbHelper.db();
     try {
-      await db.delete(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id]);
+      final result = await db.delete(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id]);
+      await db.close();
+      print( DateTime.now().toString() + " - deleteDataItem($id): Datenbank geschlossen - $result");
     } catch (err) {
       debugPrint("Irgendetwas ging schief beim Löschen des Daten-Eintrags: $err");
     }
@@ -266,21 +317,28 @@ class dbHelper {
       SettingsInterface.colWertInt: Wert_INT,
       SettingsInterface.colWertFloat: Wert_FLOAT,
       SettingsInterface.colWertText: Wert_TEXT};
-    final id = await db.insert(SettingsInterface.tblData, data,
-        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    final id = await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    await db.close();
+    print( DateTime.now().toString() + " - createSettingsItem($id): Datenbank geschlossen");
     return id;
   }
 
   // alle Einträge nach Bezeichnung sortiert
   static Future<List<Map<String, dynamic>>> getSettingsItems() async {
     final db = await dbHelper.db();
-    return db.query(SettingsInterface.tblData, orderBy: SettingsInterface.colBezeichnung);
+    final result = await db.query(SettingsInterface.tblData, orderBy: SettingsInterface.colBezeichnung);
+    await db.close();
+    print( DateTime.now().toString() + " - getSettingsItems(): Datenbank geschlossen - $result");
+    return result;
   }
 
   // der Eintrag mit der angegebenen ID
   static Future<List<Map<String, dynamic>>> getSettingsItem(int id) async {
     final db = await dbHelper.db();
-    return db.query(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id], limit: 1);
+    final result = await db.query(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id], limit: 1);
+    await db.close();
+    print( DateTime.now().toString() + " - getSettingsItem($id): Datenbank geschlossen - $result");
+    return result;
   }
 
   // den Eintrag mit der angegebenen ID ändern
@@ -303,8 +361,9 @@ class dbHelper {
       SettingsInterface.colWertText: Wert_TEXT
     };
 
-    final result =
-    await db.update(SettingsInterface.tblData, data, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
+    final result = await db.update(SettingsInterface.tblData, data, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
+    await db.close();
+    print( DateTime.now().toString() + " - updateSettingsItem($id): Datenbank geschlossen - $result");
     return result;
   }
 
@@ -312,7 +371,9 @@ class dbHelper {
   static Future<void> deleteSettingsItem(int id) async {
     final db = await dbHelper.db();
     try {
-      await db.delete(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
+      final result = await db.delete(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
+      await db.close();
+      print( DateTime.now().toString() + " - deleteSettingsItem($id): Datenbank geschlossen - $result");
     } catch (err) {
       debugPrint("Irgendetwas ging schief beim Löschen des Einstellungs-Eintrags: $err");
     }
@@ -330,9 +391,10 @@ class dbHelper {
       print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
     }
     if ( theList.length > 0 ) {
-      return theList[0]['cnt'];
-    } else {
-      return -1;
+      Result = theList[0]['cnt'];
     }
+    await db.close();
+    print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    return Result;
   }
 }
