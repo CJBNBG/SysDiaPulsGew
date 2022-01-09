@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
+import 'package:sysdiapulsgew/pages/StatistikPage/statistikpage.dart';
+import 'package:sysdiapulsgew/pages/StatistikPage/statistikdata.dart' as stats;
 import 'package:sysdiapulsgew/pages/ImportExportPage/importexportpage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import 'package:sysdiapulsgew/pages/EntriesTablePage/entriestablepage.dart';
@@ -18,7 +22,7 @@ void main() {
   runApp(const MyApp());
 }
 
-var _platform;
+dynamic _platform;
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -32,6 +36,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // die App soll ausschließlich im Hochkantformat arbeiten
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   @override
@@ -44,16 +50,16 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.lightBlue,
       ),
       home: const MyHomePage(title: 'SysDiaPulsGew'),
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [Locale('de', 'DE')], //, Locale('pt', 'BR')],
+      supportedLocales: const [Locale('de', 'DE')], //, Locale('pt', 'BR')],
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/entriestablepage':
-            return new MaterialPageRoute(
+            return MaterialPageRoute(
               builder: (_) => EntriesTablePage(),
               maintainState: false,
             );
@@ -65,8 +71,13 @@ class _MyAppState extends State<MyApp> {
               reverseDuration: const Duration(seconds: 3),
             );
           case '/infopage':
-            return new MaterialPageRoute(
+            return MaterialPageRoute(
               builder: (_) => InfoPage(),
+              maintainState: false,
+            );
+          case '/statistikpage':
+            return MaterialPageRoute(
+              builder: (_) => StatistikPage(),
               maintainState: false,
             );
           default:
@@ -99,22 +110,21 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _loadAVGData() async {
     final d1 = await dbHelper.getEntryCount();
     final data = await dbHelper.getDataDays(-7);
-    if ( mounted ) setState(() {
-      print("d1=" + d1.toString());
-      if (d1[0]['Cnt'] != null) {
-        strAnzDSe = d1[0]['Cnt'].toString();
-      } else {
-        strAnzDSe = "0";
-      }
-      if ( data[0]['SysAVG'] != null && data[0]['DiaAVG'] != null && data[0]['PulsAVG'] != null ) {
-        strSysAVG = data[0]['SysAVG'].toString();
-        strDiaAVG = data[0]['DiaAVG'].toString();
-        strPulsAVG = data[0]['PulsAVG'].toString();
-        print(data);
-      } else {
-        print("keine Daten als Mittelwerte");
-      }
-    });
+    if ( mounted ) {
+      setState(() {
+        if (d1[0]['Cnt'] != null) {
+          strAnzDSe = d1[0]['Cnt'].toString();
+        } else {
+          strAnzDSe = "0";
+        }
+        if ( data[0]['SysAVG'] != null && data[0]['DiaAVG'] != null && data[0]['PulsAVG'] != null ) {
+          strSysAVG = data[0]['SysAVG'].toString();
+          strDiaAVG = data[0]['DiaAVG'].toString();
+          strPulsAVG = data[0]['PulsAVG'].toString();
+        } else {
+        }
+      });
+    }
   }
 
   PackageInfo _packageInfo = PackageInfo(
@@ -135,12 +145,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> myTimerTick() async {
     if ( globals.updAVG_needed == true ) {
-      print('myTimerTick Anfang: ' + DateTime.now().toString());
+      if (kDebugMode) {
+        print('myTimerTick Anfang: ' + DateTime.now().toString());
+      }
       await _loadAVGData();
       setState(() {
         globals.updAVG_needed = false;
       });
-      print('myTimerTick Ende: ' + DateTime.now().toString());
+      if (kDebugMode) {
+        print('myTimerTick Ende: ' + DateTime.now().toString());
+      }
     }
   }
   @override
@@ -148,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     loadAllData();
     // mit dem Timer wird regelmäßig dafür gesorgt, dass die Mittelwerte aktuell angezeigt werden
-    myTimer = new Timer.periodic(Duration(seconds: 1), (Timer t) async {
+    myTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
       await myTimerTick();
     });
   }
@@ -166,25 +180,35 @@ class _MyHomePageState extends State<MyHomePage> {
   bool permissionGranted = false;
   Future _getStoragePermission() async {
     if (await Permission.storage.request().isGranted) {
-      if ( mounted ) setState(() {
-        permissionGranted = true;
-      });
+      if ( mounted ) {
+        setState(() {
+          permissionGranted = true;
+        });
+      }
     } else if (await Permission.storage.request().isPermanentlyDenied) {
       await openAppSettings();
     } else if (await Permission.storage.request().isDenied) {
-      if ( mounted ) setState(() {
-        permissionGranted = false;
-      });
+      if ( mounted ) {
+        setState(() {
+          permissionGranted = false;
+        });
+      }
     }
     if ( permissionGranted == true ) {
       try {
-        if ( Directory(globals.lokalDBPfad).exists() == false ) {
-          print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
+        if ( (Directory(globals.lokalDBPfad)).exists() == false ) {
+          if (kDebugMode) {
+            print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
+          }
         } else {
-          print("Verzeichnis " + globals.lokalDBPfad + " existiert");
+          if (kDebugMode) {
+            print("Verzeichnis " + globals.lokalDBPfad + " existiert");
+          }
         }
       } on Error catch (_,e) {
-        print('Fehler beim Erzeugen des Verzeichnisses ' + globals.lokalDBPfad + ' - ' + e.toString());
+        if (kDebugMode) {
+          print('Fehler beim Erzeugen des Verzeichnisses ' + globals.lokalDBPfad + ' - ' + e.toString());
+        }
       }
     }
   }
@@ -207,48 +231,48 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _initPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
-    if ( mounted ) setState(() {
-      _packageInfo = info;
-      globals.gPackageInfo = info;
-      globals.screenwidth = window.physicalSize.width.toInt();
-      globals.screenheight = window.physicalSize.height.toInt();
-    });
+    if ( mounted ) {
+      setState(() {
+        _packageInfo = info;
+        globals.gPackageInfo = info;
+        globals.screenwidth = window.physicalSize.width.toInt();
+        globals.screenheight = window.physicalSize.height.toInt();
+      });
+    }
   }
 
-  void _onItemTapped(int index) {
-    if ( mounted ) setState(() {
-      _selectedIndex = index;
+  void _onItemTapped(int index) async {
+    if ( mounted ) {
       switch (index) {
         case 0:                     // Start oder Home
-          print("index: 0");
           break;
         case 1:                     // Statistik
-          print("index: 1");
-          break;
-        case 2:                     // Einträge
-          //Navigator.pop(context);
-          Navigator.push(
+          await stats.ladeDaten();
+          await Navigator.push(
             context,
             PageTransition(
-              child: EntriesTablePage(),
+              child: const StatistikPage(),
               alignment: Alignment.topCenter,
               type: PageTransitionType.leftToRightWithFade,),
           );
-          print("index: 2");
+          break;
+        case 2:                     // Einträge
+          await Navigator.push(
+            context,
+            PageTransition(
+              child: const EntriesTablePage(),
+              alignment: Alignment.topCenter,
+              type: PageTransitionType.leftToRightWithFade,),
+          );
           break;
         default:
-          print("index: " + index.toString());
+          print("unbekannter index: " + index.toString());
           break;
       }
-      if ( index != 2 ) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('noch zu programmieren...'),
-                backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
-            )
-        );
-      }
-    });
+      setState(() {
+        _selectedIndex = 0;
+      });
+    }
   }
 
   @override
@@ -260,20 +284,20 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: <Widget>[
             // die Widgets werden von rechts außen nach links aufgeführt
             IconButton(
-              icon: Icon(Icons.info_outlined),
+              icon: const Icon(Icons.info_outlined),
               onPressed: () {
                 //Navigator.pop(context);
                 Navigator.push(
                   context,
                   PageTransition(
-                    child: InfoPage(),
+                    child: const InfoPage(),
                     alignment: Alignment.topCenter,
                     type: PageTransitionType.leftToRightWithFade,),
                 );
               },
             ),
             IconButton(
-              icon: Icon(Icons.settings_sharp),
+              icon: const Icon(Icons.settings_sharp),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -293,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               SingleChildScrollView(
                 child: Container(
-                  width: 310,
+                  width: globals.CardWidth,
                   //height: 550,
                   child: Card(
                     elevation: 5.0,
@@ -371,11 +395,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         bottomNavigationBar:
         BottomNavigationBar(items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Start',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.analytics_outlined),
             label: 'Statistik',
           ),
@@ -404,11 +428,11 @@ class _MyHomePageState extends State<MyHomePage> {
 class myMenuWidget extends StatefulWidget {
   final PackageInfo ThePackageInfo;
 
-  myMenuWidget({
+  const myMenuWidget({
     Key? key, required this.ThePackageInfo,
   }) : super(key: key,);
 
-  static TapRoutine(BuildContext context, int Index)  {
+  static TapRoutine(BuildContext context, int Index) async {
     String x = "?";
     switch(Index) {
       case 1:
@@ -431,43 +455,51 @@ class myMenuWidget extends StatefulWidget {
         break;
     }
     if (Index == 1 ) {
-      Navigator.push(
+      await Navigator.push(
         context,
         PageTransition(
-          child: EntriesTablePage(),
+          child: const EntriesTablePage(),
+          alignment: Alignment.topCenter,
+          type: PageTransitionType.leftToRightWithFade,),
+      );
+    } else if (Index == 3 ) {
+      await Navigator.push(
+        context,
+        PageTransition(
+          child: const StatistikPage(),
           alignment: Alignment.topCenter,
           type: PageTransitionType.leftToRightWithFade,),
       );
     } else if (Index == 4 ) {
-      Navigator.push(
+      await Navigator.push(
         context,
         PageTransition(
-          child: ImportExportPage(),
+          child: const ImportExportPage(),
           alignment: Alignment.topCenter,
           type: PageTransitionType.leftToRightWithFade,),
       );
     } else if (Index == 5 ) {
-      Navigator.push(
+      await Navigator.push(
         context,
         PageTransition(
-          child: InfoPage(),
+          child: const InfoPage(),
           alignment: Alignment.topCenter,
           type: PageTransitionType.leftToRightWithFade,),
       );
     } else {
-      return showDialog<String>(
+      return await showDialog<String>(
         context: context,
         builder: (BuildContext context) =>
-            AlertDialog(
-              title: const Text('noch zu programmieren...'),
-              content: Text(x),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.pop(context, 'OK'),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+          AlertDialog(
+            title: const Text('noch zu programmieren...'),
+            content: Text(x),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'OK'),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
       );
     }
   }
@@ -484,9 +516,11 @@ class _myMenuWidgetState extends State<myMenuWidget> {
   }
 
   void _setState() async {
-    if ( mounted ) setState(() {
-      // _MyHomePageState();
-    });
+    if ( mounted ) {
+      setState(() {
+        // _MyHomePageState();
+      });
+    }
   }
 
   @override
@@ -504,11 +538,11 @@ class _myMenuWidgetState extends State<myMenuWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  this.widget.ThePackageInfo.appName,
+                  widget.ThePackageInfo.appName,
                   textScaleFactor: 2.0,
                 ),
                 Text(
-                  'Version: ' + this.widget.ThePackageInfo.version,
+                  'Version: ' + widget.ThePackageInfo.version,
                   textScaleFactor: 1.3,
                   style: TextStyle(
                     color: Colors.grey[500],
@@ -518,8 +552,8 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.table_rows),
-            title: Text(
+            leading: const Icon(Icons.table_rows),
+            title: const Text(
               'Einträge ansehen...',
               textScaleFactor: 1.5,
             ),
@@ -529,8 +563,8 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings_sharp),
-            title: Text(
+            leading: const Icon(Icons.settings_sharp),
+            title: const Text(
               'Einstellungen...',
               textScaleFactor: 1.5,
             ),
@@ -540,8 +574,8 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.analytics_outlined),
-            title: Text(
+            leading: const Icon(Icons.analytics_outlined),
+            title: const Text(
               'Statistik...',
               textScaleFactor: 1.5,
             ),
@@ -551,8 +585,8 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.import_export_outlined),
-            title: Text(
+            leading: const Icon(Icons.import_export_outlined),
+            title: const Text(
               'Import / Export...',
               textScaleFactor: 1.5,
             ),
@@ -571,8 +605,8 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.info_outlined),
-            title: Text(
+            leading: const Icon(Icons.info_outlined),
+            title: const Text(
               'Über diese App...',
               textScaleFactor: 1.5,
             ),
@@ -607,12 +641,12 @@ class meineZeile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            this.Beschreibung,
+            Beschreibung,
             textAlign: TextAlign.start,
             textScaleFactor: 1.2,
           ),
           Text(
-            this.Wert,
+            Wert,
             textAlign: TextAlign.end,
             textScaleFactor: 1.2,
           )

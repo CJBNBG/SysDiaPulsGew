@@ -46,6 +46,7 @@ dependencies:
   stack: ^0.0.1
   flutter_slidable:
   date_time_picker: ^2.1.0
+  page_indicator: ^0.4.1
 
 dev_dependencies:
   flutter_test:

@@ -249,6 +249,7 @@ class _DetailPageState extends State<DetailPage> {
       return "falsche Eingabe $e";
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -287,7 +288,7 @@ class _DetailPageState extends State<DetailPage> {
                           labelText: 'Zeitpunkt',
                           border: OutlineInputBorder(),
                         ),
-                        onSaved: (val) => setState(() => _neuerZeitpunkt = val ?? ''),
+                        onSaved: (val) => setState(() => val != null ? _neuerZeitpunkt = DateTime.parse(val).toString() : ''),
                       ),
                       SizedBox(height: 10),
 

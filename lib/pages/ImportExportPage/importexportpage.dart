@@ -156,12 +156,17 @@ class _ImportExportPageState extends State<ImportExportPage> {
             children:[
               Icon(Icons.priority_high, color: Colors.red,),
               Container(
-                child: Center(
-                  child: const Text(
-                    "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.red, ),
+                child: Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      // "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                      "ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden",
+                      softWrap: true,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.red, ),
+                    ),
                   ),
                 ),
               ),
@@ -204,7 +209,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
             )
           : Center(
             child: Container(
-              width: 350.0,
+              width: globals.CardWidth,
               child: Card(
                 elevation: 5.0,
                 child: ListView.builder(

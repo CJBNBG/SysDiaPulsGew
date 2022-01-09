@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../my-globals.dart' as globals;
+import '../../services/myWidgets.dart' as myWidgets;
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 
 const ContainerWidth = 310.0;
@@ -204,15 +205,39 @@ class _InfoPageState extends State<InfoPage> {
                                   children: [
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'optimal:', Titel2: 'unter 120', Farbe1: globals.SysDia_optimal, Farbe2: globals.SysDia_optimal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'optimal:',
+                                        Titel2: 'unter 120',
+                                        Farbe1: globals.SysDia_optimal,
+                                        Farbe2: globals.SysDia_optimal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '120 - 129', Farbe1: globals.SysDia_normal, Farbe2: globals.SysDia_normal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'normal:',
+                                        Titel2: '120 - 129',
+                                        Farbe1: globals.SysDia_normal,
+                                        Farbe2: globals.SysDia_normal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'hochnormal:', Titel2: '130 - 139', Farbe1: globals.SysDia_hochnormal, Farbe2: globals.SysDia_hochnormal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'hochnormal:',
+                                        Titel2: '130 - 139',
+                                        Farbe1: globals.SysDia_hochnormal,
+                                        Farbe2: globals.SysDia_hochnormal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -222,15 +247,39 @@ class _InfoPageState extends State<InfoPage> {
                                   children: [
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'Stufe 1:', Titel2: '140 - 159', Farbe1: globals.SysDia_Stufe_1, Farbe2: globals.SysDia_Stufe_1_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'Stufe 1:',
+                                        Titel2: '140 - 159',
+                                        Farbe1: globals.SysDia_Stufe_1,
+                                        Farbe2: globals.SysDia_Stufe_1_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'Stufe 2:', Titel2: '160 - 179', Farbe1: globals.SysDia_Stufe_2, Farbe2: globals.SysDia_Stufe_2_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'Stufe 2:',
+                                        Titel2: '160 - 179',
+                                        Farbe1: globals.SysDia_Stufe_2,
+                                        Farbe2: globals.SysDia_Stufe_2_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'Stufe 3:', Titel2: 'ab 180', Farbe1: globals.SysDia_Stufe_3, Farbe2: globals.SysDia_Stufe_3_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'Stufe 3:',
+                                        Titel2: 'ab 180',
+                                        Farbe1: globals.SysDia_Stufe_3,
+                                        Farbe2: globals.SysDia_Stufe_3_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -241,15 +290,39 @@ class _InfoPageState extends State<InfoPage> {
                                   children: [
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'optimal:', Titel2: 'unter 120', Farbe1: globals.SysDia_optimal, Farbe2: globals.SysDia_optimal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'optimal:',
+                                        Titel2: 'unter 120',
+                                        Farbe1: globals.SysDia_optimal,
+                                        Farbe2: globals.SysDia_optimal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '120 - 129', Farbe1: globals.SysDia_normal, Farbe2: globals.SysDia_normal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'normal:',
+                                        Titel2: '120 - 129',
+                                        Farbe1: globals.SysDia_normal,
+                                        Farbe2: globals.SysDia_normal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'hochnormal:', Titel2: '130 - 139', Farbe1: globals.SysDia_hochnormal, Farbe2: globals.SysDia_hochnormal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'hochnormal:',
+                                        Titel2: '130 - 139',
+                                        Farbe1: globals.SysDia_hochnormal,
+                                        Farbe2: globals.SysDia_hochnormal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -259,15 +332,39 @@ class _InfoPageState extends State<InfoPage> {
                                   children: [
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'Stufe 1:', Titel2: '140 - 159', Farbe1: globals.SysDia_Stufe_1, Farbe2: globals.SysDia_Stufe_1_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'Stufe 1:',
+                                        Titel2: '140 - 159',
+                                        Farbe1: globals.SysDia_Stufe_1,
+                                        Farbe2: globals.SysDia_Stufe_1_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'Stufe 2:', Titel2: '160 - 179', Farbe1: globals.SysDia_Stufe_2, Farbe2: globals.SysDia_Stufe_2_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'Stufe 2:',
+                                        Titel2: '160 - 179',
+                                        Farbe1: globals.SysDia_Stufe_2,
+                                        Farbe2: globals.SysDia_Stufe_2_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'Stufe 3:', Titel2: 'ab 180', Farbe1: globals.SysDia_Stufe_3, Farbe2: globals.SysDia_Stufe_3_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'Stufe 3:',
+                                        Titel2: 'ab 180',
+                                        Farbe1: globals.SysDia_Stufe_3,
+                                        Farbe2: globals.SysDia_Stufe_3_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -278,22 +375,54 @@ class _InfoPageState extends State<InfoPage> {
                                   children: [
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'langsam:', Titel2: 'unter 60', Farbe1: globals.Puls_langsam, Farbe2: globals.Puls_langsam_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'langsam:',
+                                        Titel2: 'unter 60',
+                                        Farbe1: globals.Puls_langsam,
+                                        Farbe2: globals.Puls_langsam_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'normal:', Titel2: '60 - 99', Farbe1: globals.Puls_normal, Farbe2: globals.Puls_normal_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'normal:',
+                                        Titel2: '60 - 99',
+                                        Farbe1: globals.Puls_normal,
+                                        Farbe2: globals.Puls_normal_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                     Container(
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myListRowWidget(Titel1: 'schnell:', Titel2: 'ab 100', Farbe1: globals.Puls_schnell, Farbe2: globals.Puls_schnell_blass, Breite: EntryWidthSysDia,),
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: 'schnell:',
+                                        Titel2: 'ab 100',
+                                        Farbe1: globals.Puls_schnell,
+                                        Farbe2: globals.Puls_schnell_blass,
+                                        Breite: EntryWidthSysDia,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                      ),
                                     ),
                                   ],
                                 ),
                                 myListWidget(Titel: "Gewicht (kg):", Wert: "", ScaleFactor: 1.0),
                                 Container(
                                   height: 50, width: EntryWidthGew, color: Colors.lightBlue[200],
-                                  child: myListRowWidget(Titel1: 'normal:', Titel2: '0.0 - 300.0', Farbe1: globals.Gewicht_normal, Farbe2: globals.Gewicht_normal_blass, Breite: EntryWidthGew,),
+                                  child: myWidgets.myListRowWidgetTwoLines(
+                                    Titel1: 'normal:',
+                                    Titel2: '0.0 - 300.0',
+                                    Farbe1: globals.Gewicht_normal,
+                                    Farbe2: globals.Gewicht_normal_blass,
+                                    Breite: EntryWidthGew,
+                                    ScaleFactor: 1.0,
+                                    isHeader: false,
+                                  ),
                                 ),
                               ],
                             ),
@@ -308,57 +437,6 @@ class _InfoPageState extends State<InfoPage> {
           ),
         )
       )
-    );
-  }
-}
-
-class myListRowWidget extends StatelessWidget {
-  final String Titel1;
-  final String Titel2;
-  final Color Farbe1;
-  final Color? Farbe2;
-  final double Breite;
-  const myListRowWidget({
-    Key? key,required this.Titel1, required this.Titel2, required this.Farbe1, required this.Farbe2, required this.Breite
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: this.Breite,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(this.Titel1, textScaleFactor: 1.0,),
-              Text(this.Titel2, textScaleFactor: 1.0,),
-            ],
-          ),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                  width: 0.0,
-                  color: globals.BgColorNeutral
-              ),
-              left: BorderSide(
-                  width: 0.0,
-                  color: globals.BgColorNeutral
-              ),
-              right: BorderSide(
-                  width: 0.0,
-                  color: globals.BgColorNeutral
-              ),
-              bottom: BorderSide(
-                width: 3.0,
-                color: this.Farbe1
-              )
-            ),
-            color: this.Farbe2,
-          ),
-        ),
-      ],
     );
   }
 }

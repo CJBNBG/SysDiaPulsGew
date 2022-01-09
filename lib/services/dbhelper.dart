@@ -31,7 +31,9 @@ class dbHelper {
         ${SettingsInterface.colWertText} TEXT NULL
       )
       ''');
-    print( DateTime.now().toString() + " - Datenbank _onCreateDB");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - Datenbank _onCreateDB");
+    }
   }
 
   static Future<sql.Database> db() async {
@@ -39,7 +41,9 @@ class dbHelper {
       globals.lokalDBNameOhnePfad,
       version: _databaseVersion,
       onOpen: (sql.Database thisdb) async {
-        print( DateTime.now().toString() + " - Datenbank geöffnet");
+        if (kDebugMode) {
+          print( DateTime.now().toString() + " - Datenbank geöffnet");
+        }
       },
       onCreate: (sql.Database thisdb, int ver) async {
         await _onCreateDB(thisdb);
@@ -61,12 +65,18 @@ class dbHelper {
         SettingsInterface.colWertInt: 50
       };
       final int id = await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-      print(DateTime.now().toString() + " - AnzTabEintraege erzeugt $id");
+      if (kDebugMode) {
+        print(DateTime.now().toString() + " - AnzTabEintraege erzeugt $id");
+      }
     } else {
-      print(DateTime.now().toString() + " - AnzTabEintraege=$anz");
+      if (kDebugMode) {
+        print(DateTime.now().toString() + " - AnzTabEintraege=$anz");
+      }
     }
     await db.close();
-    print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
+    }
     retVal = true;
 
     return retVal;
@@ -75,31 +85,43 @@ class dbHelper {
   // Die Datenbank importieren
   // -------------------------
   static Future<bool> importiereDatenbank(String strDBName) async {
-    print( DateTime.now().toString() + " - importiere Datenbank aufgerufen");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - importiere Datenbank aufgerufen");
+    }
     String strQuelle = globals.lokalDBPfad + strDBName;
     String strZiel = await sql.getDatabasesPath() + "/" + globals.lokalDBNameOhnePfad;
     try {
       final db = await dbHelper.db();
       if ( db.isOpen ) {
         await db.close();
-        print( DateTime.now().toString() + " - importiereDatenbank(): Datenbank geschlossen");
+        if (kDebugMode) {
+          print( DateTime.now().toString() + " - importiereDatenbank(): Datenbank geschlossen");
+        }
       }
       if ( await File(strQuelle).exists() == true ) {
         Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
-          print( DateTime.now().toString() + " - Datenbank importiert: " + strDBName);
+          if (kDebugMode) {
+            print( DateTime.now().toString() + " - Datenbank importiert: " + strDBName);
+          }
           return true;
         }
         else {
-          print( DateTime.now().toString() + " - Datenbank NICHT importiert: " + strDBName);
+          if (kDebugMode) {
+            print( DateTime.now().toString() + " - Datenbank NICHT importiert: " + strDBName);
+          }
           return false;
         }
       } else {
-        print( DateTime.now().toString() + " - Die zu importierende Datei existiert nicht: " + strQuelle);
+        if (kDebugMode) {
+          print( DateTime.now().toString() + " - Die zu importierende Datei existiert nicht: " + strQuelle);
+        }
         return false;
       }
     } on Error catch( _, e ){
-      print( DateTime.now().toString() + " - Fehler beim Importieren der Datei: " + strZiel + ": $e");
+      if (kDebugMode) {
+        print( DateTime.now().toString() + " - Fehler beim Importieren der Datei: " + strZiel + ": $e");
+      }
       return false;
     }
   }
@@ -124,10 +146,12 @@ class dbHelper {
     String strSekunde = jetzt.second.toString();
     if (strSekunde.length < 2) strSekunde = '0' + strSekunde;
     String strMillisekunde = jetzt.millisecond.toString();
-    if (strMillisekunde.length < 2)
+    if (strMillisekunde.length < 2) {
       strMillisekunde = '00' + strMillisekunde;
-    else
-    if (strMillisekunde.length < 3) strMillisekunde = '0' + strMillisekunde;
+    } else
+    if (strMillisekunde.length < 3) {
+      strMillisekunde = '0' + strMillisekunde;
+    }
     String strZiel = globals.lokalDBPfad + strJahr + strMonat + strTag + "_" + strStunde +
         strMinute + "_" + strSekunde + strMillisekunde + "_V" +
         _databaseVersion.toString() + "_" + globals.lokalDBNameOhnePfad;
@@ -136,23 +160,33 @@ class dbHelper {
       final db = await dbHelper.db();
       if ( db.isOpen ) {
         await db.close();
-        print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
+        if (kDebugMode) {
+          print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
+        }
       }
       if ( Directory(globals.lokalDBPfad).exists() == true ) {
         Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
-          print( DateTime.now().toString() + " - Datenbank exportiert: " + strZiel);
+          if (kDebugMode) {
+            print( DateTime.now().toString() + " - Datenbank exportiert: " + strZiel);
+          }
           return true;
         } else {
-          print( DateTime.now().toString() + " - Datenbank NICHT exportiert: " + strZiel);
+          if (kDebugMode) {
+            print( DateTime.now().toString() + " - Datenbank NICHT exportiert: " + strZiel);
+          }
           return false;
         }
       } else {
-        print( DateTime.now().toString() + " - Das Zielverzeichnis existiert nicht: " + globals.lokalDBPfad);
+        if (kDebugMode) {
+          print( DateTime.now().toString() + " - Das Zielverzeichnis existiert nicht: " + globals.lokalDBPfad);
+        }
         return false;
       }
     } on Error catch( _, e ){
-      print( DateTime.now().toString() + " - Fehler beim Exportieren der Datei: " + strZiel + ": $e");
+      if (kDebugMode) {
+        print( DateTime.now().toString() + " - Fehler beim Exportieren der Datei: " + strZiel + ": $e");
+      }
       return false;
     }
   }
@@ -166,7 +200,9 @@ class dbHelper {
     String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
     final result = await db.rawQuery(SQL_Statement, []);
     await db.close();
-    print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -177,7 +213,9 @@ class dbHelper {
     print( DateTime.now().toString() + " - getLastEntry(): pid - $id");
     final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id[0]['pid']], limit: 1);
     await db.close();
-    print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -193,7 +231,9 @@ class dbHelper {
                   DataInterface.colBemerkung: Bemerkung};
     final id = await db.insert(DataInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     await db.close();
-    print( DateTime.now().toString() + " - createDataItem(): Datenbank geschlossen - $id");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - createDataItem(): Datenbank geschlossen - $id");
+    }
     return id;
   }
 
@@ -203,13 +243,17 @@ class dbHelper {
     if ( Lmt > 0 ) {
       final result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC', limit: Lmt);
       await db.close();
-      print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
+      if (kDebugMode) {
+        print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
+      }
       return result;
     }
     else {
       final result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
       await db.close();
-      print( DateTime.now().toString() + " - getDataItems(): Datenbank geschlossen - $result");
+      if (kDebugMode) {
+        print( DateTime.now().toString() + " - getDataItems(): Datenbank geschlossen - $result");
+      }
       return result;
     }
   }
@@ -219,7 +263,9 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
     await db.close();
-    print( DateTime.now().toString() + " - getDataItem($id): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getDataItem($id): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -240,7 +286,9 @@ class dbHelper {
     }
     final result = await db.rawQuery(SQL_Statement, []);
     await db.close();
-    print( DateTime.now().toString() + " - getDataDaysCount($Tage): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getDataDaysCount($Tage): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -264,7 +312,9 @@ class dbHelper {
     }
     final result = await db.rawQuery(SQL_Statement);
     await db.close();
-    print( DateTime.now().toString() + " - getDataDays($Tage): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getDataDays($Tage): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -289,7 +339,9 @@ class dbHelper {
 
     final result = await db.update(DataInterface.tblData, data, where: DataInterface.colID + " = ?", whereArgs: [id]);
     await db.close();
-    print( DateTime.now().toString() + " - updateDataItem($id): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - updateDataItem($id): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -299,10 +351,57 @@ class dbHelper {
     try {
       final result = await db.delete(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id]);
       await db.close();
-      print( DateTime.now().toString() + " - deleteDataItem($id): Datenbank geschlossen - $result");
+      if (kDebugMode) {
+        print( DateTime.now().toString() + " - deleteDataItem($id): Datenbank geschlossen - $result");
+      }
     } catch (err) {
       debugPrint("Irgendetwas ging schief beim Löschen des Daten-Eintrags: $err");
     }
+  }
+
+  // Mittelwerte
+  // -----------
+  static Future<String> getAVGVonBis(String Was, String von, String bis, String anzTage) async {
+    final db = await dbHelper.db();
+    List args = [von, bis];
+
+    String SQL_Statement = "SELECT AVG($Was) AS erg FROM tDaten WHERE strftime('%H:%M', Zeitpunkt) BETWEEN ? AND ?";
+    if ( anzTage != 'alle' ) {
+      DateTime Jetzt = DateTime.now();
+      int Jahr = Jetzt.year;
+      int Monat = Jetzt.month;
+      int Tag = Jetzt.day;
+      int? Zeitoffset = int.tryParse(anzTage);
+      DateTime Zeit2 = DateTime(Jahr, Monat,Tag+Zeitoffset!);
+      if ( Zeitoffset > 0 ) {
+        args.add(Jetzt.toString());
+        args.add(Zeit2.toString());
+      } else {
+        args.add(Zeit2.toString());
+        args.add(Jetzt.toString());
+      }
+      SQL_Statement += " AND Zeitpunkt IN (SELECT Zeitpunkt FROM tDaten";
+      SQL_Statement += " WHERE strftime('%Y-%m-%d', Zeitpunkt) BETWEEN ? AND ?)";
+    }
+    final result = await db.rawQuery(SQL_Statement, args);
+    await db.close();
+    print(result);
+    String sRet = "0.0";
+    if ( result.isNotEmpty ) {
+      if (result[0]['erg'] != null) {
+        double? dRet = double.tryParse(result[0]['erg'].toString());
+        dRet ??= -1.0;
+        sRet = dRet.toStringAsFixed(1);
+      } else {
+        sRet = "keine Daten";
+      }
+    } else {
+      sRet = "Fehler";
+    }
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getAVGVonBis($Was, $von, $bis, $anzTage): Datenbank geschlossen - $sRet");
+    }
+    return sRet;
   }
 
   // Einstellungen-Tabelle
@@ -319,7 +418,9 @@ class dbHelper {
       SettingsInterface.colWertText: Wert_TEXT};
     final id = await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     await db.close();
-    print( DateTime.now().toString() + " - createSettingsItem($id): Datenbank geschlossen");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - createSettingsItem($id): Datenbank geschlossen");
+    }
     return id;
   }
 
@@ -328,7 +429,9 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.query(SettingsInterface.tblData, orderBy: SettingsInterface.colBezeichnung);
     await db.close();
-    print( DateTime.now().toString() + " - getSettingsItems(): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getSettingsItems(): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -337,7 +440,9 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.query(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id], limit: 1);
     await db.close();
-    print( DateTime.now().toString() + " - getSettingsItem($id): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getSettingsItem($id): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -363,7 +468,9 @@ class dbHelper {
 
     final result = await db.update(SettingsInterface.tblData, data, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
     await db.close();
-    print( DateTime.now().toString() + " - updateSettingsItem($id): Datenbank geschlossen - $result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - updateSettingsItem($id): Datenbank geschlossen - $result");
+    }
     return result;
   }
 
@@ -373,9 +480,13 @@ class dbHelper {
     try {
       final result = await db.delete(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
       await db.close();
-      print( DateTime.now().toString() + " - deleteSettingsItem($id): Datenbank geschlossen - $result");
+      if (kDebugMode) {
+        print( DateTime.now().toString() + " - deleteSettingsItem($id): Datenbank geschlossen - $result");
+      }
     } catch (err) {
-      debugPrint("Irgendetwas ging schief beim Löschen des Einstellungs-Eintrags: $err");
+      if (kDebugMode) {
+        print("Irgendetwas ging schief beim Löschen des Einstellungs-Eintrags: $err");
+      }
     }
   }
 
@@ -388,13 +499,17 @@ class dbHelper {
     try {
       theList = await db.rawQuery("SELECT Wert_INT AS cnt FROM tSettings WHERE Bezeichnung LIKE 'AnzTabEintraege' AND Typ='INT'");
     } catch (err) {
-      print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
+      if (kDebugMode) {
+        print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
+      }
     }
     if ( theList.length > 0 ) {
       Result = theList[0]['cnt'];
     }
     await db.close();
-    print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    }
     return Result;
   }
 }
