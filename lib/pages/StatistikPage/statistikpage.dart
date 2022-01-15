@@ -375,6 +375,7 @@ class _StatistikPageState extends State<StatistikPage> {
   @override
   void initState() {
     super.initState();
+    stats.ladeDaten();
   }
 
   @override

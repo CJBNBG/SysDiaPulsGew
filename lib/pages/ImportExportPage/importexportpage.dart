@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -30,6 +31,14 @@ class _ImportExportPageState extends State<ImportExportPage> {
 
   void ladeDateien() async {
     try {
+      if ( await Directory(globals.lokalDBPfad).exists() == false ) {
+        var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
+        if ( resDir.isAbsolute ) {
+          if (kDebugMode) {
+            print("resDir.uri.userinfo=" + resDir.uri.userInfo);
+          }
+        }
+      }
       if ( await Directory(globals.lokalDBPfad).exists() == true ) {
         _dirExists = true;
         final List<FileSystemEntity> entities = await Directory(
@@ -134,7 +143,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
     }
   }
 
-  _doLoeschen(int ndx) {
+  _doLoeschen(BuildContext context, int ndx) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("löschen - index: $ndx"),
@@ -192,10 +201,6 @@ class _ImportExportPageState extends State<ImportExportPage> {
     );
   }
 
-  void doNothing(BuildContext context) {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -239,7 +244,9 @@ class _ImportExportPageState extends State<ImportExportPage> {
                       // All actions are defined in the children parameter.
                       children: [
                         SlidableAction(
-                          onPressed: doNothing,
+                          onPressed: (context) => {
+                            _doLoeschen(context, index)
+                          },
                           backgroundColor: Color(0xFFFE4A49),
                           foregroundColor: globals.BgColorNeutral,
                           icon: Icons.delete,

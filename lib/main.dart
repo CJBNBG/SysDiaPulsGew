@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sysdiapulsgew/pages/SettingsPage/settingspage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:page_transition/page_transition.dart';
@@ -78,6 +79,11 @@ class _MyAppState extends State<MyApp> {
           case '/statistikpage':
             return MaterialPageRoute(
               builder: (_) => StatistikPage(),
+              maintainState: false,
+            );
+          case '/settingspage':
+            return MaterialPageRoute(
+              builder: (_) => SettingsPage(),
               maintainState: false,
             );
           default:
@@ -196,6 +202,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if ( permissionGranted == true ) {
       try {
+        if ( await Directory(globals.lokalDBPfad).exists() == false ) {
+          var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
+          if ( resDir.isAbsolute ) {
+            if (kDebugMode) {
+              print("resDir.uri.userinfo=" + resDir.uri.userInfo);
+            }
+          }
+        }
         if ( (Directory(globals.lokalDBPfad)).exists() == false ) {
           if (kDebugMode) {
             print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
@@ -299,11 +313,13 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(
               icon: const Icon(Icons.settings_sharp),
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('noch zu programmieren...'),
-                    backgroundColor: Color.fromARGB(0xff, 0xbd, 0xbd, 0xbd)
-                  )
+                //Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: const SettingsPage(),
+                    alignment: Alignment.topCenter,
+                    type: PageTransitionType.leftToRightWithFade,),
                 );
               },
             ),
@@ -459,6 +475,14 @@ class myMenuWidget extends StatefulWidget {
         context,
         PageTransition(
           child: const EntriesTablePage(),
+          alignment: Alignment.topCenter,
+          type: PageTransitionType.leftToRightWithFade,),
+      );
+    } else if (Index == 2 ) {
+      await Navigator.push(
+        context,
+        PageTransition(
+          child: const SettingsPage(),
           alignment: Alignment.topCenter,
           type: PageTransitionType.leftToRightWithFade,),
       );

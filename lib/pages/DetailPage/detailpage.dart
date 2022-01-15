@@ -70,25 +70,32 @@ class _DetailPageState extends State<DetailPage> {
     aktID = globals.aktID;
     if ( globals.aktID == -1 ) {
       final Anz = await dbHelper.getEntryCount();
-      if ( Anz[0]['Cnt'] > 0 ) {
+      int iAnz = 0;
+      if ( Anz.isNotEmpty ) {
+        iAnz = int.tryParse(Anz[0]['Cnt'].toString())!;
+      } else {
+        iAnz = 0;
+      }
+      if ( iAnz > 0 ) {
         final _neueDaten = await dbHelper.getLastEntry();
+        print(_neueDaten);
         _neuerZeitpunkt = DateTime.now().toString();
         _neueSystole = _neueDaten[0]['Systole'].toString();
         _neueDiastole = _neueDaten[0]['Diastole'].toString();
         _neuerPuls = _neueDaten[0]['Puls'].toString();
-        if ( _neueDaten[0]['Gewicht'] != null ) {
+        if ( _neueDaten[0]['Gewicht'].toString().isNotEmpty && _neueDaten[0]['Gewicht'] != null ) {
           _neuesGewicht = _neueDaten[0]['Gewicht'].toString();
         } else {
           _neuesGewicht = "";
         }
-        _neueBemerkung = 'neuer Eintrag';
+        _neueBemerkung = '';
       } else {
         _neuerZeitpunkt = DateTime.now().toString();
         _neueSystole = '120';
         _neueDiastole = '80';
         _neuerPuls = '60';
         _neuesGewicht = '77.7';
-        _neueBemerkung = 'neuer Eintrag';
+        _neueBemerkung = '';
       }
     } else {
       _datensatz = await dbHelper.getDataItem(globals.aktID);
@@ -96,12 +103,11 @@ class _DetailPageState extends State<DetailPage> {
       _neueSystole = _datensatz[0]['Systole'].toString();
       _neueDiastole = _datensatz[0]['Diastole'].toString();
       _neuerPuls = _datensatz[0]['Puls'].toString();
-      if ( _datensatz[0]['Gewicht'] != null ) {
+      if ( _datensatz[0]['Gewicht'].toString().isNotEmpty && _datensatz[0]['Gewicht'] != null ) {
         _neuesGewicht = _datensatz[0]['Gewicht'].toString();
       } else {
         _neuesGewicht = "";
       }
-      _neuesGewicht = _datensatz[0]['Gewicht'].toString();
       _neueBemerkung = _datensatz[0]['Bemerkung'];
     }
     ctrSystole.value = TextEditingValue(text: _neueSystole);

@@ -164,7 +164,15 @@ class dbHelper {
           print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
         }
       }
-      if ( Directory(globals.lokalDBPfad).exists() == true ) {
+      if ( await Directory(globals.lokalDBPfad).exists() == false ) {
+        var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
+        if ( resDir.isAbsolute ) {
+          if (kDebugMode) {
+            print("resDir.uri.userinfo=" + resDir.uri.userInfo);
+          }
+        }
+      }
+      if ( await Directory(globals.lokalDBPfad).exists() == true ) {
         Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
           if (kDebugMode) {
@@ -209,9 +217,7 @@ class dbHelper {
   // letzter Eintrag
   static Future<List<Map<String, dynamic>>> getLastEntry() async {
     final db = await dbHelper.db();
-    final id = await db.rawQuery("SELECT pid FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)", []);
-    print( DateTime.now().toString() + " - getLastEntry(): pid - $id");
-    final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id[0]['pid']], limit: 1);
+    final result = await db.rawQuery("SELECT strftime('%d.%m.%Y %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)", []);
     await db.close();
     if (kDebugMode) {
       print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
@@ -240,22 +246,18 @@ class dbHelper {
   // alle Einträge nach Zeitpunkt sortiert
   static Future<List<Map<String, dynamic>>> getDataItems(int Lmt) async {
     final db = await dbHelper.db();
+    var result;
     if ( Lmt > 0 ) {
-      final result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC', limit: Lmt);
-      await db.close();
-      if (kDebugMode) {
-        print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
-      }
-      return result;
+      result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC', limit: Lmt);
     }
     else {
-      final result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
-      await db.close();
-      if (kDebugMode) {
-        print( DateTime.now().toString() + " - getDataItems(): Datenbank geschlossen - $result");
-      }
-      return result;
+      result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
     }
+    await db.close();
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
+    }
+    return result;
   }
 
   // der Eintrag mit der angegebenen ID
@@ -509,6 +511,30 @@ class dbHelper {
     await db.close();
     if (kDebugMode) {
       print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    }
+    return Result;
+  }
+
+  static Future<bool> setTabEntryCount(int newCount) async {
+    bool Result = false;
+    int _ID = -1;
+    final db = await dbHelper.db();
+    List<Map<String, dynamic>>ret = [];
+
+    try {
+      ret = await db.rawQuery("SELECT " + SettingsInterface.colID + " as _ID FROM tSettings WHERE Bezeichnung LIKE 'AnzTabEintraege' AND Typ='INT'");
+    } catch (err) {
+      if (kDebugMode) {
+        print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
+      }
+    }
+    if ( ret.length > 0 ) {
+      _ID = ret[0]['_ID'];
+    }
+    await db.close();
+    Result = (await updateSettingsItem(_ID, "AnzTabEintraege", "INT", newCount, null, null) > 0);
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
     }
     return Result;
   }

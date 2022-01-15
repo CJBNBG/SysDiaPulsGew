@@ -4,6 +4,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:sysdiapulsgew/pages/DetailPage/detailpage.dart';
+import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
+import 'package:sysdiapulsgew/pages/SettingsPage/settingspage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import '../../my-globals.dart' as globals;
 import '../../services/myWidgets.dart' as myWidgets;
@@ -20,6 +22,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
   bool _isLoading = true;
   int _Limit = -1;
   int _LimitFromSettings = 25;
+  int _iAnzEntries = 0;
   List<Map<String, dynamic>>_alleEintraege = [];
 
   void _deleteItem(int ndx) async {
@@ -61,10 +64,19 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
 
   void _ladeDaten() async {
     try {
-      _LimitFromSettings = await dbHelper.getTabEntryCount();
-      // _alleEintraege.clear();
+      var ret = await dbHelper.getEntryCount();
+      if ( ret.isNotEmpty ) {
+        _iAnzEntries = int.tryParse(ret[0]['Cnt'].toString())!;
+      } else {
+        _iAnzEntries = 0;
+      }
       _alleEintraege = await dbHelper.getDataItems(_Limit);
-      if ( _LimitFromSettings > _alleEintraege.length ) _LimitFromSettings = _alleEintraege.length;
+
+      print("_LimitFromSettings=$_LimitFromSettings");
+      print("_Limit=$_Limit");
+      print("_iAnzEntries=$_iAnzEntries");
+
+      // if ( _LimitFromSettings > _alleEintraege.length ) _LimitFromSettings = _alleEintraege.length;
     } on Error catch( _, e ) {
       print("Fehler in _ladeDaten(): $e");
     }
@@ -88,6 +100,22 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
     });
   }
 
+  void _initDaten() async {
+    _LimitFromSettings = await dbHelper.getTabEntryCount();
+    var ret = await dbHelper.getEntryCount();
+    if ( ret.isNotEmpty ) {
+      _iAnzEntries = int.tryParse(ret[0]['Cnt'].toString())!;
+    } else {
+      _iAnzEntries = 0;
+    }
+    if ( _iAnzEntries > 0 ) {
+      if ( _iAnzEntries < _LimitFromSettings ) _Limit = _iAnzEntries;
+      else _Limit = _LimitFromSettings;
+    } else {
+      _Limit = 0;
+    }
+    _ladeDaten();
+  }
 
   String dasDatum(String Zeitpunkt) {
     if ( Zeitpunkt.length == 0 ) return "kein Datum";
@@ -102,7 +130,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
   @override
   void initState() {
     super.initState();
-    _ladeDaten();
+    _initDaten();
   }
 
   @override
@@ -120,6 +148,34 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
         // ------
         appBar: AppBar(
           title: Text( 'Einträge'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.info_outlined),
+              onPressed: () {
+                //Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: const InfoPage(),
+                    alignment: Alignment.topCenter,
+                    type: PageTransitionType.leftToRightWithFade,),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings_sharp),
+              onPressed: () {
+                //Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: const SettingsPage(),
+                    alignment: Alignment.topCenter,
+                    type: PageTransitionType.leftToRightWithFade,),
+                );
+              },
+            ),
+          ],
         ),
 
         // Body
@@ -403,29 +459,33 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                   flex: 5,
                   child: TextButton(
                     onPressed: (){},
-                    child: Text("Sie sehen \n" + _alleEintraege.length.toString() + " Einträge.",
+                    child: Text(_alleEintraege.length.toString() + " von " + _iAnzEntries.toString() + " Einträgen",
                       style: TextStyle(color: Colors.black),
                       textAlign: TextAlign.center,
                     )
                   ),
                 ),
-                _Limit == -1 && _alleEintraege.length > 0
+                _Limit == -1
                 ? Expanded(
                   flex: 5,
                   child: ElevatedButton(
                     onPressed: (){
+                      _isLoading = true;
                       _Limit = _LimitFromSettings;
                       setState(() {
                         _ladeDaten();
                       });
                     },
-                    child: Text("letzte " + _LimitFromSettings.toString() + " anzeigen"),
+                    child: Text("letzte " + _LimitFromSettings.toString() + " anzeigen",
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 )
                 : Expanded(
                   flex: 5,
                   child: ElevatedButton(
                     onPressed: (){
+                      _isLoading = true;
                       _Limit = -1;
                       setState(() {
                         _ladeDaten();
