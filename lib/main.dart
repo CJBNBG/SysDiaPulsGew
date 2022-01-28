@@ -294,7 +294,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Gesundheitsdaten'),
+          title: const Text('SysDiaPulsGew'),
           actions: <Widget>[
             // die Widgets werden von rechts außen nach links aufgeführt
             IconButton(
@@ -371,14 +371,16 @@ class _MyHomePageState extends State<MyHomePage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: const [
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 25.0, 0, 10),
-                                  child: Text(
-                                    'Gesundheitsdaten',
-                                    textAlign: TextAlign.start,
-                                    textScaleFactor: 1.8,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 5.0, 0, 10),
+                                    child: Text(
+                                      'Blutdruck- und Gewichtsdaten',
+                                      textAlign: TextAlign.start,
+                                      textScaleFactor: 1.8,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 )
@@ -566,7 +568,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
                   textScaleFactor: 2.0,
                 ),
                 Text(
-                  'Version: ' + widget.ThePackageInfo.version,
+                  'Version: ' + widget.ThePackageInfo.version + ' (' + widget.ThePackageInfo.buildNumber + ')',
                   textScaleFactor: 1.3,
                   style: TextStyle(
                     color: Colors.grey[500],

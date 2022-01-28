@@ -133,7 +133,7 @@ class _InfoPageState extends State<InfoPage> {
                                       textScaleFactor: 1.0,
                                     ),
                                     Text(
-                                      globals.gPackageInfo.version, //title
+                                      globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')', //title
                                       textScaleFactor: 1.0,
                                     ),
                                   ],
@@ -293,7 +293,7 @@ class _InfoPageState extends State<InfoPage> {
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
                                       child: myWidgets.myListRowWidgetTwoLines(
                                         Titel1: 'optimal:',
-                                        Titel2: 'unter 120',
+                                        Titel2: 'unter 80',
                                         Farbe1: globals.SysDia_optimal,
                                         Farbe2: globals.SysDia_optimal_blass,
                                         Breite: EntryWidthSysDia,
@@ -305,7 +305,7 @@ class _InfoPageState extends State<InfoPage> {
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
                                       child: myWidgets.myListRowWidgetTwoLines(
                                         Titel1: 'normal:',
-                                        Titel2: '120 - 129',
+                                        Titel2: '80 - 84',
                                         Farbe1: globals.SysDia_normal,
                                         Farbe2: globals.SysDia_normal_blass,
                                         Breite: EntryWidthSysDia,
@@ -317,7 +317,7 @@ class _InfoPageState extends State<InfoPage> {
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
                                       child: myWidgets.myListRowWidgetTwoLines(
                                         Titel1: 'hochnormal:',
-                                        Titel2: '130 - 139',
+                                        Titel2: '85 - 89',
                                         Farbe1: globals.SysDia_hochnormal,
                                         Farbe2: globals.SysDia_hochnormal_blass,
                                         Breite: EntryWidthSysDia,
@@ -335,7 +335,7 @@ class _InfoPageState extends State<InfoPage> {
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
                                       child: myWidgets.myListRowWidgetTwoLines(
                                         Titel1: 'Stufe 1:',
-                                        Titel2: '140 - 159',
+                                        Titel2: '90 - 99',
                                         Farbe1: globals.SysDia_Stufe_1,
                                         Farbe2: globals.SysDia_Stufe_1_blass,
                                         Breite: EntryWidthSysDia,
@@ -347,7 +347,7 @@ class _InfoPageState extends State<InfoPage> {
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
                                       child: myWidgets.myListRowWidgetTwoLines(
                                         Titel1: 'Stufe 2:',
-                                        Titel2: '160 - 179',
+                                        Titel2: '100 - 109',
                                         Farbe1: globals.SysDia_Stufe_2,
                                         Farbe2: globals.SysDia_Stufe_2_blass,
                                         Breite: EntryWidthSysDia,
@@ -359,7 +359,7 @@ class _InfoPageState extends State<InfoPage> {
                                       height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
                                       child: myWidgets.myListRowWidgetTwoLines(
                                         Titel1: 'Stufe 3:',
-                                        Titel2: 'ab 180',
+                                        Titel2: 'ab 110',
                                         Farbe1: globals.SysDia_Stufe_3,
                                         Farbe2: globals.SysDia_Stufe_3_blass,
                                         Breite: EntryWidthSysDia,
