@@ -32,23 +32,27 @@ class _ImportExportPageState extends State<ImportExportPage> {
   void ladeDateien() async {
     try {
       if ( await Directory(globals.lokalDBPfad).exists() == false ) {
+        print("Verzeichnis ${globals.lokalDBPfad} nicht gefunden...");
         var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
         if ( resDir.isAbsolute ) {
           if (kDebugMode) {
-            print("resDir.uri.userinfo=" + resDir.uri.userInfo);
+            print("...erzeugt");
+            print("resDir.uri.userInfo=" + resDir.uri.userInfo);
           }
         }
       }
       if ( await Directory(globals.lokalDBPfad).exists() == true ) {
+        print("Verzeichnis ${globals.lokalDBPfad} gefunden");
         _dirExists = true;
         final List<FileSystemEntity> entities = await Directory(
-            globals.lokalDBPfad)
-            .list(recursive: false, followLinks: false)
-            .toList();
-        Iterable<File> dateien = entities.whereType<File>();
+          globals.lokalDBPfad).list(recursive: false, followLinks: false).toList();
+        print(entities);
+        var reversedList = entities.reversed.toList();
+        Iterable<File> dateien = reversedList.whereType<File>();
         dateiNamen.clear();
         dateiDaten.clear();
         dateien.forEach((element) {
+          print(element);
           dateiName = element.uri.pathSegments.last;
           dateiNamenVoll.add(dateiName);
           if (dateiName.contains(globals.lokalDBNameOhnePfad)) {
@@ -158,28 +162,29 @@ class _ImportExportPageState extends State<ImportExportPage> {
       builder: (BuildContext context) =>
       AlertDialog(
         elevation: 5.0,
-        backgroundColor: Color.fromRGBO(255, 235, 235, 1),
+        // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
         title: Container(
           color: Color.fromRGBO(255, 219, 219, 1),
           child: Row(
             children:[
-              Icon(Icons.priority_high, color: Colors.red,),
+              // Icon(Icons.priority_high, color: Colors.red,),
               Container(
-                child: Expanded(
+                child: const Expanded(
                   child: FittedBox(
-                    fit: BoxFit.contain,
+                    fit: BoxFit.fitWidth,
                     alignment: Alignment.center,
-                    child: const Text(
-                      // "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
-                      "ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden",
+                    child: Text(
+                      "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                      // "ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden",
                       softWrap: true,
                       textAlign: TextAlign.center,
+                      textScaleFactor: 2.0,
                       style: TextStyle(color: Colors.red, ),
                     ),
                   ),
                 ),
               ),
-              Icon(Icons.priority_high, color: Colors.red,),
+              // Icon(Icons.priority_high, color: Colors.red,),
             ]
           ),
         ),
@@ -188,13 +193,27 @@ class _ImportExportPageState extends State<ImportExportPage> {
           textAlign: TextAlign.center,
           softWrap: true,),
         actions: <Widget>[
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, 'Nein'),
-            child: const Text('Nein')
-          ),
-          ElevatedButton(
-            onPressed: () => _doImport(dateiNamenVoll[index]),
-            child: const Text('Ja'),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
+                  // ),
+                    onPressed: () => Navigator.pop(context, 'Nein'),
+                    child: const Text('Nein')
+                ),
+                ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
+                  // ),
+                  onPressed: () => _doImport(dateiNamenVoll[index]),
+                  child: const Text('Ja'),
+                ),
+              ],
+            ),
           ),
         ],
       ),

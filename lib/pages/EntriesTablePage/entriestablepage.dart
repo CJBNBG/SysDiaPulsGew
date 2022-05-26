@@ -64,12 +64,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
 
   void _ladeDaten() async {
     try {
-      var ret = await dbHelper.getEntryCount();
-      if ( ret.isNotEmpty ) {
-        _iAnzEntries = int.tryParse(ret[0]['Cnt'].toString())!;
-      } else {
-        _iAnzEntries = 0;
-      }
+      _iAnzEntries = (await dbHelper.getEntryCount())!;
       _alleEintraege = await dbHelper.getDataItems(_Limit);
 
       print("_LimitFromSettings=$_LimitFromSettings");
@@ -102,12 +97,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
 
   void _initDaten() async {
     _LimitFromSettings = await dbHelper.getTabEntryCount();
-    var ret = await dbHelper.getEntryCount();
-    if ( ret.isNotEmpty ) {
-      _iAnzEntries = int.tryParse(ret[0]['Cnt'].toString())!;
-    } else {
-      _iAnzEntries = 0;
-    }
+    _iAnzEntries = (await dbHelper.getEntryCount())!;
     if ( _iAnzEntries > 0 ) {
       if ( _iAnzEntries < _LimitFromSettings ) _Limit = _iAnzEntries;
       else _Limit = _LimitFromSettings;
@@ -229,7 +219,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                         ),
                                         Container(
                                           height: 37, width: globals.EntryWidthSysDia,
-                                          child: myWidgets.myListRowWidgetTwoLines(isHeader: true, Titel1: 'Puls', Titel2: '(bps)', Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: globals.EntryWidthSysDia, ScaleFactor: 0.75),
+                                          child: myWidgets.myListRowWidgetTwoLines(isHeader: true, Titel1: 'Puls', Titel2: '(bpm)', Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: globals.EntryWidthSysDia, ScaleFactor: 0.75),
                                         ),
                                         Container(
                                           height: 37, width: globals.EntryWidthSysDia,
@@ -445,7 +435,6 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
           child: Icon(MdiIcons.plus),
           //backgroundColor: Colors.blue,
         ),
-
 
         // Footer
         // ------

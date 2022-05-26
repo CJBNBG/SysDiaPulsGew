@@ -3,6 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:sysdiapulsgew/pages/DailyEntriesTablePage/dailyentriestablepage.dart';
+import 'package:sysdiapulsgew/pages/DiagramPage/diagrampage.dart';
+import 'package:sysdiapulsgew/pages/EntriesPage/utils.dart';
 import 'package:sysdiapulsgew/pages/SettingsPage/settingspage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -13,14 +18,26 @@ import 'package:sysdiapulsgew/pages/StatistikPage/statistikdata.dart' as stats;
 import 'package:sysdiapulsgew/pages/ImportExportPage/importexportpage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import 'package:sysdiapulsgew/pages/EntriesTablePage/entriestablepage.dart';
+import 'package:sysdiapulsgew/pages/EntriesPage/entriespage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
 import 'dart:ui';
 import 'package:badges/badges.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'myUpdateProvider.dart';
 
 void main() {
-  runApp(const MyApp());
+  // initializeDateFormatting().then((_) =>
+  runApp(
+    /// Providers are above [MyApp] instead of inside it, so that tests
+    /// can use [MyApp] while mocking the providers
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => myUpdateProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 dynamic _platform;
@@ -62,6 +79,11 @@ class _MyAppState extends State<MyApp> {
           case '/entriestablepage':
             return MaterialPageRoute(
               builder: (_) => EntriesTablePage(),
+              maintainState: false,
+            );
+          case '/dailyentriestablepage':
+            return MaterialPageRoute(
+              builder: (_) => dailyEntriesTablePage(),
               maintainState: false,
             );
           case '/importexportpage':
@@ -118,8 +140,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final data = await dbHelper.getDataDays(-7);
     if ( mounted ) {
       setState(() {
-        if (d1[0]['Cnt'] != null) {
-          strAnzDSe = d1[0]['Cnt'].toString();
+        if (d1 != null) {
+          strAnzDSe = d1.toString();
         } else {
           strAnzDSe = "0";
         }
@@ -146,6 +168,16 @@ class _MyHomePageState extends State<MyHomePage> {
       await _getStoragePermission();
       await _initPackageInfo();
       await _loadAVGData();
+      await ladeEintraege();
+      await ladeEvents();
+      final erg = await dbHelper.getFirstEntry();
+      if ( erg.isNotEmpty ) {
+        globals.calendarStart = DateTime.parse(erg[0]['Zeitpkt'].toString());
+      } else {
+        globals.calendarStart = DateTime.parse('2022-01-01 00:00');
+      }
+      print(globals.calendarStart);
+      List<Map<String, dynamic>> allEntries = await dbHelper.getDataItems(-1);
     }
   }
 
@@ -155,6 +187,8 @@ class _MyHomePageState extends State<MyHomePage> {
         print('myTimerTick Anfang: ' + DateTime.now().toString());
       }
       await _loadAVGData();
+      await ladeEintraege();
+      await ladeEvents();
       setState(() {
         globals.updAVG_needed = false;
       });
@@ -270,11 +304,20 @@ class _MyHomePageState extends State<MyHomePage> {
               type: PageTransitionType.leftToRightWithFade,),
           );
           break;
-        case 2:                     // Einträge
+        case 2:                     // Diagramm
           await Navigator.push(
             context,
             PageTransition(
-              child: const EntriesTablePage(),
+              child: const diagramPage(),
+              alignment: Alignment.topCenter,
+              type: PageTransitionType.leftToRightWithFade,),
+          );
+          break;
+        case 3:                     // Einträge
+          await Navigator.push(
+            context,
+            PageTransition(
+              child: const EntriesPage(),
               alignment: Alignment.topCenter,
               type: PageTransitionType.leftToRightWithFade,),
           );
@@ -415,28 +458,33 @@ class _MyHomePageState extends State<MyHomePage> {
         BottomNavigationBar(items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Start',
+            label: 'Home',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.analytics_outlined),
             label: 'Statistik',
           ),
+          const BottomNavigationBarItem(
+            icon: Icon(MdiIcons.chartScatterPlot),
+            label: 'Diagramm',
+          ),
           BottomNavigationBarItem(
             icon: Badge(
-              child: Icon(Icons.table_rows),
-              badgeColor: Colors.blue,
+              child: const Icon(Icons.table_rows),
+              badgeColor: Theme.of(context).primaryColor,
               position: BadgePosition.topEnd(),
               shape: BadgeShape.square,
               borderRadius: BorderRadius.circular(8),
-              padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+              padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
               badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),
             ),
             label: 'Einträge',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Theme.of(context).primaryColor,
         onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
         ),
       ),
     );
@@ -683,11 +731,10 @@ class meineZeile extends StatelessWidget {
 }
 
 void _launchURL() async {
-  const _url =
-      'https://pixabay.com/vectors/stethoscope-icon-medical-medicine-3725131/';
-  if (await canLaunch(_url)) {
-    await launch(_url);
+  final Uri _url = Uri.parse('https://pixabay.com/photos/blood-pressure-stethoscope-medical-1584223/');
+  if (await canLaunchUrl(_url)) {
+    await launchUrl(_url);
   } else {
-    throw 'Fehler beim Aufruf von ' + _url;
+    throw 'Fehler beim Aufruf von ' + _url.toString();
   }
 }

@@ -5,7 +5,7 @@ import '../../services/myWidgets.dart' as myWidgets;
 import '../../my-globals.dart' as globals;
 import './statistikdata.dart' as stats;
 
-//bool _isLoading = true;
+bool _isLoading = true;
 const iBreite = globals.CardWidth / 3.0;
 const iScaleFactor = 1.2;
 
@@ -376,6 +376,9 @@ class _StatistikPageState extends State<StatistikPage> {
   void initState() {
     super.initState();
     stats.ladeDaten();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -397,11 +400,11 @@ class _StatistikPageState extends State<StatistikPage> {
         appBar: AppBar(
           title: const Text("Statistik"),
         ),
-        body: /*_isLoading
+        body: _isLoading
         ? const Center(
             child: CircularProgressIndicator(),
           )
-        : */Stack(
+        : Stack(
           children: <Widget>[
             Container(color: Colors.grey[100], height: double.infinity),
             Container(color: globals.BgColorNeutral, child: container, margin: const EdgeInsets.only(bottom: 50)),
@@ -414,7 +417,7 @@ class _StatistikPageState extends State<StatistikPage> {
 
 class SliderBox extends StatelessWidget {
   final Widget child;
-  const SliderBox({Key? key, required this.child}) : super(key: key);
+  SliderBox({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

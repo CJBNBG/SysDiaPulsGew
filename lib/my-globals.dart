@@ -8,14 +8,21 @@ PackageInfo gPackageInfo = PackageInfo(appName: "", packageName: "", version: ""
 int screenwidth = 0;
 int screenheight = 0;
 String lokalDBDir = "/sdcard/";
-String lokalDBPfad = lokalDBDir + "SysDiaPuls/";
-String lokalDBNameOhnePfad = "SysDiaPuls.db";
+String lokalDBPfad = lokalDBDir + "SysDiaPulsGew/";
+String lokalDBNameOhnePfad = "SysDiaPulsGew.db";
 String lokalDBNameMitPfad = lokalDBPfad + lokalDBNameOhnePfad;
 bool updAVG_needed = false;
 
 int aktID = -1;
 const EntryWidthSysDia = 55.0;
 const CardWidth = 310.0;
+
+const scaleFactorTablet = 1.65;
+const scaleFactorPhone = 1.1;
+const BemlenTablet = 50;
+const BemlenPhone = 25;
+const EntryHeight = 92.0;
+late DateTime calendarStart;
 
 // Farbdefinitionen
 Color BgColorNeutral = Colors.white;        // wird in der build-Methode der Klasse _MyAppState gesetzt

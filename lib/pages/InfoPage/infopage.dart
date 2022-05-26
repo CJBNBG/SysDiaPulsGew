@@ -21,10 +21,10 @@ class InfoPage extends StatefulWidget {
 class _InfoPageState extends State<InfoPage> {
 
   void _AnzDSe() async {
-    List<Map<String, dynamic>> ret = await dbHelper.getEntryCount();
+    int? ret = await dbHelper.getEntryCount();
     if ( mounted ) setState(() {
-      if (ret.isNotEmpty) {
-        strAnzDSe = ret[0]['Cnt'].toString();
+      if (ret != null) {
+        strAnzDSe = ret.toString();
       } else {
         strAnzDSe = '?';
       }
@@ -140,8 +140,8 @@ class _InfoPageState extends State<InfoPage> {
                                 ),
                               ),
                               myListWidget(Titel: "Name der App: ", Wert: globals.gPackageInfo.appName, ScaleFactor: 1.0,),
-                              myListWidget(Titel: "Packagename: ", Wert: globals.gPackageInfo.packageName, ScaleFactor: 1.0,),
-                              myListWidget(Titel: "Buildsignature: ", Wert: globals.gPackageInfo.buildSignature, ScaleFactor: 0.67,),
+                              // myListWidget(Titel: "Packagename: ", Wert: globals.gPackageInfo.packageName, ScaleFactor: 1.0,),
+                              // myListWidget(Titel: "Buildsignature: ", Wert: globals.gPackageInfo.buildSignature, ScaleFactor: 0.67,),
                               myListWidget(Titel: "Anzeigeformat: ", Wert: globals.screenwidth.toString() + ' x ' + globals.screenheight.toString(), ScaleFactor: 1.0,),
                             ],
                           ),
@@ -186,12 +186,13 @@ class _InfoPageState extends State<InfoPage> {
                           padding: EdgeInsets.all(PaddingWidth),
                           child: Container(
                             width: ContainerWidth,
-                            height: 405,
+                            // height: 405,
                             //color: Colors.lightBlue[100],
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                SizedBox(height: 10.0,),
                                 Text(
                                   'verwendete Farben:',
                                   textScaleFactor: 1.25,
@@ -199,6 +200,7 @@ class _InfoPageState extends State<InfoPage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                SizedBox(height: 20.0,),
                                 myListWidget(Titel: "Systole (mmHg):", Wert: "", ScaleFactor: 1.0),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -284,6 +286,7 @@ class _InfoPageState extends State<InfoPage> {
                                     ),
                                   ],
                                 ),
+                                SizedBox(height: 20.0,),
                                 myListWidget(Titel: "Diastole (mmHg):", Wert: "", ScaleFactor: 1.0),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -369,7 +372,8 @@ class _InfoPageState extends State<InfoPage> {
                                     ),
                                   ],
                                 ),
-                                myListWidget(Titel: "Puls (bps):", Wert: "", ScaleFactor: 1.0),
+                                SizedBox(height: 20.0,),
+                                myListWidget(Titel: "Puls (bpm):", Wert: "", ScaleFactor: 1.0),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,6 +416,7 @@ class _InfoPageState extends State<InfoPage> {
                                     ),
                                   ],
                                 ),
+                                SizedBox(height: 20.0,),
                                 myListWidget(Titel: "Gewicht (kg):", Wert: "", ScaleFactor: 1.0),
                                 Container(
                                   height: 50, width: EntryWidthGew, color: Colors.lightBlue[200],
@@ -472,11 +477,11 @@ class myListWidget extends StatelessWidget {
 }
 
 void _launchEMail() async {
-  const _url =
-      'mailto:claus@clausjbauer.de?subject=[SysDiaPulsGew]&body=Hier bitte den Text an den Autor ergänzen...';
-  if (await canLaunch(_url)) {
-    await launch(_url);
+  final Uri _url =
+      Uri.parse('mailto:claus@clausjbauer.de?subject=[SysDiaPulsGew]&body=Hier bitte den Text an den Autor ergänzen...');
+  if (await canLaunchUrl(_url)) {
+    await launchUrl(_url);
   } else {
-    throw 'Fehler beim Aufruf von $_url';
+    throw 'Fehler beim Aufruf von $_url.toString()';
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:io';
 import 'package:sysdiapulsgew/services/DataInterface.dart';
 import 'package:sysdiapulsgew/services/SettingsInterface.dart';
@@ -41,9 +42,9 @@ class dbHelper {
       globals.lokalDBNameOhnePfad,
       version: _databaseVersion,
       onOpen: (sql.Database thisdb) async {
-        if (kDebugMode) {
-          print( DateTime.now().toString() + " - Datenbank geöffnet");
-        }
+        // if (kDebugMode) {
+        //   print( DateTime.now().toString() + " - Datenbank geöffnet");
+        // }
       },
       onCreate: (sql.Database thisdb, int ver) async {
         await _onCreateDB(thisdb);
@@ -74,9 +75,9 @@ class dbHelper {
       }
     }
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
+    // }
     retVal = true;
 
     return retVal;
@@ -160,9 +161,9 @@ class dbHelper {
       final db = await dbHelper.db();
       if ( db.isOpen ) {
         await db.close();
-        if (kDebugMode) {
-          print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
-        }
+        // if (kDebugMode) {
+        //   print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
+        // }
       }
       if ( await Directory(globals.lokalDBPfad).exists() == false ) {
         var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
@@ -203,14 +204,86 @@ class dbHelper {
   // -------------
 
   // Anzahl Einträge
-  static Future<List<Map<String, dynamic>>> getEntryCount() async {
+  static Future<int?> getEntryCount() async {
+    int? retAnz = 0;
     final db = await dbHelper.db();
     String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
     final result = await db.rawQuery(SQL_Statement, []);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
+    if ( result.isNotEmpty ) {
+      retAnz = int.tryParse(result[0]['Cnt'].toString());
+    } else {
+      retAnz = 0;
     }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
+    // }
+    return retAnz;
+  }
+
+  // Diagramm: Systole
+  static Future<List<Point>> getWertFuerDiagramm(String xWert, int xTage) async {
+    List<Point>retval = [];
+    String strsql = "";
+    try {
+      final db = await dbHelper.db();
+      DateTime t1 = DateTime.now();
+      DateTime t2 = DateTime.now();
+      if ( xTage < 0 ) {
+        t1 = t1.add(Duration(days: xTage));
+      } else {
+        t2 = t2.add(Duration(days: xTage));
+      }
+      t1 = DateTime(t1.year, t1.month, t1.day, 0, 0, 0);
+      t2 = DateTime(t2.year, t2.month, t2.day, 23, 59, 59);
+      strsql = "SELECT $xWert, strftime('%H', Zeitpunkt) as Zeitpkt_H, strftime('%M', Zeitpunkt) as Zeitpkt_M FROM tDaten";
+      strsql += " WHERE Zeitpunkt BETWEEN '${t1.toIso8601String()}' AND '${t2.toIso8601String()}'";
+      // if (kDebugMode) {
+      //   print(DateTime.now().toString() + " - getWertFuerDiagramm($xWert, $xTage): $strsql");
+      // }
+      final result = await db.rawQuery(strsql, []);
+      if ( result.isNotEmpty ) {
+        num _x, _y;
+        int _std, _min;
+        String _stdmin;
+        Point _p;
+        for (var element in result) {
+          _y = int.tryParse(element[xWert].toString()) as num;
+          _std = int.tryParse(element['Zeitpkt_H'].toString())!;
+          _min = int.tryParse(element['Zeitpkt_M'].toString())!;
+          _stdmin = _std.toString() + '.' + _min.toString();
+          _x = double.tryParse(_stdmin) as num;
+          _p = Point(_x, _y);
+          retval.add(_p);
+        }
+        // if (kDebugMode) {
+        //   print(DateTime.now().toString() + " - getWertFuerDiagramm($xWert, $xTage): ${result.length} Punkte eingelesen");
+        // }
+      } else {
+        // if (kDebugMode) {
+        //   print(DateTime.now().toString() + " - getWertFuerDiagramm($xWert, $xTage): keine Daten");
+        // }
+      }
+      await db.close();
+      // if (kDebugMode) {
+      //   print(DateTime.now().toString() + " - getWertFuerDiagramm($xWert, $xTage): Datenbank geschlossen");
+      // }
+    } catch ( _, err ) {
+      if (kDebugMode) {
+        print("Fehler in getSysDiagramm($xWert, $xTage): $err");
+      }
+    }
+    return retval;
+  }
+
+  // erster Eintrag
+  static Future<List<Map<String, dynamic>>> getFirstEntry() async {
+    final db = await dbHelper.db();
+    final result = await db.rawQuery("SELECT strftime('%Y-%m-%d %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MIN(Zeitpunkt) FROM tDaten)", []);
+    await db.close();
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getFirstEntry(): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -219,9 +292,9 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.rawQuery("SELECT strftime('%d.%m.%Y %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)", []);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -237,12 +310,19 @@ class dbHelper {
                   DataInterface.colBemerkung: Bemerkung};
     final id = await db.insert(DataInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - createDataItem(): Datenbank geschlossen - $id");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - createDataItem(): Datenbank geschlossen - $id");
+    // }
     return id;
   }
 
+  // alle Tage, an denen Einträge existieren, abstiegend sotiert
+  static Future<List<Map<String, dynamic>>> getOnlyDataDays() async {
+    final db = await dbHelper.db();
+    var result = db.rawQuery("SELECT DISTINCT strftime('%Y-%m-%d', Zeitpunkt) as Zeitpkt FROM tDaten ORDER BY Zeitpunkt DESC", []);
+    await db.close();
+    return result;
+  }
   // alle Einträge nach Zeitpunkt sortiert
   static Future<List<Map<String, dynamic>>> getDataItems(int Lmt) async {
     final db = await dbHelper.db();
@@ -254,9 +334,9 @@ class dbHelper {
       result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
     }
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -265,8 +345,25 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getDataItem($id): Datenbank geschlossen - $result");
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getDataItem($id): Datenbank geschlossen - $result");
+    // }
+    return result;
+  }
+
+  // der Eintrag des angegebenen Datums
+  static Future<List<Map<String, dynamic>>> getDataItemsForDay(DateTime day) async {
+    List<Map<String, dynamic>> result = [];
+    try {
+      final db = await dbHelper.db();
+      String SQL_Statement = "SELECT * FROM tDaten WHERE Zeitpunkt BETWEEN '${day.toString()}' AND '${day.add(Duration(days: 1)).toString()}'";
+      result = await db.rawQuery(SQL_Statement, []);
+      await db.close();
+      // if (kDebugMode) {
+      //   print( DateTime.now().toString() + " - getDataItemsForDay(${SQL_Statement}): Datenbank geschlossen - $result");
+      // }
+    } on Error catch ( _, e ) {
+      print( 'Fehler in getDataItemsForDay: $e');
     }
     return result;
   }
@@ -288,9 +385,9 @@ class dbHelper {
     }
     final result = await db.rawQuery(SQL_Statement, []);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getDataDaysCount($Tage): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getDataDaysCount($Tage): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -314,9 +411,9 @@ class dbHelper {
     }
     final result = await db.rawQuery(SQL_Statement);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getDataDays($Tage): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getDataDays($Tage): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -341,9 +438,9 @@ class dbHelper {
 
     final result = await db.update(DataInterface.tblData, data, where: DataInterface.colID + " = ?", whereArgs: [id]);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - updateDataItem($id): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - updateDataItem($id): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -353,9 +450,9 @@ class dbHelper {
     try {
       final result = await db.delete(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id]);
       await db.close();
-      if (kDebugMode) {
-        print( DateTime.now().toString() + " - deleteDataItem($id): Datenbank geschlossen - $result");
-      }
+      // if (kDebugMode) {
+      //   print( DateTime.now().toString() + " - deleteDataItem($id): Datenbank geschlossen - $result");
+      // }
     } catch (err) {
       debugPrint("Irgendetwas ging schief beim Löschen des Daten-Eintrags: $err");
     }
@@ -387,7 +484,9 @@ class dbHelper {
     }
     final result = await db.rawQuery(SQL_Statement, args);
     await db.close();
-    print(result);
+    // if (kDebugMode) {
+    //   print(result);
+    // }
     String sRet = "0.0";
     if ( result.isNotEmpty ) {
       if (result[0]['erg'] != null) {
@@ -400,9 +499,9 @@ class dbHelper {
     } else {
       sRet = "Fehler";
     }
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getAVGVonBis($Was, $von, $bis, $anzTage): Datenbank geschlossen - $sRet");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getAVGVonBis($Was, $von, $bis, $anzTage): Datenbank geschlossen - $sRet");
+    // }
     return sRet;
   }
 
@@ -420,9 +519,9 @@ class dbHelper {
       SettingsInterface.colWertText: Wert_TEXT};
     final id = await db.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - createSettingsItem($id): Datenbank geschlossen");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - createSettingsItem($id): Datenbank geschlossen");
+    // }
     return id;
   }
 
@@ -431,9 +530,9 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.query(SettingsInterface.tblData, orderBy: SettingsInterface.colBezeichnung);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getSettingsItems(): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getSettingsItems(): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -442,9 +541,9 @@ class dbHelper {
     final db = await dbHelper.db();
     final result = await db.query(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id], limit: 1);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getSettingsItem($id): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getSettingsItem($id): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -470,9 +569,9 @@ class dbHelper {
 
     final result = await db.update(SettingsInterface.tblData, data, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - updateSettingsItem($id): Datenbank geschlossen - $result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - updateSettingsItem($id): Datenbank geschlossen - $result");
+    // }
     return result;
   }
 
@@ -482,9 +581,9 @@ class dbHelper {
     try {
       final result = await db.delete(SettingsInterface.tblData, where: SettingsInterface.colID + " = ?", whereArgs: [id]);
       await db.close();
-      if (kDebugMode) {
-        print( DateTime.now().toString() + " - deleteSettingsItem($id): Datenbank geschlossen - $result");
-      }
+      // if (kDebugMode) {
+      //   print( DateTime.now().toString() + " - deleteSettingsItem($id): Datenbank geschlossen - $result");
+      // }
     } catch (err) {
       if (kDebugMode) {
         print("Irgendetwas ging schief beim Löschen des Einstellungs-Eintrags: $err");
@@ -500,7 +599,7 @@ class dbHelper {
 
     try {
       theList = await db.rawQuery("SELECT Wert_INT AS cnt FROM tSettings WHERE Bezeichnung LIKE 'AnzTabEintraege' AND Typ='INT'");
-    } catch (err) {
+    } on Error catch (err) {
       if (kDebugMode) {
         print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
       }
@@ -509,9 +608,9 @@ class dbHelper {
       Result = theList[0]['cnt'];
     }
     await db.close();
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    // }
     return Result;
   }
 
@@ -523,7 +622,7 @@ class dbHelper {
 
     try {
       ret = await db.rawQuery("SELECT " + SettingsInterface.colID + " as _ID FROM tSettings WHERE Bezeichnung LIKE 'AnzTabEintraege' AND Typ='INT'");
-    } catch (err) {
+    } on Error catch (err) {
       if (kDebugMode) {
         print("Fehler beim Bestimmen der Anzahl getTabEntryCount " + err.toString());
       }
@@ -533,9 +632,9 @@ class dbHelper {
     }
     await db.close();
     Result = (await updateSettingsItem(_ID, "AnzTabEintraege", "INT", newCount, null, null) > 0);
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
-    }
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
+    // }
     return Result;
   }
 }

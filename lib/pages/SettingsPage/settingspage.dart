@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../my-globals.dart' as globals;
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 
 
@@ -24,11 +23,6 @@ class _SettingsPageState extends State<SettingsPage> {
         _isLoading = false;
       });
     }
-  }
-
-  void _doAbbrechen() async {
-    // kehrt zur Liste der Einträge zurück
-    Navigator.pop(context);
   }
 
   void _doSpeichern() async {
@@ -69,23 +63,32 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Text("Anzahl Einträge in der Liste", textScaleFactor: 1.7,),
-                    Slider(
-                      value: _currentSliderValue,
-                      min: 5,
-                      max: 100,
-                      divisions: 19,
-                      label: _currentSliderValue.round().toString(),
-                      onChanged: (double value) {
-                        setState(() {
-                          _currentSliderValue = value;
-                        });
-                      }
+                    const Text("Anzahl sichtbarer Einträge in der Liste", textScaleFactor: 1.3,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          flex: 10,
+                          child: Slider(
+                            value: _currentSliderValue,
+                            min: 5,
+                            max: 100,
+                            divisions: 19,
+                            label: _currentSliderValue.round().toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                _currentSliderValue = value;
+                              });
+                            }
+                          ),
+                        ),
+                        Flexible(flex: 1, child: Text("${_currentSliderValue.round()}", textScaleFactor: 1.7)),
+                      ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ElevatedButton(onPressed: () => _doSpeichern(), child: Text("speichern")),
+                        ElevatedButton(onPressed: () => _doSpeichern(), child: Text("übernehmen")),
                       ],
                     ),
                   ],
