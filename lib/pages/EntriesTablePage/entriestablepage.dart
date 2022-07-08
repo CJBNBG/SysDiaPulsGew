@@ -1,14 +1,142 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:sysdiapulsgew/pages/DetailPage/detailpage.dart';
 import 'package:sysdiapulsgew/pages/InfoPage/infopage.dart';
 import 'package:sysdiapulsgew/pages/SettingsPage/settingspage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import '../../my-globals.dart' as globals;
+import '../../myUpdateProvider.dart';
+import '../../services/DataInterface.dart';
 import '../../services/myWidgets.dart' as myWidgets;
+import 'package:sysdiapulsgew/services/screenhelper.dart';
+
+double _scaleFactor = 1.0;
+// int _Bemlen = 1;
+double _BreiteZeitpunkt = 1.0;
+// double _hoeheUberschrift = 1.0;
+
+bool _isLoading = true;
+int _Limit = -1;
+int _LimitFromSettings = 25;
+int _iAnzEntries = 0;
+List<Map<String, dynamic>> _alleEintraege = [];
+
+_frageLoeschen(BuildContext context, int index) async {
+  showDialog<String>(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      elevation: 5.0,
+      // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
+      title: Container(
+        color: Color.fromRGBO(255, 219, 219, 1),
+        child: Row(children: [
+          // Icon(Icons.priority_high, color: Colors.red,),
+          Container(
+            child: const Expanded(
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.center,
+                child: Text(
+                  "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 2.0,
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Icon(Icons.priority_high, color: Colors.red,),
+        ]),
+      ),
+      content: Text(
+        "Möchten Sie diesen Eintrag wirklich löschen?",
+        textAlign: TextAlign.center,
+        softWrap: true,
+        textScaleFactor: 2.0,
+      ),
+      actions: <Widget>[
+        // SizedBox(width: 20.0,),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
+                  // ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Nein')),
+              ElevatedButton(
+                // style: ButtonStyle(
+                //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
+                // ),
+                onPressed: () async {
+                  await _deleteItem(context, index);
+                  Navigator.pop(context);
+                },
+                child: const Text('Ja'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+_deleteItem(BuildContext context, int ndx) async {
+  int id = _alleEintraege[ndx][DataInterface.colID];
+  if (id != null) {
+    await dbHelper.deleteDataItem(id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Eintrag gelöscht')),
+    );
+    // setState(() {
+    //   _ladeDaten();
+    //   globals.updAVG_needed = true;
+    // });
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Fehler beim löschen ($id)')),
+    );
+  }
+}
+
+_editItem(BuildContext context, int ndx) async {
+  int id = _alleEintraege[ndx][DataInterface.colID];
+  if (id == null) {
+    id = -1;
+  }
+  globals.aktID = id;
+  await Navigator.push(
+    context,
+    PageTransition(
+      child: DetailPage(),
+      alignment: Alignment.topCenter,
+      type: PageTransitionType.leftToRightWithFade,
+    ),
+  );
+}
+
+_neuerEintrag(BuildContext context) async {
+  globals.aktID = -1;
+  Navigator.pop(context, 'OK');
+  await Navigator.push(
+    context,
+    PageTransition(
+      child: DetailPage(),
+      alignment: Alignment.topCenter,
+      type: PageTransitionType.leftToRightWithFade,
+    ),
+  );
+}
 
 class EntriesTablePage extends StatefulWidget {
   const EntriesTablePage({Key? key}) : super(key: key);
@@ -18,50 +146,6 @@ class EntriesTablePage extends StatefulWidget {
 }
 
 class _EntriesTablePageState extends State<EntriesTablePage> {
-
-  bool _isLoading = true;
-  int _Limit = -1;
-  int _LimitFromSettings = 25;
-  int _iAnzEntries = 0;
-  List<Map<String, dynamic>>_alleEintraege = [];
-
-  void _deleteItem(int ndx) async {
-    int id = _alleEintraege[ndx]['pid'];
-    if ( id != null ) {
-      await dbHelper.deleteDataItem(id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Eintrag gelöscht')),
-      );
-      setState(() {
-        _ladeDaten();
-        globals.updAVG_needed = true;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fehler beim löschen ($id)')),
-      );
-    }
-  }
-
-  void _editItem(int ndx) async {
-    int id = _alleEintraege[ndx]['pid'];
-    if ( id == null ) {
-      id = -1;
-    }
-    globals.aktID = id;
-    await Navigator.push(
-      context,
-      PageTransition(
-        child: DetailPage(),
-        alignment: Alignment.topCenter,
-        type: PageTransitionType.leftToRightWithFade,),
-    );
-    setState(() {
-      _ladeDaten();
-      globals.updAVG_needed = true;
-    });
-  }
-
   void _ladeDaten() async {
     try {
       _iAnzEntries = (await dbHelper.getEntryCount())!;
@@ -72,35 +156,23 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
       print("_iAnzEntries=$_iAnzEntries");
 
       // if ( _LimitFromSettings > _alleEintraege.length ) _LimitFromSettings = _alleEintraege.length;
-    } on Error catch( _, e ) {
+    } on Error catch (_, e) {
       print("Fehler in _ladeDaten(): $e");
     }
-    if ( mounted ) setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _neuerEintrag() async {
-    globals.aktID = -1;
-    Navigator.pop(context, 'OK');
-    await Navigator.push(
-      context,
-      PageTransition(
-        child: DetailPage(),
-        alignment: Alignment.topCenter,
-        type: PageTransitionType.leftToRightWithFade,),
-    );
-    setState(() {
-      _ladeDaten();
-    });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
   }
 
   void _initDaten() async {
     _LimitFromSettings = await dbHelper.getTabEntryCount();
     _iAnzEntries = (await dbHelper.getEntryCount())!;
-    if ( _iAnzEntries > 0 ) {
-      if ( _iAnzEntries < _LimitFromSettings ) _Limit = _iAnzEntries;
-      else _Limit = _LimitFromSettings;
+    if (_iAnzEntries > 0) {
+      if (_iAnzEntries < _LimitFromSettings)
+        _Limit = _iAnzEntries;
+      else
+        _Limit = _LimitFromSettings;
     } else {
       _Limit = 0;
     }
@@ -108,13 +180,17 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
   }
 
   String dasDatum(String Zeitpunkt) {
-    if ( Zeitpunkt.length == 0 ) return "kein Datum";
-    else return Zeitpunkt.substring(8, 10) + "." + Zeitpunkt.substring(5, 7) + "." + Zeitpunkt.substring(0, 4);
+    if (Zeitpunkt.length == 0)
+      return "kein Datum";
+    else
+      return Zeitpunkt.substring(8, 10) + "." + Zeitpunkt.substring(5, 7) + "." + Zeitpunkt.substring(0, 4);
   }
 
   String dieUhrzeit(String Zeitpunkt) {
-    if ( Zeitpunkt.length == 0 ) return "keine Uhrzeit";
-    else return Zeitpunkt.substring(11, 16);
+    if (Zeitpunkt.length == 0)
+      return "keine Uhrzeit";
+    else
+      return Zeitpunkt.substring(11, 16);
   }
 
   @override
@@ -131,13 +207,19 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
 
   @override
   Widget build(BuildContext context) {
+    var myProvider = Provider.of<myUpdateProvider>(context, listen: false);
+    bool isLandscape = Screen.isLandscape(context);
+    // bool isLargePhone = Screen.diagonal(context) > 720;
+    // bool isNarrow = Screen.widthInches(context) < 3.5;
+    bool isTablet = Screen.diagonalInches(context) >= 8.5; // war 7s
+    _BreiteZeitpunkt = Screen.width(context) / 3.0;
+
     return SafeArea(
       child: Scaffold(
-
         // Header
         // ------
         appBar: AppBar(
-          title: Text( 'Einträge'),
+          title: Text('Einträge'),
           actions: [
             IconButton(
               icon: const Icon(Icons.info_outlined),
@@ -148,7 +230,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                   PageTransition(
                     child: const InfoPage(),
                     alignment: Alignment.topCenter,
-                    type: PageTransitionType.leftToRightWithFade,),
+                    type: PageTransitionType.leftToRightWithFade,
+                  ),
                 );
               },
             ),
@@ -161,7 +244,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                   PageTransition(
                     child: const SettingsPage(),
                     alignment: Alignment.topCenter,
-                    type: PageTransitionType.leftToRightWithFade,),
+                    type: PageTransitionType.leftToRightWithFade,
+                  ),
                 );
               },
             ),
@@ -171,242 +255,144 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
         // Body
         // ----
         body: _isLoading
-          ? const Center(
-            child: CircularProgressIndicator(),
-          )
-          : Center(
-            child: Container(
-              width: globals.CardWidth+40,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
-                child: CustomScrollView(
-                  slivers: <Widget>[
-                    SliverFixedExtentList(
-                      itemExtent: 64.0,
-                      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-                        return Container(
-                          margin: EdgeInsets.zero,
-                          alignment: Alignment.center,
-                          color: Colors.grey,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 60,
-                                margin: EdgeInsets.zero,
-                                color: Colors.grey[400],
-                                child: myWidgets.myListRowWidgetOneLine(isHeader: true, Titel1: "Zeitpunkt", Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: 77, ScaleFactor: 0.75, alignment: Alignment.center),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    alignment: Alignment.topCenter,
-                                    height: 40,
-                                    margin: EdgeInsets.zero,
-                                    color: Colors.grey[300],
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          height: 37, width: globals.EntryWidthSysDia,
-                                          child: myWidgets.myListRowWidgetTwoLines(isHeader: true, Titel1: 'Systole', Titel2: '(mmHg)', Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: globals.EntryWidthSysDia, ScaleFactor: 0.75),
-                                        ),
-                                        Container(
-                                          height: 37, width: globals.EntryWidthSysDia,
-                                          child: myWidgets.myListRowWidgetTwoLines(isHeader: true, Titel1: 'Diastole', Titel2: '(mmHg)', Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: globals.EntryWidthSysDia, ScaleFactor: 0.75),
-                                        ),
-                                        Container(
-                                          height: 37, width: globals.EntryWidthSysDia,
-                                          child: myWidgets.myListRowWidgetTwoLines(isHeader: true, Titel1: 'Puls', Titel2: '(bpm)', Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: globals.EntryWidthSysDia, ScaleFactor: 0.75),
-                                        ),
-                                        Container(
-                                          height: 37, width: globals.EntryWidthSysDia,
-                                          child: myWidgets.myListRowWidgetTwoLines(isHeader: true, Titel1: 'Gewicht', Titel2: '(kg)', Farbe1: Colors.grey, Farbe2: Colors.grey[500], Breite: globals.EntryWidthSysDia, ScaleFactor: 0.75,),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.zero,
-                                    height: 20,
-                                    width: globals.EntryWidthSysDia*4,
-                                    child: myWidgets.myListRowWidgetOneLine(
-                                      isHeader: true,
-                                      Titel1: 'Bemerkung',
-                                      Farbe1: Colors.grey,
-                                      Farbe2: Colors.grey[500],
-                                      Breite: globals.EntryWidthSysDia*4,
-                                      ScaleFactor: 0.75,
-                                      alignment: Alignment.center,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                        childCount: 1,                      // nur eine Überschriftenzeile
-                      ),
-                    ),
-
-                    // ab hier werden die tatsächlichen Einträge aufgelistet
-                    // -----------------------------------------------------
-                    SliverFixedExtentList(
-                      itemExtent: 64.0,
-                      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-                        return Slidable(
-                          child: Container(
-                            margin: EdgeInsets.zero,
-                            alignment: Alignment.center,
-                            color: Colors.grey[400],
-                            //height: 100,
-                            //color: (index % 2) == 0 ? Colors.grey[300] : globals.BgColorNeutral,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                      // alignment: Alignment.center,
+                      color: Colors.grey,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Headerzeile
+                          // -----------------------------------------------------
+                          Flexible(
+                              flex: 1,
+                              child: myWidgets.myListRowWidgetOneLine(
+                                  isHeader: true,
+                                  Titel1: "Zeitpunkt",
+                                  Farbe1: Colors.grey,
+                                  Farbe2: Colors.grey[500],
+                                  Breite: _BreiteZeitpunkt,
+                                  ScaleFactor: _scaleFactor,
+                                  alignment: Alignment.center)),
+                          Flexible(
+                            flex: 2,
+                            child: Column(
                               children: [
-                                Container(
-                                  width: 80,
-                                  height: 62,
-                                  child: myWidgets.myListRowWidgetTwoLines(
-                                    isHeader: false,
-                                    Titel1: dasDatum(_alleEintraege[index]['Zeitpunkt'].toString()),
-                                    Titel2: dieUhrzeit(_alleEintraege[index]['Zeitpunkt'].toString()),
-                                    Farbe1: globals.BgColorNeutral,
-                                    Farbe2: globals.BgColorNeutral,
-                                    Breite: 80,
-                                    ScaleFactor: 1.0,),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      myWidgets.myListRowWidgetTwoLines(
+                                          isHeader: true,
+                                          Titel1: 'Systole',
+                                          Titel2: '(mmHg)',
+                                          Farbe1: Colors.grey,
+                                          Farbe2: Colors.grey[500],
+                                          Breite: _BreiteZeitpunkt / 2.0,
+                                          ScaleFactor: _scaleFactor),
+                                      myWidgets.myListRowWidgetTwoLines(
+                                          isHeader: true,
+                                          Titel1: 'Diastole',
+                                          Titel2: '(mmHg)',
+                                          Farbe1: Colors.grey,
+                                          Farbe2: Colors.grey[500],
+                                          Breite: _BreiteZeitpunkt / 2.0,
+                                          ScaleFactor: _scaleFactor),
+                                      myWidgets.myListRowWidgetTwoLines(
+                                          isHeader: true,
+                                          Titel1: 'Puls',
+                                          Titel2: '(bpm)',
+                                          Farbe1: Colors.grey,
+                                          Farbe2: Colors.grey[500],
+                                          Breite: _BreiteZeitpunkt / 2.0,
+                                          ScaleFactor: _scaleFactor),
+                                      myWidgets.myListRowWidgetTwoLines(
+                                          isHeader: true,
+                                          Titel1: 'Gewicht',
+                                          Titel2: '(kg)',
+                                          Farbe1: Colors.grey,
+                                          Farbe2: Colors.grey[500],
+                                          Breite: _BreiteZeitpunkt / 2.0,
+                                          ScaleFactor: _scaleFactor),
+                                    ],
+                                  ),
                                 ),
-                                Column(
-                                  children: [
-                                    Container(
-                                      alignment: Alignment.topCenter,
-                                      height: 40,
-                                      margin: EdgeInsets.zero,
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            //height: 37,
-                                            width: globals.EntryWidthSysDia,
-                                            child: myWidgets.myListRowWidgetOneLine(
-                                              isHeader: false,
-                                              Titel1: _alleEintraege[index]['Systole'].toString(),
-                                              Farbe1: globals.Farbe1Systole(_alleEintraege[index]['Systole']),
-                                              Farbe2: globals.Farbe2Systole(_alleEintraege[index]['Systole']),
-                                              Breite: globals.EntryWidthSysDia,
-                                              ScaleFactor: 1.0,
-                                              alignment: Alignment.center,
-                                            ),
-                                          ),
-                                          Container(
-                                            //height: 37,
-                                            width: globals.EntryWidthSysDia,
-                                            child: myWidgets.myListRowWidgetOneLine(
-                                              isHeader: false,
-                                              Titel1: _alleEintraege[index]['Diastole'].toString(),
-                                              Farbe1: globals.Farbe1Diastole(_alleEintraege[index]['Diastole']),
-                                              Farbe2: globals.Farbe2Diastole(_alleEintraege[index]['Diastole']),
-                                              Breite: globals.EntryWidthSysDia,
-                                              ScaleFactor: 1.0,
-                                              alignment: Alignment.center,
-                                            ),
-                                          ),
-                                          Container(
-                                            //height: 37,
-                                            width: globals.EntryWidthSysDia,
-                                            child: myWidgets.myListRowWidgetOneLine(
-                                              isHeader: false,
-                                              Titel1: _alleEintraege[index]['Puls'].toString().isNotEmpty ? _alleEintraege[index]['Puls'].toString() : "---",
-                                              Farbe1: _alleEintraege[index]['Puls'].toString().isNotEmpty ? globals.Farbe1Puls(_alleEintraege[index]['Puls']) : globals.BgColorNeutral,
-                                              Farbe2: _alleEintraege[index]['Puls'].toString().isNotEmpty ? globals.Farbe2Puls(_alleEintraege[index]['Puls']) : globals.BgColorNeutral,
-                                              Breite: globals.EntryWidthSysDia,
-                                              ScaleFactor: 1.0,
-                                              alignment: Alignment.center,
-                                            ),
-                                          ),
-                                          Container(
-                                            //height: 37,
-                                            width: globals.EntryWidthSysDia,
-                                            child: myWidgets.myListRowWidgetOneLine(
-                                              isHeader: false,
-                                              Titel1: _alleEintraege[index]['Gewicht'].toString().isNotEmpty && _alleEintraege[index]['Gewicht'] != null ? _alleEintraege[index]['Gewicht'].toString() : "---",
-                                              Farbe1: _alleEintraege[index]['Gewicht'].toString().isNotEmpty ? globals.Farbe1Gewicht(_alleEintraege[index]['Gewicht'].toString()) : globals.BgColorNeutral,
-                                              Farbe2: _alleEintraege[index]['Gewicht'].toString().isNotEmpty ? globals.Farbe2Gewicht(_alleEintraege[index]['Gewicht'].toString()) : globals.BgColorNeutral,
-                                              Breite: globals.EntryWidthSysDia,
-                                              ScaleFactor: 1.0,
-                                              alignment: Alignment.center,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.zero,
-                                      height: 22,
-                                      width: globals.EntryWidthSysDia*4,
-                                      child: myWidgets.myListRowWidgetOneLine(
-                                        isHeader: false,
-                                        Titel1: _alleEintraege[index]['Bemerkung'].isNotEmpty && _alleEintraege[index]['Bemerkung'] != null
-                                            ? (_alleEintraege[index]['Bemerkung']).length > 27 ? (_alleEintraege[index]['Bemerkung']).substring(0,27) + "...»" : _alleEintraege[index]['Bemerkung']
-                                            : "",
-                                        Farbe1: globals.BgColorNeutral,
-                                        Farbe2: globals.BgColorNeutral,
-                                        Breite: 4*globals.EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        alignment: Alignment.centerLeft,
-                                      ),
-                                    ),
-                                  ],
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Expanded(
+                                  child: myWidgets.myListRowWidgetOneLine(
+                                    isHeader: true,
+                                    Titel1: 'Bemerkung',
+                                    Farbe1: Colors.grey,
+                                    Farbe2: Colors.grey[500],
+                                    Breite: _BreiteZeitpunkt * 2.0,
+                                    ScaleFactor: _scaleFactor,
+                                    alignment: Alignment.center,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          startActionPane: ActionPane(
-                            // A motion is a widget used to control how the pane animates.
-                            motion: const ScrollMotion(),
-                            // All actions are defined in the children parameter.
-                            children: [
-                              // A SlidableAction can have an icon and/or a label.
-                              SlidableAction(
-                                onPressed: (context) => {
-                                  _editItem(index)
-                                },
-                                backgroundColor: Color(0xFF21B7CA),
-                                foregroundColor: globals.BgColorNeutral,
-                                icon: Icons.edit,
-                                label: 'editieren',
-                              ),
-                            ],
-                          ),
-                          endActionPane: ActionPane(
-                            // A motion is a widget used to control how the pane animates.
-                            motion: const ScrollMotion(),
-                            // All actions are defined in the children parameter.
-                            children: [
-                              SlidableAction(
-                                onPressed: (context) => {
-                                  _deleteItem(index)
-                                },
-                                backgroundColor: Color(0xFFFE4A49),
-                                foregroundColor: globals.BgColorNeutral,
-                                icon: Icons.delete,
-                                label: 'löschen',
-                              ),
-                            ],
-                          ),
-                        );
-                        },
-                        childCount: _alleEintraege.length,
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Flexible(
+                    flex: 6,
+                    child: _isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : CustomScrollView(
+                            slivers: <Widget>[
+                              // ab hier werden die tatsächlichen Einträge aufgelistet
+                              // -----------------------------------------------------
+                              SliverFixedExtentList(
+                                  itemExtent: globals.EntryHeight, // noch verbesserungsfähig!!!!!!
+                                  delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+                                    return InkWell(
+                                      onTap: () async {
+                                        await _editItem(context, index);
+                                        _isLoading = true;
+                                        myProvider.updateAll();
+                                        setState(() {
+                                          _isLoading = false;
+                                          globals.updAVG_needed = true;
+                                        });
+                                      },
+                                      onDoubleTap: () async {
+                                        await _frageLoeschen(context, index);
+                                        _isLoading = true;
+                                        myProvider.updateAll();
+                                        setState(() {
+                                          globals.updAVG_needed = true;
+                                          _isLoading = false;
+                                        });
+                                      },
+                                      child: myWidgets.datenZeile(
+                                        Zeitpunkt: _alleEintraege[index]['Zeitpunkt'],
+                                        Systole: _alleEintraege[index]['Systole'],
+                                        Diastole: _alleEintraege[index]['Diastole'],
+                                        Puls: _alleEintraege[index]['Puls'],
+                                        Gewicht: _alleEintraege[index]['Gewicht'],
+                                        Bemerkung: _alleEintraege[index]['Bemerkung'],
+                                      ),
+                                    );
+                                  }, childCount: _alleEintraege.length)),
+                            ],
+                          ),
+                  ),
+                ],
               ),
-            ),
-          ),
 
         // Floating Button
         // ---------------
@@ -414,22 +400,17 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
           onPressed: () {
             showDialog<String>(
               context: context,
-              builder: (BuildContext context) =>
-                AlertDialog(
-                  title: const Text('neuen Eintrag erfassen'),
-                  content: Text(
-                      "Soll ein neuer Eintrag erfasst werden?"),
-                  actions: <Widget>[
-                    TextButton(
-                        onPressed: () => Navigator.pop(context, 'Nein'),
-                        child: const Text('Nein')
-                    ),
-                    TextButton(
-                      onPressed: () => _neuerEintrag(),
-                      child: const Text('Ja'),
-                    ),
-                  ],
-                ),
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('neuen Eintrag erfassen'),
+                content: Text("Soll ein neuer Eintrag erfasst werden?"),
+                actions: <Widget>[
+                  TextButton(onPressed: () => Navigator.pop(context, 'Nein'), child: const Text('Nein')),
+                  TextButton(
+                    onPressed: () => _neuerEintrag(context),
+                    child: const Text('Ja'),
+                  ),
+                ],
+              ),
             );
           },
           child: Icon(MdiIcons.plus),
@@ -447,44 +428,46 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                 Expanded(
                   flex: 5,
                   child: TextButton(
-                    onPressed: (){},
-                    child: Text(_alleEintraege.length.toString() + " von " + _iAnzEntries.toString() + " Einträgen",
-                      style: TextStyle(color: Colors.black),
-                      textAlign: TextAlign.center,
-                    )
-                  ),
+                      onPressed: () {},
+                      child: Text(
+                        _alleEintraege.length.toString() + " von " + _iAnzEntries.toString() + " Einträgen",
+                        style: TextStyle(color: Colors.black),
+                        textAlign: TextAlign.center,
+                      )),
                 ),
                 _Limit == -1
-                ? Expanded(
-                  flex: 5,
-                  child: ElevatedButton(
-                    onPressed: (){
-                      _isLoading = true;
-                      _Limit = _LimitFromSettings;
-                      setState(() {
-                        _ladeDaten();
-                      });
-                    },
-                    child: Text("letzte " + _LimitFromSettings.toString() + " anzeigen",
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
-                : Expanded(
-                  flex: 5,
-                  child: ElevatedButton(
-                    onPressed: (){
-                      _isLoading = true;
-                      _Limit = -1;
-                      setState(() {
-                        _ladeDaten();
-                      });
-                    },
-                    child: Text("alle anzeigen",
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
+                    ? Expanded(
+                        flex: 5,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _isLoading = true;
+                            _Limit = _LimitFromSettings;
+                            setState(() {
+                              _ladeDaten();
+                            });
+                          },
+                          child: Text(
+                            "letzte " + _LimitFromSettings.toString() + " anzeigen",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    : Expanded(
+                        flex: 5,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _isLoading = true;
+                            _Limit = -1;
+                            setState(() {
+                              _ladeDaten();
+                            });
+                          },
+                          child: Text(
+                            "alle anzeigen",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
               ],
             ),
           ),

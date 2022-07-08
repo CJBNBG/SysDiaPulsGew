@@ -94,6 +94,9 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
   //     _selectedDays.isNotEmpty || _rangeStart != null || _rangeEnd != null;
 
   List<Event> _getEventsForDay(DateTime day) {
+    setState() {
+      _isLoading = false;
+    }
     return kEvents[day] ?? [];
   }
 

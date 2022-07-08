@@ -75,6 +75,25 @@ class dbHelper {
       }
     }
     await db.close();
+
+    int anzDD = await getDiagramDaysCount();
+    final dbDD = await dbHelper.db();
+    if ( anzDD == -1 ) {
+      final data = {
+        SettingsInterface.colBezeichnung: 'AnzDiagrammEintraege',
+        SettingsInterface.colTyp: 'INT',
+        SettingsInterface.colWertInt: 7
+      };
+      final int id = await dbDD.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+      if (kDebugMode) {
+        print(DateTime.now().toString() + " - AnzDiagrammEintraege erzeugt $id");
+      }
+    } else {
+      if (kDebugMode) {
+        print(DateTime.now().toString() + " - AnzDiagrammEintraege=$anzDD");
+      }
+    }
+    await dbDD.close();
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
     // }
@@ -632,6 +651,53 @@ class dbHelper {
     }
     await db.close();
     Result = (await updateSettingsItem(_ID, "AnzTabEintraege", "INT", newCount, null, null) > 0);
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
+    // }
+    return Result;
+  }
+
+  // den Eintrag mit der Anzahl der Einträge in der Tabelle ermitteln
+  static Future<int> getDiagramDaysCount() async {
+    int Result = -1;
+    List<Map<String, dynamic>> theList = [];
+    final db = await dbHelper.db();
+
+    try {
+      theList = await db.rawQuery("SELECT Wert_INT AS cnt FROM tSettings WHERE Bezeichnung LIKE 'AnzDiagrammEintraege' AND Typ='INT'");
+    } on Error catch (err) {
+      if (kDebugMode) {
+        print("Fehler beim Bestimmen der Anzahl getDiagramDaysCount " + err.toString());
+      }
+    }
+    if ( theList.length > 0 ) {
+      Result = theList[0]['cnt'];
+    }
+    await db.close();
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    // }
+    return Result;
+  }
+
+  static Future<bool> setDiagramDaysCount(int newCount) async {
+    bool Result = false;
+    int _ID = -1;
+    final db = await dbHelper.db();
+    List<Map<String, dynamic>>ret = [];
+
+    try {
+      ret = await db.rawQuery("SELECT " + SettingsInterface.colID + " as _ID FROM tSettings WHERE Bezeichnung LIKE 'AnzDiagrammEintraege' AND Typ='INT'");
+    } on Error catch (err) {
+      if (kDebugMode) {
+        print("Fehler beim Bestimmen der Anzahl setDiagramDaysCount " + err.toString());
+      }
+    }
+    if ( ret.length > 0 ) {
+      _ID = ret[0]['_ID'];
+    }
+    await db.close();
+    Result = (await updateSettingsItem(_ID, "AnzDiagrammEintraege", "INT", newCount, null, null) > 0);
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
     // }

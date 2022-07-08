@@ -275,7 +275,7 @@ class _DetailPageState extends State<DetailPage> {
     // bool isNarrow = Screen.widthInches(context) < 3.5;
     bool isTablet = Screen.diagonalInches(context) >= 8.5; // war 7s
     var myProvider = Provider.of<myUpdateProvider>(context, listen: false);
-    if ( isTablet ) {
+    if (isTablet) {
       _padding_top = 25.0;
       _padding_left = 25.0;
       _padding_right = 25.0;
@@ -304,7 +304,8 @@ class _DetailPageState extends State<DetailPage> {
                     // Wenn alle Validatoren der Felder des Formulars gültig sind.
                     if (_formKey.currentState!.validate()) {
                       await _aendereDatensatz();
-                      myProvider.increment();
+                      myProvider.updateAll();
+                      _hasChanged = false;
                     } else {
                       print("Formular ist nicht gültig");
                     }

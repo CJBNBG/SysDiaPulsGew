@@ -9,7 +9,8 @@ const PaddingWidth = 8.0;
 const EntryWidthSysDia = (ContainerWidth-2.0*PaddingWidth-8.0)/3.0;
 const EntryWidthGew = (ContainerWidth-2.0*PaddingWidth-8.0);
 String strAnzDSe = '';
-String strZeitpunkt = '';
+String strZeitpunkt = '?';
+String strTage = '?';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({Key? key}) : super(key: key);
@@ -33,13 +34,20 @@ class _InfoPageState extends State<InfoPage> {
 
   void _getLastEntry() async {
     List<Map<String, dynamic>> ret = await dbHelper.getLastEntry();
-    if ( mounted ) setState(() {
+    if ( mounted ) {
+      setState(() {
       if (ret.isNotEmpty) {
         strZeitpunkt = ret[0]['Zeitpkt'].toString();
-      } else {
-        strZeitpunkt = '?';
+        int iTag = int.parse(strZeitpunkt.substring(0, 2));
+        int iMonat = int.parse(strZeitpunkt.substring(3, 5));
+        int iJahr = int.parse(strZeitpunkt.substring(6, 10));
+        DateTime a = DateTime(iJahr, iMonat, iTag);
+        DateTime b = DateTime.now();
+        Duration d = b.difference(a);
+        strTage = d.inDays.toString();
       }
     });
+    }
   }
 
   @override
@@ -171,6 +179,7 @@ class _InfoPageState extends State<InfoPage> {
                                 ),
                                 myListWidget(Titel: "Anzahl Einträge: ", Wert: strAnzDSe, ScaleFactor: 1.0,),
                                 myListWidget(Titel: "letzter Eintrag vom: ", Wert: strZeitpunkt, ScaleFactor: 1.0,),
+                                myListWidget(Titel: "", Wert: '($strTage Tage)', ScaleFactor: 1.0,),
                               ],
                             ),
                           ),

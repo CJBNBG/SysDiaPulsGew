@@ -77,7 +77,7 @@ class myListRowWidgetTwoLines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // width: this.Breite,
+      width: this.Breite,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

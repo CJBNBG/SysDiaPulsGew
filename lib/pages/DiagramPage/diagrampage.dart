@@ -18,6 +18,7 @@ class diagramPage extends StatefulWidget {
 bool _isLoading = true;
 double _Faktor = 0.0;
 int _selectedIndex = 0;
+int anzTage = 14;
 class _diagramPageState extends State<diagramPage> {
 
   List<Point> List_of_Points = [
@@ -50,7 +51,8 @@ class _diagramPageState extends State<diagramPage> {
   }
 
   ladeDaten() async {
-    List_of_Points = await dbHelper.getWertFuerDiagramm("Systole", -7);
+    anzTage = await dbHelper.getDiagramDaysCount();
+    List_of_Points = await dbHelper.getWertFuerDiagramm("Systole", -anzTage);
     setState(() {
       _isLoading = false;
     });
@@ -108,14 +110,14 @@ class _diagramPageState extends State<diagramPage> {
       body: _isLoading
       ? const Center(child: CircularProgressIndicator())
       : List_of_Points.isEmpty
-        ? const Center(child: Text("keine Daten in den letzten 7 Tagen"))
+        ? Center(child: Text("keine Daten in den letzten $anzTage Tagen"))
         : SingleChildScrollView(
         child: Card(
           child: Column(
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.only(top: 12.0),
-                child: const Text('Blutdruckwerte (Systole) der letzten 7 Tage'),
+                child: Text('Blutdruckwerte (Systole) der letzten $anzTage Tage'),
               ),
               Plot(
                 height: MediaQuery.of(context).size.height * _Faktor,

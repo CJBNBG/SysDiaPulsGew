@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:sysdiapulsgew/pages/EntriesPage/utils.dart';
-
 // ----------------------------------------------------------------------------------------
 // Provider für den Bildschirmaufbau
 // ----------------------------------------------------------------------------------------
@@ -13,11 +12,16 @@ class myUpdateProvider with ChangeNotifier {
 
   int get counter => _counter;
 
-  increment() async {
+  _increment() async {
     _counter++;
+    print('myUpdateProvider - _counter: $_counter');
+    notifyListeners();
+  }
+
+  updateAll() async {
     await ladeEintraege();
     await ladeEvents();
-    print('myUpdateProvider - _counter: $_counter');
+    print('myUpdateProvider - updateAll()');
     notifyListeners();
   }
 }

@@ -178,6 +178,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       print(globals.calendarStart);
       List<Map<String, dynamic>> allEntries = await dbHelper.getDataItems(-1);
+    } else {
+      print("Datenbank ist NICHT OK!!!!");
     }
   }
 
@@ -317,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await Navigator.push(
             context,
             PageTransition(
-              child: const EntriesPage(),
+              child: const EntriesTablePage(),
               alignment: Alignment.topCenter,
               type: PageTransitionType.leftToRightWithFade,),
           );
