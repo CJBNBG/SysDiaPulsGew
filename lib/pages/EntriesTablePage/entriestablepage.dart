@@ -24,120 +24,6 @@ int _LimitFromSettings = 25;
 int _iAnzEntries = 0;
 List<Map<String, dynamic>> _alleEintraege = [];
 
-_frageLoeschen(BuildContext context, int index) async {
-  showDialog<String>(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      elevation: 5.0,
-      // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
-      title: Container(
-        color: Color.fromRGBO(255, 219, 219, 1),
-        child: Row(children: [
-          // Icon(Icons.priority_high, color: Colors.red,),
-          Container(
-            child: const Expanded(
-              child: FittedBox(
-                fit: BoxFit.fitWidth,
-                alignment: Alignment.center,
-                child: Text(
-                  "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
-                  softWrap: true,
-                  textAlign: TextAlign.center,
-                  textScaleFactor: 2.0,
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Icon(Icons.priority_high, color: Colors.red,),
-        ]),
-      ),
-      content: Text(
-        "Möchten Sie diesen Eintrag wirklich löschen?",
-        textAlign: TextAlign.center,
-        softWrap: true,
-        textScaleFactor: 2.0,
-      ),
-      actions: <Widget>[
-        // SizedBox(width: 20.0,),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                  // style: ButtonStyle(
-                  //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
-                  // ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Nein')),
-              ElevatedButton(
-                // style: ButtonStyle(
-                //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
-                // ),
-                onPressed: () async {
-                  await _deleteItem(context, index);
-                  Navigator.pop(context);
-                },
-                child: const Text('Ja'),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-_deleteItem(BuildContext context, int ndx) async {
-  int id = _alleEintraege[ndx][DataInterface.colID];
-  if (id != null) {
-    await dbHelper.deleteDataItem(id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Eintrag gelöscht')),
-    );
-    // setState(() {
-    //   _ladeDaten();
-    //   globals.updAVG_needed = true;
-    // });
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Fehler beim löschen ($id)')),
-    );
-  }
-}
-
-_editItem(BuildContext context, int ndx) async {
-  int id = _alleEintraege[ndx][DataInterface.colID];
-  if (id == null) {
-    id = -1;
-  }
-  globals.aktID = id;
-  await Navigator.push(
-    context,
-    PageTransition(
-      child: DetailPage(),
-      alignment: Alignment.topCenter,
-      type: PageTransitionType.leftToRightWithFade,
-    ),
-  );
-}
-
-_neuerEintrag(BuildContext context) async {
-  globals.aktID = -1;
-  Navigator.pop(context, 'OK');
-  await Navigator.push(
-    context,
-    PageTransition(
-      child: DetailPage(),
-      alignment: Alignment.topCenter,
-      type: PageTransitionType.leftToRightWithFade,
-    ),
-  );
-}
-
 class EntriesTablePage extends StatefulWidget {
   const EntriesTablePage({Key? key}) : super(key: key);
 
@@ -146,7 +32,128 @@ class EntriesTablePage extends StatefulWidget {
 }
 
 class _EntriesTablePageState extends State<EntriesTablePage> {
-  void _ladeDaten() async {
+  _deleteItem(BuildContext context, int ndx) async {
+    int id = _alleEintraege[ndx][DataInterface.colID];
+    if (id != null) {
+      await dbHelper.deleteDataItem(id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Eintrag gelöscht')),
+      );
+      // setState(() {
+      //   _ladeDaten();
+      //   globals.updAVG_needed = true;
+      // });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler beim löschen ($id)')),
+      );
+    }
+    _isLoading = true;
+    await _initDaten();
+  }
+
+  _editItem(BuildContext context, int ndx) async {
+    int id = _alleEintraege[ndx][DataInterface.colID];
+    if (id == null) {
+      id = -1;
+    }
+    globals.aktID = id;
+    await Navigator.push(
+      context,
+      PageTransition(
+        child: DetailPage(),
+        alignment: Alignment.topCenter,
+        type: PageTransitionType.leftToRightWithFade,
+      ),
+    );
+    _isLoading = true;
+    await _initDaten();
+  }
+
+  _frageLoeschen(BuildContext context, int index) async {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        elevation: 5.0,
+        // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
+        title: Container(
+          color: Color.fromRGBO(255, 219, 219, 1),
+          child: Row(children: [
+            // Icon(Icons.priority_high, color: Colors.red,),
+            Container(
+              child: const Expanded(
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    textScaleFactor: 2.0,
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Icon(Icons.priority_high, color: Colors.red,),
+          ]),
+        ),
+        content: Text(
+          "Möchten Sie diesen Eintrag wirklich löschen?",
+          textAlign: TextAlign.center,
+          softWrap: true,
+          textScaleFactor: 2.0,
+        ),
+        actions: <Widget>[
+          // SizedBox(width: 20.0,),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
+                  // ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Nein')),
+                ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
+                  // ),
+                  onPressed: () async {
+                    await _deleteItem(context, index);
+                    await _initDaten();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Ja'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _neuerEintrag(BuildContext context) async {
+    globals.aktID = -1;
+    Navigator.pop(context, 'OK');
+    await Navigator.push(
+      context,
+      PageTransition(
+        child: DetailPage(),
+        alignment: Alignment.topCenter,
+        type: PageTransitionType.leftToRightWithFade,
+      ),
+    );
+    _isLoading = true;
+    await _initDaten();
+  }
+
+  _ladeDaten() async {
     try {
       _iAnzEntries = (await dbHelper.getEntryCount())!;
       _alleEintraege = await dbHelper.getDataItems(_Limit);
@@ -159,24 +166,29 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
     } on Error catch (_, e) {
       print("Fehler in _ladeDaten(): $e");
     }
-    if (mounted)
-      setState(() {
-        _isLoading = false;
-      });
   }
 
-  void _initDaten() async {
-    _LimitFromSettings = await dbHelper.getTabEntryCount();
-    _iAnzEntries = (await dbHelper.getEntryCount())!;
-    if (_iAnzEntries > 0) {
-      if (_iAnzEntries < _LimitFromSettings)
-        _Limit = _iAnzEntries;
-      else
-        _Limit = _LimitFromSettings;
-    } else {
-      _Limit = 0;
+  _initDaten() async {
+    try {
+      _LimitFromSettings = await dbHelper.getTabEntryCount();
+      _iAnzEntries = (await dbHelper.getEntryCount())!;
+      if (_iAnzEntries > 0) {
+        if (_iAnzEntries < _LimitFromSettings) {
+          _Limit = _iAnzEntries;
+        } else {
+          _Limit = _LimitFromSettings;
+        }
+      } else {
+        _Limit = 0;
+      }
+      await _ladeDaten();
+      setState(() {
+        globals.updAVG_needed = true;
+        _isLoading = false;
+      });
+    } on Error catch (_, e) {
+      print("Fehler in _initDaten(): $e");
     }
-    _ladeDaten();
   }
 
   String dasDatum(String Zeitpunkt) {
@@ -326,7 +338,10 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 5,
+                                  height: 3,
+                                  child: Container(
+                                    color: Colors.black54,
+                                  ),
                                 ),
                                 Expanded(
                                   child: myWidgets.myListRowWidgetOneLine(
@@ -336,7 +351,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                     Farbe2: Colors.grey[500],
                                     Breite: _BreiteZeitpunkt * 2.0,
                                     ScaleFactor: _scaleFactor,
-                                    alignment: Alignment.center,
+                                    alignment: Alignment.centerLeft,
                                   ),
                                 ),
                               ],
@@ -347,7 +362,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                     ),
                   ),
                   Flexible(
-                    flex: 6,
+                    flex: 4,
                     child: _isLoading
                         ? Center(
                             child: CircularProgressIndicator(),
@@ -362,21 +377,9 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                     return InkWell(
                                       onTap: () async {
                                         await _editItem(context, index);
-                                        _isLoading = true;
-                                        myProvider.updateAll();
-                                        setState(() {
-                                          _isLoading = false;
-                                          globals.updAVG_needed = true;
-                                        });
                                       },
                                       onDoubleTap: () async {
                                         await _frageLoeschen(context, index);
-                                        _isLoading = true;
-                                        myProvider.updateAll();
-                                        setState(() {
-                                          globals.updAVG_needed = true;
-                                          _isLoading = false;
-                                        });
                                       },
                                       child: myWidgets.datenZeile(
                                         Zeitpunkt: _alleEintraege[index]['Zeitpunkt'],
@@ -404,9 +407,16 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                 title: const Text('neuen Eintrag erfassen'),
                 content: Text("Soll ein neuer Eintrag erfasst werden?"),
                 actions: <Widget>[
-                  TextButton(onPressed: () => Navigator.pop(context, 'Nein'), child: const Text('Nein')),
                   TextButton(
-                    onPressed: () => _neuerEintrag(context),
+                    onPressed: () {
+                      Navigator.pop(context, 'Nein');
+                    },
+                    child: const Text('Nein')
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      _neuerEintrag(context);
+                    },
                     child: const Text('Ja'),
                   ),
                 ],
@@ -439,12 +449,9 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                     ? Expanded(
                         flex: 5,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             _isLoading = true;
-                            _Limit = _LimitFromSettings;
-                            setState(() {
-                              _ladeDaten();
-                            });
+                            await _initDaten();
                           },
                           child: Text(
                             "letzte " + _LimitFromSettings.toString() + " anzeigen",
@@ -455,12 +462,9 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                     : Expanded(
                         flex: 5,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             _isLoading = true;
-                            _Limit = -1;
-                            setState(() {
-                              _ladeDaten();
-                            });
+                            await _initDaten();
                           },
                           child: Text(
                             "alle anzeigen",

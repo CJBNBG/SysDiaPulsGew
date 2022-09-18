@@ -18,7 +18,6 @@ import 'package:sysdiapulsgew/pages/StatistikPage/statistikdata.dart' as stats;
 import 'package:sysdiapulsgew/pages/ImportExportPage/importexportpage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import 'package:sysdiapulsgew/pages/EntriesTablePage/entriestablepage.dart';
-import 'package:sysdiapulsgew/pages/EntriesPage/entriespage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
 import 'dart:ui';
@@ -180,6 +179,9 @@ class _MyHomePageState extends State<MyHomePage> {
       List<Map<String, dynamic>> allEntries = await dbHelper.getDataItems(-1);
     } else {
       print("Datenbank ist NICHT OK!!!!");
+    }
+    if (kDebugMode) {
+      print("Version: " + globals.gPackageInfo.version  + ' (' + globals.gPackageInfo.buildNumber + ')');
     }
   }
 
@@ -618,7 +620,8 @@ class _myMenuWidgetState extends State<myMenuWidget> {
                   textScaleFactor: 2.0,
                 ),
                 Text(
-                  'Version: ' + widget.ThePackageInfo.version + ' (' + widget.ThePackageInfo.buildNumber + ')',
+                  int.parse(globals.gPackageInfo.buildNumber) > 0 ? 'Version: ' + globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')' : 'Version: ' + globals.gPackageInfo.version, //title
+                  // 'Version: ' + widget.ThePackageInfo.version + ' (' + widget.ThePackageInfo.buildNumber + ')',
                   textScaleFactor: 1.3,
                   style: TextStyle(
                     color: Colors.grey[500],

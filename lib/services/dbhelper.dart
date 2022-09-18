@@ -226,13 +226,18 @@ class dbHelper {
   static Future<int?> getEntryCount() async {
     int? retAnz = 0;
     final db = await dbHelper.db();
-    String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
-    final result = await db.rawQuery(SQL_Statement, []);
-    await db.close();
-    if ( result.isNotEmpty ) {
-      retAnz = int.tryParse(result[0]['Cnt'].toString());
+    var result;
+    if ( db.isOpen ) {
+      String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
+      result = await db.rawQuery(SQL_Statement, []);
+      await db.close();
+      if ( result.isNotEmpty ) {
+        retAnz = int.tryParse(result[0]['Cnt'].toString());
+      } else {
+        retAnz = 0;
+      }
     } else {
-      retAnz = 0;
+      print('getEntryCount: Datenbank konnte nicht geöffnet werden');
     }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
@@ -298,8 +303,13 @@ class dbHelper {
   // erster Eintrag
   static Future<List<Map<String, dynamic>>> getFirstEntry() async {
     final db = await dbHelper.db();
-    final result = await db.rawQuery("SELECT strftime('%Y-%m-%d %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MIN(Zeitpunkt) FROM tDaten)", []);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.rawQuery("SELECT strftime('%Y-%m-%d %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MIN(Zeitpunkt) FROM tDaten)", []);
+      await db.close();
+    } else {
+      print('getLastEntry: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getFirstEntry(): Datenbank geschlossen - $result");
     // }
@@ -309,8 +319,13 @@ class dbHelper {
   // letzter Eintrag
   static Future<List<Map<String, dynamic>>> getLastEntry() async {
     final db = await dbHelper.db();
-    final result = await db.rawQuery("SELECT strftime('%d.%m.%Y %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)", []);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.rawQuery("SELECT strftime('%d.%m.%Y %H:%M', Zeitpunkt) as Zeitpkt, * FROM tDaten WHERE Zeitpunkt=(SELECT MAX(Zeitpunkt) FROM tDaten)", []);
+      await db.close();
+    } else {
+      print('getLastEntry: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getLastEntry(): Datenbank geschlossen - $result");
     // }
@@ -320,15 +335,19 @@ class dbHelper {
   // neuer Eintrag
   static Future<int> createDataItem(String Zeitpunkt, int Systole, int Diastole, int? Puls, double? Gewicht, String? Bemerkung) async {
     final db = await dbHelper.db();
-
     final data = {DataInterface.colZeitpunkt: Zeitpunkt,
                   DataInterface.colSystole: Systole,
                   DataInterface.colDiastole: Diastole,
                   DataInterface.colPuls: Puls,
                   DataInterface.colGewicht: Gewicht,
                   DataInterface.colBemerkung: Bemerkung};
-    final id = await db.insert(DataInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-    await db.close();
+    var id;
+    if ( db.isOpen ) {
+      id = await db.insert(DataInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+      await db.close();
+    } else {
+      print('createDataItem: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - createDataItem(): Datenbank geschlossen - $id");
     // }
@@ -338,21 +357,30 @@ class dbHelper {
   // alle Tage, an denen Einträge existieren, abstiegend sotiert
   static Future<List<Map<String, dynamic>>> getOnlyDataDays() async {
     final db = await dbHelper.db();
-    var result = db.rawQuery("SELECT DISTINCT strftime('%Y-%m-%d', Zeitpunkt) as Zeitpkt FROM tDaten ORDER BY Zeitpunkt DESC", []);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.rawQuery("SELECT DISTINCT strftime('%Y-%m-%d', Zeitpunkt) as Zeitpkt FROM tDaten ORDER BY Zeitpunkt DESC", []);
+      await db.close();
+    } else {
+      print('getOnlyDataDays: Datenbank konnte nicht geöffnet werden');
+    }
     return result;
   }
   // alle Einträge nach Zeitpunkt sortiert
   static Future<List<Map<String, dynamic>>> getDataItems(int Lmt) async {
     final db = await dbHelper.db();
     var result;
-    if ( Lmt > 0 ) {
-      result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC', limit: Lmt);
+    if ( db.isOpen ) {
+      if ( Lmt > 0 ) {
+        result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC', limit: Lmt);
+      }
+      else {
+        result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
+      }
+      await db.close();
+    } else {
+      print('getDataItems: Datenbank konnte nicht geöffnet werden');
     }
-    else {
-      result = await db.query(DataInterface.tblData, orderBy: DataInterface.colZeitpunkt + ' DESC');
-    }
-    await db.close();
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getDataItems($Lmt): Datenbank geschlossen - $result");
     // }
@@ -362,8 +390,13 @@ class dbHelper {
   // der Eintrag mit der angegebenen ID
   static Future<List<Map<String, dynamic>>> getDataItem(int id) async {
     final db = await dbHelper.db();
-    final result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.query(DataInterface.tblData, where: DataInterface.colID + " = ?", whereArgs: [id], limit: 1);
+      await db.close();
+    } else {
+      print('getDataItem: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getDataItem($id): Datenbank geschlossen - $result");
     // }
@@ -375,9 +408,13 @@ class dbHelper {
     List<Map<String, dynamic>> result = [];
     try {
       final db = await dbHelper.db();
-      String SQL_Statement = "SELECT * FROM tDaten WHERE Zeitpunkt BETWEEN '${day.toString()}' AND '${day.add(Duration(days: 1)).toString()}'";
-      result = await db.rawQuery(SQL_Statement, []);
-      await db.close();
+      if ( db.isOpen ) {
+        String SQL_Statement = "SELECT * FROM tDaten WHERE Zeitpunkt BETWEEN '${day.toString()}' AND '${day.add(Duration(days: 1)).toString()}'";
+        result = await db.rawQuery(SQL_Statement, []);
+        await db.close();
+      } else {
+        print('getDataItemsForDay: Datenbank konnte nicht geöffnet werden');
+      }
       // if (kDebugMode) {
       //   print( DateTime.now().toString() + " - getDataItemsForDay(${SQL_Statement}): Datenbank geschlossen - $result");
       // }
@@ -402,8 +439,13 @@ class dbHelper {
       SQL_Statement += " AND";
       SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
     }
-    final result = await db.rawQuery(SQL_Statement, []);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.rawQuery(SQL_Statement, []);
+      await db.close();
+    } else {
+      print('getDataDaysCount: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getDataDaysCount($Tage): Datenbank geschlossen - $result");
     // }
@@ -428,8 +470,13 @@ class dbHelper {
       SQL_Statement += " AND";
       SQL_Statement += " (SELECT MAX(Zeitpunkt)" + Tage.toString() + " FROM tDaten)";
     }
-    final result = await db.rawQuery(SQL_Statement);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.rawQuery(SQL_Statement);
+      await db.close();
+    } else {
+      print('getDataDays: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getDataDays($Tage): Datenbank geschlossen - $result");
     // }
@@ -455,8 +502,13 @@ class dbHelper {
       DataInterface.colBemerkung: Bemerkung
     };
 
-    final result = await db.update(DataInterface.tblData, data, where: DataInterface.colID + " = ?", whereArgs: [id]);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.update(DataInterface.tblData, data, where: DataInterface.colID + " = ?", whereArgs: [id]);
+      await db.close();
+    } else {
+      print('updateDataItem: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - updateDataItem($id): Datenbank geschlossen - $result");
     // }
@@ -501,8 +553,13 @@ class dbHelper {
       SQL_Statement += " AND Zeitpunkt IN (SELECT Zeitpunkt FROM tDaten";
       SQL_Statement += " WHERE strftime('%Y-%m-%d', Zeitpunkt) BETWEEN ? AND ?)";
     }
-    final result = await db.rawQuery(SQL_Statement, args);
-    await db.close();
+    var result;
+    if ( db.isOpen ) {
+      result = await db.rawQuery(SQL_Statement, args);
+      await db.close();
+    } else {
+      print('getAVGVonBis: Datenbank konnte nicht geöffnet werden');
+    }
     // if (kDebugMode) {
     //   print(result);
     // }

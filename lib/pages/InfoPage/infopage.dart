@@ -141,7 +141,7 @@ class _InfoPageState extends State<InfoPage> {
                                       textScaleFactor: 1.0,
                                     ),
                                     Text(
-                                      globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')', //title
+                                      int.parse(globals.gPackageInfo.buildNumber) > 0 ? globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')' : globals.gPackageInfo.version, //title
                                       textScaleFactor: 1.0,
                                     ),
                                   ],

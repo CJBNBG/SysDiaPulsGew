@@ -367,8 +367,12 @@ class _DetailPageState extends State<DetailPage> {
                                 borderSide: BorderSide.none,
                               ),
                             ),
-                            onSaved: (val) =>
-                                setState(() => val != null ? _neuerZeitpunkt = DateTime.parse(val).toString() : ''),
+                            onChanged: (val) {
+                              setState(() {
+                                _hasChanged = true;
+                                val != null ? _neuerZeitpunkt = DateTime.parse(val).toString() : '';
+                              });
+                            },
                           ),
                           SizedBox(height: 20),
 
@@ -649,7 +653,16 @@ class _DetailPageState extends State<DetailPage> {
                                 borderSide: BorderSide.none,
                               ),
                             ),
-                            onSaved: (val) => setState(() => _neueBemerkung = val ?? ''),
+                            onChanged: (val) {
+                              _hasChanged = true;
+                              setState(() {
+                                if ( val.toString().length > 0 ) {
+                                  _neueBemerkung = val;
+                                } else {
+                                  _neueBemerkung = '';
+                                }
+                              });
+                            },
                           ),
                           // SizedBox(height: 10),
                           // Row(
