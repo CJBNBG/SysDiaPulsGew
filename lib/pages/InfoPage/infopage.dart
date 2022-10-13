@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../my-globals.dart' as globals;
 import '../../services/myWidgets.dart' as myWidgets;
 import 'package:sysdiapulsgew/services/dbhelper.dart';
+import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
 const ContainerWidth = 310.0;
 const PaddingWidth = 8.0;
@@ -11,6 +14,8 @@ const EntryWidthGew = (ContainerWidth-2.0*PaddingWidth-8.0);
 String strAnzDSe = '';
 String strZeitpunkt = '?';
 String strTage = '?';
+
+String strLinkToLiga = "https://www.hochdruckliga.de/fileadmin/downloads/mitgliederbereich/downloads/broschueren/Pocket_Leitlinien_Arterielle_Hypertonie.pdf";
 
 class InfoPage extends StatefulWidget {
   const InfoPage({Key? key}) : super(key: key);
@@ -86,8 +91,8 @@ class _InfoPageState extends State<InfoPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
+                              const Padding(
+                                padding: EdgeInsets.fromLTRB(0, 10.0, 0, 0),
                                 child: Text(
                                   "Autor:",
                                   textScaleFactor: 1.25,
@@ -97,8 +102,8 @@ class _InfoPageState extends State<InfoPage> {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+                              const Padding(
+                                padding: EdgeInsets.fromLTRB(0, 5.0, 0, 0),
                                 child: Text(
                                   "Claus J. Bauer",
                                   textScaleFactor: 2.0,
@@ -111,7 +116,7 @@ class _InfoPageState extends State<InfoPage> {
                                 padding: const EdgeInsets.fromLTRB(0, 2.0, 0, 0),
                                 child: Row(
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Kontakt:",
                                       textScaleFactor: 1.25,
                                     ),
@@ -136,7 +141,7 @@ class _InfoPageState extends State<InfoPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Version: ",
                                       textScaleFactor: 1.0,
                                     ),
@@ -166,8 +171,8 @@ class _InfoPageState extends State<InfoPage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
+                                const Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 10.0, 0, 0),
                                   child: Text(
                                     "Informationen zur Datenbank:",
                                     textScaleFactor: 1.25,
@@ -201,16 +206,38 @@ class _InfoPageState extends State<InfoPage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(height: 10.0,),
-                                Text(
+                                const SizedBox(height: 10.0,),
+                                const Text(
                                   'verwendete Farben:',
                                   textScaleFactor: 1.25,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                SizedBox(height: 20.0,),
-                                myListWidget(Titel: "Systole (mmHg):", Wert: "", ScaleFactor: 1.0),
+                                // Row(
+                                //   mainAxisAlignment: MainAxisAlignment.end,
+                                //   children: [
+                                //     const Text('Quelle:',
+                                //       textScaleFactor: 0.8,
+                                //     ),
+                                //     TextButton(
+                                //       onPressed: () {
+                                //         // bShowPdf = true; //action
+                                //       },
+                                //       child: const Text(
+                                //         'hier klicken', //title
+                                //         textAlign: TextAlign.end, //aligment
+                                //         textScaleFactor: 0.8,
+                                //         style: TextStyle(
+                                //           decoration: TextDecoration.underline,
+                                //         ),
+                                //       ),
+                                //     ),
+                                //     // SfPdfViewer.network(strLinkToLiga),
+                                //   ],
+                                // ),
+                                const SizedBox(height: 20.0,),
+                                const myListWidget(Titel: "Systole (mmHg):", Wert: "", ScaleFactor: 1.0),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,6 +466,42 @@ class _InfoPageState extends State<InfoPage> {
                                     isHeader: false,
                                   ),
                                 ),
+                                SizedBox(height: 20.0,),
+                                Container(
+                                  color: Colors.black12,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        flex: 5,
+                                        child: const Text('Wenn Sie die Einteilung bei der Deutschen Hochdruckliga nachlesen möchten, dann bitte...',
+                                          textScaleFactor: 1.0,
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                      Flexible(
+                                        flex: 3,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute<dynamic>(
+                                                  builder: (_) => const PDFViewerFromUrl(
+                                                    url: 'https://www.hochdruckliga.de/fileadmin/downloads/mitgliederbereich/downloads/broschueren/Pocket_Leitlinien_Arterielle_Hypertonie.pdf',
+                                                  ),
+                                                ),
+                                              ),
+                                              child: const Text('hier klicken'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -492,5 +555,118 @@ void _launchEMail() async {
     await launchUrl(_url);
   } else {
     throw 'Fehler beim Aufruf von $_url.toString()';
+  }
+}
+
+class PDFViewerFromUrl extends StatelessWidget {
+  const PDFViewerFromUrl({Key? key, required this.url}) : super(key: key);
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('durch Wischen blättern'),
+      ),
+      body: const PDF().fromUrl(
+        url,
+        placeholder: (double progress) => Center(child: Text('$progress %')),
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+    );
+  }
+}
+
+class PDFViewerFromAsset extends StatelessWidget {
+  PDFViewerFromAsset({Key? key, required this.pdfAssetPath}) : super(key: key);
+  final String pdfAssetPath;
+  final Completer<PDFViewController> _pdfViewController =
+  Completer<PDFViewController>();
+  final StreamController<String> _pageCountController =
+  StreamController<String>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('durch Wischen blättern'),
+        actions: <Widget>[
+          StreamBuilder<String>(
+              stream: _pageCountController.stream,
+              builder: (_, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue[900],
+                      ),
+                      child: Text(snapshot.data!),
+                    ),
+                  );
+                }
+                return const SizedBox();
+              }),
+        ],
+      ),
+      body: PDF(
+        enableSwipe: true,
+        swipeHorizontal: true,
+        autoSpacing: false,
+        pageFling: false,
+        onPageChanged: (int? current, int? total) =>
+            _pageCountController.add('${current! + 1} - $total'),
+        onViewCreated: (PDFViewController pdfViewController) async {
+          _pdfViewController.complete(pdfViewController);
+          final int currentPage = await pdfViewController.getCurrentPage() ?? 0;
+          final int? pageCount = await pdfViewController.getPageCount();
+          _pageCountController.add('${currentPage + 1} - $pageCount');
+        },
+      ).fromAsset(
+        pdfAssetPath,
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+      floatingActionButton: FutureBuilder<PDFViewController>(
+        future: _pdfViewController.future,
+        builder: (_, AsyncSnapshot<PDFViewController> snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                FloatingActionButton(
+                  heroTag: '-',
+                  child: const Text('-'),
+                  onPressed: () async {
+                    final PDFViewController pdfController = snapshot.data!;
+                    final int currentPage =
+                        (await pdfController.getCurrentPage())! - 1;
+                    if (currentPage >= 0) {
+                      await pdfController.setPage(currentPage);
+                    }
+                  },
+                ),
+                FloatingActionButton(
+                  heroTag: '+',
+                  child: const Text('+'),
+                  onPressed: () async {
+                    final PDFViewController pdfController = snapshot.data!;
+                    final int currentPage =
+                        (await pdfController.getCurrentPage())! + 1;
+                    final int numberOfPages = await pdfController.getPageCount() ?? 0;
+                    if (numberOfPages > currentPage) {
+                      await pdfController.setPage(currentPage);
+                    }
+                  },
+                ),
+              ],
+            );
+          }
+          return const SizedBox();
+        },
+      ),
+    );
   }
 }

@@ -5,6 +5,7 @@ import 'package:sysdiapulsgew/services/SettingsInterface.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:flutter/foundation.dart';
 import '../../my-globals.dart' as globals;
+import '../pages/DiagramPage/diagrampage.dart';
 
 class dbHelper {
   static const _databaseVersion = 1;
@@ -246,8 +247,8 @@ class dbHelper {
   }
 
   // Diagramm: Systole
-  static Future<List<Point>> getWertFuerDiagramm(String xWert, int xTage) async {
-    List<Point>retval = [];
+  static Future<List<ChartData>> getWertFuerDiagramm(String xSys, String xDia, int xTage) async {
+    List<ChartData>retval = [];
     String strsql = "";
     try {
       final db = await dbHelper.db();
@@ -260,24 +261,25 @@ class dbHelper {
       }
       t1 = DateTime(t1.year, t1.month, t1.day, 0, 0, 0);
       t2 = DateTime(t2.year, t2.month, t2.day, 23, 59, 59);
-      strsql = "SELECT $xWert, strftime('%H', Zeitpunkt) as Zeitpkt_H, strftime('%M', Zeitpunkt) as Zeitpkt_M FROM tDaten";
+      strsql = "SELECT $xSys, $xDia, strftime('%H', Zeitpunkt) as Zeitpkt_H, strftime('%M', Zeitpunkt) as Zeitpkt_M FROM tDaten";
       strsql += " WHERE Zeitpunkt BETWEEN '${t1.toIso8601String()}' AND '${t2.toIso8601String()}'";
+      strsql += " ORDER BY Zeitpkt_H, Zeitpkt_M";
       // if (kDebugMode) {
       //   print(DateTime.now().toString() + " - getWertFuerDiagramm($xWert, $xTage): $strsql");
       // }
       final result = await db.rawQuery(strsql, []);
       if ( result.isNotEmpty ) {
-        num _x, _y;
+        int _y_Sys, _y_Dia;
         int _std, _min;
         String _stdmin;
-        Point _p;
+        ChartData _p;
         for (var element in result) {
-          _y = int.tryParse(element[xWert].toString()) as num;
+          _y_Sys = int.tryParse(element[xSys].toString()) as int;
+          _y_Dia = int.tryParse(element[xDia].toString()) as int;
           _std = int.tryParse(element['Zeitpkt_H'].toString())!;
           _min = int.tryParse(element['Zeitpkt_M'].toString())!;
-          _stdmin = _std.toString() + '.' + _min.toString();
-          _x = double.tryParse(_stdmin) as num;
-          _p = Point(_x, _y);
+          _stdmin = _std.toString() + ':' + _min.toString();
+          _p = ChartData(_stdmin, _y_Sys, _y_Dia);
           retval.add(_p);
         }
         // if (kDebugMode) {
@@ -294,7 +296,7 @@ class dbHelper {
       // }
     } catch ( _, err ) {
       if (kDebugMode) {
-        print("Fehler in getSysDiagramm($xWert, $xTage): $err");
+        print("Fehler in getSysDiagramm($xSys, $xTage): $err");
       }
     }
     return retval;
