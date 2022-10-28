@@ -271,14 +271,15 @@ class dbHelper {
       if ( result.isNotEmpty ) {
         int _y_Sys, _y_Dia;
         int _std, _min;
-        String _stdmin;
+        DateTime _stdmin;
         ChartData _p;
         for (var element in result) {
           _y_Sys = int.tryParse(element[xSys].toString()) as int;
           _y_Dia = int.tryParse(element[xDia].toString()) as int;
           _std = int.tryParse(element['Zeitpkt_H'].toString())!;
           _min = int.tryParse(element['Zeitpkt_M'].toString())!;
-          _stdmin = _std.toString() + ':' + _min.toString();
+          _stdmin = DateTime(2000,1,1,_std,_min);
+          // _stdmin = _std.toString() + ':' + _min.toString();
           _p = ChartData(_stdmin, _y_Sys, _y_Dia);
           retval.add(_p);
         }
