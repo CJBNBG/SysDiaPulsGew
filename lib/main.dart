@@ -62,11 +62,11 @@ class _MyAppState extends State<MyApp> {
     _platform = Theme.of(context).platform;
     globals.BgColorNeutral = Theme.of(context).scaffoldBackgroundColor;
     return MaterialApp(
-      title: 'SysDiaPulsGew',
+      title: 'SysDiaPG',
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
       ),
-      home: const MyHomePage(title: 'SysDiaPulsGew'),
+      home: const MyHomePage(title: 'SysDiaPG'),
       localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -271,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return null;
     } else {
       globals.lokalDBDir = path;
-      globals.lokalDBPfad = path + "SysDiaPuls/";
+      globals.lokalDBPfad = path + "SysDiaPulsGew/";
       globals.lokalDBNameMitPfad = globals.lokalDBPfad + globals.lokalDBNameOhnePfad;
     }
     print("getExternalStorageDirectory: " + path);
@@ -341,7 +341,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('SysDiaPulsGew'),
+          title: const Text('SysDiaPG'),
           actions: <Widget>[
             // die Widgets werden von rechts außen nach links aufgeführt
             IconButton(

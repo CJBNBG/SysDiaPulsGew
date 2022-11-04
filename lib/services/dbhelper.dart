@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:io';
 import 'package:sysdiapulsgew/services/DataInterface.dart';
 import 'package:sysdiapulsgew/services/SettingsInterface.dart';
