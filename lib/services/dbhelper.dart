@@ -94,6 +94,25 @@ class dbHelper {
       }
     }
     await dbDD.close();
+
+    double aktGr = await getGroesse();
+    final dbGr = await dbHelper.db();
+    if ( aktGr == -1 ) {
+      final data = {
+        SettingsInterface.colBezeichnung: 'Groesse',
+        SettingsInterface.colTyp: 'FLOAT',
+        SettingsInterface.colWertFloat: 181.0
+      };
+      final int id = await dbGr.insert(SettingsInterface.tblData, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+      if (kDebugMode) {
+        print(DateTime.now().toString() + " - Groesseneintrag erzeugt $id");
+      }
+    } else {
+      if (kDebugMode) {
+        print(DateTime.now().toString() + " - Groesse=$aktGr");
+      }
+    }
+    await dbGr.close();
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - istDB_OK(): Datenbank geschlossen");
     // }
@@ -105,10 +124,7 @@ class dbHelper {
   // Die Datenbank importieren
   // -------------------------
   static Future<bool> importiereDatenbank(String strDBName) async {
-    if (kDebugMode) {
-      print( DateTime.now().toString() + " - importiere Datenbank aufgerufen");
-    }
-    String strQuelle = globals.lokalDBPfad + strDBName;
+    String strQuelle = strDBName;
     String strZiel = await sql.getDatabasesPath() + "/" + globals.lokalDBNameOhnePfad;
     try {
       final db = await dbHelper.db();
@@ -119,7 +135,9 @@ class dbHelper {
         }
       }
       if ( await File(strQuelle).exists() == true ) {
-        Future<File> f = new File(strQuelle).copy(strZiel);
+        File sourceFile = File(strDBName);
+        var f =  await moveFile(sourceFile,await strZiel);
+        // Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
           if (kDebugMode) {
             print( DateTime.now().toString() + " - Datenbank importiert: " + strDBName);
@@ -145,50 +163,59 @@ class dbHelper {
       return false;
     }
   }
-
+  static Future<File> moveFile(File sourceFile, String newPath) async {
+    try {
+      /// prefer using rename as it is probably faster
+      /// if same directory path
+      print("sourceFile=$sourceFile");
+      print("newPath=$newPath");
+      return await sourceFile.rename(newPath);
+    } catch (e) {
+      /// if rename fails, copy the source file
+      final newFile = await sourceFile.copy(newPath);
+      return newFile;
+    }
+  }
   // die Datenbank exportieren
   // -------------------------
   static Future<bool> exportiereDatenbank() async {
-    print( DateTime.now().toString() + " - exportiere Datenbank aufgerufen");
+    print( "${DateTime.now()} - exportiere Datenbank aufgerufen");
     String frompath = await sql.getDatabasesPath();
-    //String topath = await Directory(globals.lokalDBNameMitPfad).toString();
+    String toPath = globals.lokalDBPfad;
     DateTime jetzt = DateTime.now();
     String strJahr = jetzt.year.toString();
-    if (strJahr.length < 4) strJahr = '20' + strJahr;
+    if (strJahr.length < 4) strJahr = '20$strJahr';
     String strMonat = jetzt.month.toString();
-    if (strMonat.length < 2) strMonat = '0' + strMonat;
+    if (strMonat.length < 2) strMonat = '0$strMonat';
     String strTag = jetzt.day.toString();
-    if (strTag.length < 2) strTag = '0' + strTag;
+    if (strTag.length < 2) strTag = '0$strTag';
     String strStunde = jetzt.hour.toString();
-    if (strStunde.length < 2) strStunde = '0' + strStunde;
+    if (strStunde.length < 2) strStunde = '0$strStunde';
     String strMinute = jetzt.minute.toString();
-    if (strMinute.length < 2) strMinute = '0' + strMinute;
+    if (strMinute.length < 2) strMinute = '0$strMinute';
     String strSekunde = jetzt.second.toString();
-    if (strSekunde.length < 2) strSekunde = '0' + strSekunde;
+    if (strSekunde.length < 2) strSekunde = '0$strSekunde';
     String strMillisekunde = jetzt.millisecond.toString();
     if (strMillisekunde.length < 2) {
-      strMillisekunde = '00' + strMillisekunde;
+      strMillisekunde = '00$strMillisekunde';
     } else
     if (strMillisekunde.length < 3) {
-      strMillisekunde = '0' + strMillisekunde;
+      strMillisekunde = '0$strMillisekunde';
     }
-    String strZiel = globals.lokalDBPfad + strJahr + strMonat + strTag + "_" + strStunde +
-        strMinute + "_" + strSekunde + strMillisekunde + "_V" +
-        _databaseVersion.toString() + "_" + globals.lokalDBNameOhnePfad;
-    String strQuelle = frompath + "/" + globals.lokalDBNameOhnePfad;
+    String strZiel = "$toPath${strJahr}${strMonat}${strTag}_$strStunde${strMinute}_$strSekunde${strMillisekunde}_V${_databaseVersion}_${globals.lokalDBNameOhnePfad}";
+    String strQuelle = "$frompath/${globals.lokalDBNameOhnePfad}";
     try {
+      // es muss sichergestellt sein, dass die Datenbank geschlossen ist
       final db = await dbHelper.db();
       if ( db.isOpen ) {
         await db.close();
-        // if (kDebugMode) {
-        //   print( DateTime.now().toString() + " - exportiereDatenbank(): Datenbank geschlossen");
-        // }
       }
+      // feststellen, ob das Zielverzeichnis existiert
       if ( await Directory(globals.lokalDBPfad).exists() == false ) {
         var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
         if ( resDir.isAbsolute ) {
           if (kDebugMode) {
-            print("resDir.uri.userinfo=" + resDir.uri.userInfo);
+            print("resDir.uri.userinfo=${resDir.uri.userInfo}");
           }
         }
       }
@@ -196,24 +223,24 @@ class dbHelper {
         Future<File> f = new File(strQuelle).copy(strZiel);
         if (f != null) {
           if (kDebugMode) {
-            print( DateTime.now().toString() + " - Datenbank exportiert: " + strZiel);
+            print( "${DateTime.now()} - Datenbank exportiert: $strZiel");
           }
           return true;
         } else {
           if (kDebugMode) {
-            print( DateTime.now().toString() + " - Datenbank NICHT exportiert: " + strZiel);
+            print( "${DateTime.now()} - Datenbank NICHT exportiert: $strZiel");
           }
           return false;
         }
       } else {
         if (kDebugMode) {
-          print( DateTime.now().toString() + " - Das Zielverzeichnis existiert nicht: " + globals.lokalDBPfad);
+          print( "${DateTime.now()} - Das Zielverzeichnis existiert nicht: ${globals.lokalDBPfad}");
         }
         return false;
       }
     } on Error catch( _, e ){
       if (kDebugMode) {
-        print( DateTime.now().toString() + " - Fehler beim Exportieren der Datei: " + strZiel + ": $e");
+        print( "${DateTime.now()} - Fehler beim Exportieren der Datei: $strZiel: $e");
       }
       return false;
     }
@@ -757,6 +784,53 @@ class dbHelper {
     }
     await db.close();
     Result = (await updateSettingsItem(_ID, "AnzDiagrammEintraege", "INT", newCount, null, null) > 0);
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
+    // }
+    return Result;
+  }
+
+  // den Eintrag mit der Anzahl der Einträge in der Tabelle ermitteln
+  static Future<double> getGroesse() async {
+    double Result = -1.0;
+    List<Map<String, dynamic>> theList = [];
+    final db = await dbHelper.db();
+
+    try {
+      theList = await db.rawQuery("SELECT Wert_FLOAT AS gr FROM tSettings WHERE Bezeichnung LIKE 'Groesse' AND Typ='FLOAT'");
+    } on Error catch (err) {
+      if (kDebugMode) {
+        print("Fehler beim Bestimmen der Groesse " + err.toString());
+      }
+    }
+    if ( theList.length > 0 ) {
+      Result = theList[0]['gr'];
+    }
+    await db.close();
+    // if (kDebugMode) {
+    //   print( DateTime.now().toString() + " - getTabEntryCount(): Datenbank geschlossen - $Result");
+    // }
+    return Result;
+  }
+
+  static Future<bool> setGroesse(double neueGroesse) async {
+    bool Result = false;
+    int _ID = -1;
+    final db = await dbHelper.db();
+    List<Map<String, dynamic>>ret = [];
+
+    try {
+      ret = await db.rawQuery("SELECT " + SettingsInterface.colID + " as _ID FROM tSettings WHERE Bezeichnung LIKE 'Groesse' AND Typ='FLOAT'");
+    } on Error catch (err) {
+      if (kDebugMode) {
+        print("Fehler beim Bestimmen der Groesse " + err.toString());
+      }
+    }
+    if ( ret.length > 0 ) {
+      _ID = ret[0]['_ID'];
+    }
+    await db.close();
+    Result = (await updateSettingsItem(_ID, "Groesse", "FLOAT", null, neueGroesse, null) > 0);
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
     // }

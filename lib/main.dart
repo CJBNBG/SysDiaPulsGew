@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sysdiapulsgew/pages/DailyEntriesTablePage/dailyentriestablepage.dart';
 import 'package:sysdiapulsgew/pages/DiagramPage/diagrampage.dart';
@@ -20,12 +21,16 @@ import 'package:sysdiapulsgew/services/dbhelper.dart';
 import 'package:sysdiapulsgew/pages/EntriesTablePage/entriestablepage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
-import 'dart:ui';
-import 'package:badges/badges.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'myUpdateProvider.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:flutter_localization/flutter_localization.dart';
+// import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
+// import 'package:syncfusion_flutter_core/core.dart';
 
 void main() {
+  // Register Syncfusion license
+  // SyncfusionLicense.registerLicense("Mgo+DSMBaFt+QHJqVk1hXk5Hd0BLVGpAblJ3T2ZQdVt5ZDU7a15RRnVfRFxiSH5TdUBnWHpYdg==;Mgo+DSMBPh8sVXJ1S0R+X1pFdEBBXHxAd1p/VWJYdVt5flBPcDwsT3RfQF5jT39Sd0VjWnpacXNVQA==;ORg4AjUWIQA/Gnt2VFhiQlJPd11dXmJWd1p/THNYflR1fV9DaUwxOX1dQl9gSXhSd0RjWXxbdHVdQGY=;MjM4MTc3OEAzMjMxMmUzMDJlMzBnVzUwbzNSV2EraDltNXVFVDh1SUFhaUVMNFdEeTBnUzJFckJOU1Y3UG9rPQ==;MjM4MTc3OUAzMjMxMmUzMDJlMzBINTJRcjNEemU5cmNHcXJJR3RTVjEyWU8rdkZOSFJjUHRKQWR2NDJyd253PQ==;NRAiBiAaIQQuGjN/V0d+Xk9HfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn5Vd0RiWX9ddXBXQGVa;MjM4MTc4MUAzMjMxMmUzMDJlMzBLY3pFWXdubE1Xa1krVC90alhNNlQrZ0EzOExpSkxkSW5sc3N3WVpPajlvPQ==;MjM4MTc4MkAzMjMxMmUzMDJlMzBGYUdmT24zd2IwYk0xMXZOaVZmYU9JQUtCckR5UTFWTVp3VlphYkpNNjlvPQ==;Mgo+DSMBMAY9C3t2VFhiQlJPd11dXmJWd1p/THNYflR1fV9DaUwxOX1dQl9gSXhSd0RjWXxbdHdWT2Y=;MjM4MTc4NEAzMjMxMmUzMDJlMzBSZGw3OE9wcEFYMmtIT0tVeTFyL2IxZDg2ZUpNS1g4aUxFZk4rRm9CeXRzPQ==;MjM4MTc4NUAzMjMxMmUzMDJlMzBiejJ6Z2twV1d5emJtWjNTRU84WDc3SzloTERYajVZdGdtWGlPUytDblJjPQ==;MjM4MTc4NkAzMjMxMmUzMDJlMzBLY3pFWXdubE1Xa1krVC90alhNNlQrZ0EzOExpSkxkSW5sc3N3WVpPajlvPQ==");
   // initializeDateFormatting().then((_) =>
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
@@ -52,9 +57,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    initializeDateFormatting('de_DE', null);
     super.initState();
     // die App soll ausschließlich im Hochkantformat arbeiten
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    if (kDebugMode) {
+      print('App arbeitet nur im Hochkantformat');
+    }
   }
 
   @override
@@ -67,44 +76,40 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.lightBlue,
       ),
       home: const MyHomePage(title: 'SysDiaPG'),
-      localizationsDelegates: const [
-        GlobalWidgetsLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('de', 'DE')], //, Locale('pt', 'BR')],
+      // localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      // supportedLocales: const <Locale>[Locale('de', 'DE')], //, Locale('pt', 'BR')],
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/entriestablepage':
             return MaterialPageRoute(
-              builder: (_) => EntriesTablePage(),
+              builder: (_) => const EntriesTablePage(),
               maintainState: false,
             );
           case '/dailyentriestablepage':
             return MaterialPageRoute(
-              builder: (_) => dailyEntriesTablePage(),
+              builder: (_) => const dailyEntriesTablePage(),
               maintainState: false,
             );
           case '/importexportpage':
             return PageTransition(
-              child: ImportExportPage(),
+              child: const ImportExportPage(),
               type: PageTransitionType.fade,
               settings: settings,
               reverseDuration: const Duration(seconds: 3),
             );
           case '/infopage':
             return MaterialPageRoute(
-              builder: (_) => InfoPage(),
+              builder: (_) => const InfoPage(),
               maintainState: false,
             );
           case '/statistikpage':
             return MaterialPageRoute(
-              builder: (_) => StatistikPage(),
+              builder: (_) => const StatistikPage(),
               maintainState: false,
             );
           case '/settingspage':
             return MaterialPageRoute(
-              builder: (_) => SettingsPage(),
+              builder: (_) => const SettingsPage(),
               maintainState: false,
             );
           default:
@@ -127,6 +132,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final FlutterLocalization _localization = FlutterLocalization.instance;
   int _selectedIndex = 0;
   String strSysAVG = '---';
   String strDiaAVG = '---';
@@ -166,6 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if ( await dbHelper.istDB_OK() ) {
       await _getStoragePermission();
       await _initPackageInfo();
+      await _initGroesse();
       await _loadAVGData();
       await ladeEintraege();
       await ladeEvents();
@@ -175,20 +182,24 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         globals.calendarStart = DateTime.parse('2022-01-01 00:00');
       }
-      print(globals.calendarStart);
+      if (kDebugMode) {
+        print(globals.calendarStart);
+      }
       List<Map<String, dynamic>> allEntries = await dbHelper.getDataItems(-1);
     } else {
-      print("Datenbank ist NICHT OK!!!!");
+      if (kDebugMode) {
+        print("Datenbank ist NICHT OK!!!!");
+      }
     }
     if (kDebugMode) {
-      print("Version: " + globals.gPackageInfo.version  + ' (' + globals.gPackageInfo.buildNumber + ')');
+      print("Version: ${globals.gPackageInfo.version} ( ${globals.gPackageInfo.buildNumber} )");
     }
   }
 
   Future<void> myTimerTick() async {
     if ( globals.updAVG_needed == true ) {
       if (kDebugMode) {
-        print('myTimerTick Anfang: ' + DateTime.now().toString());
+        print('myTimerTick Anfang: ${DateTime.now()}');
       }
       await _loadAVGData();
       await ladeEintraege();
@@ -197,18 +208,29 @@ class _MyHomePageState extends State<MyHomePage> {
         globals.updAVG_needed = false;
       });
       if (kDebugMode) {
-        print('myTimerTick Ende: ' + DateTime.now().toString());
+        print('myTimerTick Ende: ${DateTime.now()}');
       }
     }
   }
   @override
   void initState() {
+    _localization.init(
+      mapLocales: [
+        const MapLocale('de', AppLocale.DE),
+      ],
+      initLanguageCode: 'de',
+    );
+    _localization.onTranslatedLanguage = _onTranslatedLanguage;
     super.initState();
     loadAllData();
     // mit dem Timer wird regelmäßig dafür gesorgt, dass die Mittelwerte aktuell angezeigt werden
     myTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
       await myTimerTick();
     });
+  }
+
+  void _onTranslatedLanguage(Locale? locale) {
+    setState(() {});
   }
 
   @override
@@ -223,15 +245,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool permissionGranted = false;
   Future _getStoragePermission() async {
+    final folder = Directory(globals.lokalDBPfad);
+    final otherFolder = await getExternalStorageDirectories(type: StorageDirectory.downloads);
+    print("ExternalStorageDirectories=$otherFolder");
+    // final _result = await Permission.storage.request();
+    final _result = await Permission.storage.status;
+    switch (_result) {
+      case PermissionStatus.granted:
+      case PermissionStatus.limited:
+        print("Zugriff erlaubt");
+        break;
+
+      case PermissionStatus.denied:
+      case PermissionStatus.restricted:
+      case PermissionStatus.permanentlyDenied:
+      case PermissionStatus.provisional:          // nur bei iOS
+      default:
+        print("Zugriff verweigert: $_result");
+    }
     if (await Permission.storage.request().isGranted) {
       if ( mounted ) {
         setState(() {
           permissionGranted = true;
         });
       }
-    } else if (await Permission.storage.request().isPermanentlyDenied) {
-      await openAppSettings();
-    } else if (await Permission.storage.request().isDenied) {
+    } else {
       if ( mounted ) {
         setState(() {
           permissionGranted = false;
@@ -239,29 +277,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     if ( permissionGranted == true ) {
-      try {
-        if ( await Directory(globals.lokalDBPfad).exists() == false ) {
-          var resDir = await Directory(globals.lokalDBPfad).create(recursive: true);
-          if ( resDir.isAbsolute ) {
-            if (kDebugMode) {
-              print("resDir.uri.userinfo=" + resDir.uri.userInfo);
-            }
-          }
-        }
-        if ( (Directory(globals.lokalDBPfad)).exists() == false ) {
-          if (kDebugMode) {
-            print("Verzeichnis " + globals.lokalDBPfad + " erzeugt");
-          }
-        } else {
-          if (kDebugMode) {
-            print("Verzeichnis " + globals.lokalDBPfad + " existiert");
-          }
-        }
-      } on Error catch (_,e) {
-        if (kDebugMode) {
-          print('Fehler beim Erzeugen des Verzeichnisses ' + globals.lokalDBPfad + ' - ' + e.toString());
-        }
-      }
+      print("Zugriffsrechte für $folder liegen vor");
+    } else {
+      print("Zugriffsrechte für $folder fehlen");
     }
   }
 
@@ -271,13 +289,15 @@ class _MyHomePageState extends State<MyHomePage> {
       return null;
     } else {
       globals.lokalDBDir = path;
-      globals.lokalDBPfad = path + "SysDiaPulsGew/";
+      globals.lokalDBPfad = "${path}SysDiaPulsGew/";
       globals.lokalDBNameMitPfad = globals.lokalDBPfad + globals.lokalDBNameOhnePfad;
     }
-    print("getExternalStorageDirectory: " + path);
-    print("lokalDBDir: " + globals.lokalDBDir);
-    print("lokalDBPfad: " + globals.lokalDBPfad);
-    print("lokalDBNameMitPfad: " + globals.lokalDBNameMitPfad);
+    if (kDebugMode) {
+      print("getExternalStorageDirectory: $path");
+      print("lokalDBDir: ${globals.lokalDBDir}");
+      print("lokalDBPfad: ${globals.lokalDBPfad}");
+      print("lokalDBNameMitPfad: ${globals.lokalDBNameMitPfad}");
+    }
     return Directory(path);
   }
 
@@ -287,8 +307,17 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _packageInfo = info;
         globals.gPackageInfo = info;
-        globals.screenwidth = window.physicalSize.width.toInt();
-        globals.screenheight = window.physicalSize.height.toInt();
+        globals.screenwidth = View.of(context).physicalSize.width.toInt();
+        globals.screenheight = View.of(context).physicalSize.height.toInt();
+      });
+    }
+  }
+
+  Future<void> _initGroesse() async {
+    final double gr = await dbHelper.getGroesse();
+    if ( mounted ) {
+      setState(() {
+        globals.gGroesse = gr;
       });
     }
   }
@@ -327,7 +356,7 @@ class _MyHomePageState extends State<MyHomePage> {
           );
           break;
         default:
-          print("unbekannter index: " + index.toString());
+          print("unbekannter index: $index");
           break;
       }
       setState(() {
@@ -379,7 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SingleChildScrollView(
-                child: Container(
+                child: SizedBox(
                   width: globals.CardWidth,
                   //height: 550,
                   child: Card(
@@ -415,9 +444,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ],
                             ),
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Expanded(
                                   child: Padding(
                                     padding: EdgeInsets.fromLTRB(0, 5.0, 0, 10),
@@ -473,14 +502,14 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Diagramm',
           ),
           BottomNavigationBarItem(
-            icon: Badge(
-              child: const Icon(Icons.table_rows),
+            icon: badges.Badge(
               badgeColor: Theme.of(context).primaryColor,
-              position: BadgePosition.topEnd(),
-              shape: BadgeShape.square,
+              position: badges.BadgePosition.topEnd(),
+              shape: badges.BadgeShape.square,
               borderRadius: BorderRadius.circular(8),
               padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
               badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),
+              child: const Icon(Icons.table_rows),
             ),
             label: 'Einträge',
           ),
@@ -502,7 +531,7 @@ class myMenuWidget extends StatefulWidget {
     Key? key, required this.ThePackageInfo,
   }) : super(key: key,);
 
-  static TapRoutine(BuildContext context, int Index) async {
+  static _tapRoutine(BuildContext context, int Index) async {
     String x = "?";
     switch(Index) {
       case 1:
@@ -513,6 +542,7 @@ class myMenuWidget extends StatefulWidget {
         break;
       case 3:
         x = "Statistik...";
+        await stats.ladeDaten();
         break;
       case 4:
         x = "Import / Export...";
@@ -620,7 +650,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
                   textScaleFactor: 2.0,
                 ),
                 Text(
-                  int.parse(globals.gPackageInfo.buildNumber) > 0 ? 'Version: ' + globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')' : 'Version: ' + globals.gPackageInfo.version, //title
+                  int.parse(globals.gPackageInfo.buildNumber) > 0 ? 'Version: ${globals.gPackageInfo.version} (${globals.gPackageInfo.buildNumber})' : 'Version: ${globals.gPackageInfo.version}', //title
                   // 'Version: ' + widget.ThePackageInfo.version + ' (' + widget.ThePackageInfo.buildNumber + ')',
                   textScaleFactor: 1.3,
                   style: TextStyle(
@@ -638,7 +668,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             ),
             onTap: () {
               Navigator.pop(context);
-              myMenuWidget.TapRoutine(context, 1,);
+              myMenuWidget._tapRoutine(context, 1,);
             },
           ),
           ListTile(
@@ -649,7 +679,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             ),
             onTap: () {
               Navigator.pop(context);
-              myMenuWidget.TapRoutine(context, 2);
+              myMenuWidget._tapRoutine(context, 2);
             },
           ),
           ListTile(
@@ -660,7 +690,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             ),
             onTap: () {
               Navigator.pop(context);
-              myMenuWidget.TapRoutine(context, 3);
+              myMenuWidget._tapRoutine(context, 3);
             },
           ),
           ListTile(
@@ -674,7 +704,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
               //myMenuWidget.TapRoutine(context, 4);
               Navigator.of(context)
                 .push(MaterialPageRoute(
-                  builder: (context) => ImportExportPage(),
+                  builder: (context) => const ImportExportPage(),
                 ))
                 .then((value) =>
                 {
@@ -691,7 +721,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             ),
             onTap: () {
               Navigator.pop(context);
-              myMenuWidget.TapRoutine(context, 5);
+              myMenuWidget._tapRoutine(context, 5);
             },
           ),
         ],
@@ -740,6 +770,12 @@ void _launchURL() async {
   if (await canLaunchUrl(_url)) {
     await launchUrl(_url);
   } else {
-    throw 'Fehler beim Aufruf von ' + _url.toString();
+    throw 'Fehler beim Aufruf von $_url';
   }
+}
+
+mixin AppLocale {
+  static const String title = 'title';
+
+  static const Map<String, dynamic> DE = {title: 'Lokalisierung'};
 }

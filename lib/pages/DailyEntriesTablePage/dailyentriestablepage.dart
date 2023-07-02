@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
@@ -225,11 +225,11 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
           label: 'Start',
         ),
         BottomNavigationBarItem(
-          icon: Badge(
+          icon: badges.Badge(
             child: Icon(MdiIcons.calendarClock),
             badgeColor: Theme.of(context).primaryColor,
-            position: BadgePosition.topEnd(),
-            shape: BadgeShape.square,
+            position: badges.BadgePosition.topEnd(),
+            shape: badges.BadgeShape.square,
             borderRadius: BorderRadius.circular(8),
             padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
             badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),

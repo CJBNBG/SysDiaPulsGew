@@ -11,6 +11,7 @@ const ContainerWidth = 310.0;
 const PaddingWidth = 8.0;
 const EntryWidthSysDia = (ContainerWidth-2.0*PaddingWidth-8.0)/3.0;
 const EntryWidthGew = (ContainerWidth-2.0*PaddingWidth-8.0);
+const EntryWidthBMI = (ContainerWidth-2.0*PaddingWidth-8.0)/5.0;
 String strAnzDSe = '';
 String strZeitpunkt = '?';
 String strTage = '?';
@@ -252,6 +253,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -264,6 +266,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -276,6 +279,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                   ],
@@ -294,6 +298,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -306,6 +311,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -318,6 +324,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                   ],
@@ -338,6 +345,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -350,6 +358,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -362,6 +371,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                   ],
@@ -380,6 +390,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -392,6 +403,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -404,6 +416,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                   ],
@@ -424,6 +437,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -436,6 +450,7 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                     Container(
@@ -448,23 +463,10 @@ class _InfoPageState extends State<InfoPage> {
                                         Breite: EntryWidthSysDia,
                                         ScaleFactor: 1.0,
                                         isHeader: false,
+                                        Padding: 8.0,
                                       ),
                                     ),
                                   ],
-                                ),
-                                SizedBox(height: 20.0,),
-                                myListWidget(Titel: "Gewicht (kg):", Wert: "", ScaleFactor: 1.0),
-                                Container(
-                                  height: 50, width: EntryWidthGew, color: Colors.lightBlue[200],
-                                  child: myWidgets.myListRowWidgetTwoLines(
-                                    Titel1: 'normal:',
-                                    Titel2: '0.0 - 300.0',
-                                    Farbe1: globals.Gewicht_normal,
-                                    Farbe2: globals.Gewicht_normal_blass,
-                                    Breite: EntryWidthGew,
-                                    ScaleFactor: 1.0,
-                                    isHeader: false,
-                                  ),
                                 ),
                                 SizedBox(height: 20.0,),
                                 Container(
@@ -491,6 +493,142 @@ class _InfoPageState extends State<InfoPage> {
                                                 MaterialPageRoute<dynamic>(
                                                   builder: (_) => const PDFViewerFromUrl(
                                                     url: 'https://www.hochdruckliga.de/fileadmin/downloads/mitgliederbereich/downloads/broschueren/Pocket_Leitlinien_Arterielle_Hypertonie.pdf',
+                                                  ),
+                                                ),
+                                              ),
+                                              child: const Text('hier klicken'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 20.0,),
+                                myListWidget(Titel: "BMI (kg/m²):", Wert: "", ScaleFactor: 1.0),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: '(1)',
+                                        Titel2: '<18.5',
+                                        Farbe1: globals.BMI_Untergewicht,
+                                        Farbe2: globals.BMI_Untergewicht_blass,
+                                        Breite: EntryWidthBMI,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                        Padding: 8.0,
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: '(2)',
+                                        Titel2: '<25',
+                                        Farbe1: globals.BMI_Normalgewicht,
+                                        Farbe2: globals.BMI_Normalgewicht_blass,
+                                        Breite: EntryWidthBMI,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                        Padding: 8.0,
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: '(3)',
+                                        Titel2: '<30',
+                                        Farbe1: globals.BMI_Uebergewicht,
+                                        Farbe2: globals.BMI_Uebergewicht_blass,
+                                        Breite: EntryWidthBMI,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                        Padding: 8.0,
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: '(4)',
+                                        Titel2: '<40',
+                                        Farbe1: globals.BMI_Adipositas_I,
+                                        Farbe2: globals.BMI_Adipositas_I_blass,
+                                        Breite: EntryWidthBMI,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                        Padding: 8.0,
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
+                                      child: myWidgets.myListRowWidgetTwoLines(
+                                        Titel1: '(5)',
+                                        Titel2: '>=40',
+                                        Farbe1: globals.BMI_Adipositas_II,
+                                        Farbe2: globals.BMI_Adipositas_II_blass,
+                                        Breite: EntryWidthBMI,
+                                        ScaleFactor: 1.0,
+                                        isHeader: false,
+                                        Padding: 8.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20.0,),
+                                const Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('(1): Untergewicht',
+                                      textScaleFactor: 1.0,
+                                      softWrap: false,
+                                    ),
+                                    Text('(2): Normalgewicht',
+                                      textScaleFactor: 1.0,
+                                      softWrap: false,
+                                    ),
+                                    Text('(3): Übergewicht',
+                                      textScaleFactor: 1.0,
+                                      softWrap: false,
+                                    ),
+                                    Text('(4): adipös',
+                                      textScaleFactor: 1.0,
+                                      softWrap: false,
+                                    ),
+                                    Text('(5): extrem adipös',
+                                      textScaleFactor: 1.0,
+                                      softWrap: false,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20.0,),
+                                Container(
+                                  color: Colors.black12,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Flexible(
+                                        flex: 5,
+                                        child: Text('Wenn Sie die Einteilung der BMI-Klassen der International Fitness Association (IFA) nachlesen möchten, dann bitte...',
+                                          textScaleFactor: 1.0,
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                      Flexible(
+                                        flex: 3,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute<dynamic>(
+                                                  builder: (_) => const PDFViewerFromUrl(
+                                                    url: 'https://www.ifafitness.com/downloads/BMI.pdf',
                                                   ),
                                                 ),
                                               ),
@@ -535,12 +673,12 @@ class myListWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            this.Titel,
-            textScaleFactor: this.ScaleFactor,
+            Titel,
+            textScaleFactor: ScaleFactor,
           ),
           Text(
-            this.Wert, //title
-            textScaleFactor: this.ScaleFactor,
+            Wert, //title
+            textScaleFactor: ScaleFactor,
           ),
         ],
       ),

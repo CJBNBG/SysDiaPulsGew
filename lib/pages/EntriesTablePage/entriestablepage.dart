@@ -285,63 +285,89 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                           // Headerzeile
                           // -----------------------------------------------------
                           Flexible(
-                              flex: 1,
-                              child: myWidgets.myListRowWidgetOneLine(
-                                  isHeader: true,
-                                  Titel1: "Zeitpunkt",
-                                  Farbe1: Colors.grey,
-                                  Farbe2: Colors.grey[500],
-                                  Breite: _BreiteZeitpunkt,
-                                  ScaleFactor: _scaleFactor,
-                                  alignment: Alignment.center)),
+                            flex: 1,
+                            child: myWidgets.myListRowWidgetOneLine(
+                              isHeader: true,
+                              Titel1: "Zeitpunkt",
+                              Farbe1: Colors.grey,
+                              Farbe2: Colors.grey[500],
+                              Breite: _BreiteZeitpunkt,
+                              ScaleFactor: _scaleFactor,
+                              alignment: Alignment.center)),
                           Flexible(
                             flex: 2,
                             child: Column(
                               children: [
-                                Expanded(
+                                SizedBox(
+                                  height: 50.0,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
                                       myWidgets.myListRowWidgetTwoLines(
-                                          isHeader: true,
-                                          Titel1: 'Systole',
-                                          Titel2: '(mmHg)',
-                                          Farbe1: Colors.grey,
-                                          Farbe2: Colors.grey[500],
-                                          Breite: _BreiteZeitpunkt / 2.0,
-                                          ScaleFactor: _scaleFactor),
+                                        isHeader: true,
+                                        Titel1: 'Systole',
+                                        Titel2: '(mmHg)',
+                                        Farbe1: Colors.grey,
+                                        Farbe2: Colors.grey[500],
+                                        Breite: _BreiteZeitpunkt / 2.0,
+                                        ScaleFactor: _scaleFactor,
+                                        Padding: 0.0,
+                                      ),
                                       myWidgets.myListRowWidgetTwoLines(
-                                          isHeader: true,
-                                          Titel1: 'Diastole',
-                                          Titel2: '(mmHg)',
-                                          Farbe1: Colors.grey,
-                                          Farbe2: Colors.grey[500],
-                                          Breite: _BreiteZeitpunkt / 2.0,
-                                          ScaleFactor: _scaleFactor),
+                                        isHeader: true,
+                                        Titel1: 'Diastole',
+                                        Titel2: '(mmHg)',
+                                        Farbe1: Colors.grey,
+                                        Farbe2: Colors.grey[500],
+                                        Breite: _BreiteZeitpunkt / 2.0,
+                                        ScaleFactor: _scaleFactor,
+                                        Padding: 0.0,
+                                      ),
                                       myWidgets.myListRowWidgetTwoLines(
-                                          isHeader: true,
-                                          Titel1: 'Puls',
-                                          Titel2: '(bpm)',
-                                          Farbe1: Colors.grey,
-                                          Farbe2: Colors.grey[500],
-                                          Breite: _BreiteZeitpunkt / 2.0,
-                                          ScaleFactor: _scaleFactor),
+                                        isHeader: true,
+                                        Titel1: 'Puls',
+                                        Titel2: '(bpm)',
+                                        Farbe1: Colors.grey,
+                                        Farbe2: Colors.grey[500],
+                                        Breite: _BreiteZeitpunkt / 2.0,
+                                        ScaleFactor: _scaleFactor,
+                                        Padding: 0.0,
+                                      ),
                                       myWidgets.myListRowWidgetTwoLines(
-                                          isHeader: true,
-                                          Titel1: 'Gewicht',
-                                          Titel2: '(kg)',
-                                          Farbe1: Colors.grey,
-                                          Farbe2: Colors.grey[500],
-                                          Breite: _BreiteZeitpunkt / 2.0,
-                                          ScaleFactor: _scaleFactor),
+                                        isHeader: true,
+                                        Titel1: 'Gewicht',
+                                        Titel2: '(kg)',
+                                        Farbe1: Colors.grey,
+                                        Farbe2: Colors.grey[500],
+                                        Breite: _BreiteZeitpunkt / 2.0,
+                                        ScaleFactor: _scaleFactor,
+                                        Padding: 0.0,
+                                      ),
                                     ],
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 3,
-                                  child: Container(
-                                    color: Colors.black54,
-                                  ),
+                                SizedBox( height: 3, child: Container( color: Colors.black54, ), ),
+                                const Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      flex: 1,
+                                      child: FractionallySizedBox(
+                                        alignment: Alignment.centerLeft,
+                                        widthFactor: 1.5,
+                                        child: Text('Pulsdruck (mmHg)', style: TextStyle(fontSize: 10.0, ), textAlign: TextAlign.center,),
+                                      ),
+                                    ),
+                                    Flexible( flex: 1, child: Padding( padding: EdgeInsets.all(0.0), child: Text(' '), ), ),
+                                    Flexible(
+                                      flex: 1,
+                                      child: FractionallySizedBox(
+                                        alignment: Alignment.centerRight,
+                                        widthFactor: 0.75,
+                                        child: Text('BMI', style: TextStyle(fontSize: 10.0, ), textAlign: TextAlign.center,),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Expanded(
                                   child: myWidgets.myListRowWidgetOneLine(

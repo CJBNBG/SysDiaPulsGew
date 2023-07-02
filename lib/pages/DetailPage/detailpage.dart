@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/rendering.dart';
@@ -75,14 +76,16 @@ class _DetailPageState extends State<DetailPage> {
     if (globals.aktID == -1) {
       int? iAnz = await dbHelper.getEntryCount();
       if (iAnz! > 0) {
-        final _neueDaten = await dbHelper.getLastEntry();
-        print(_neueDaten);
+        final neueDaten = await dbHelper.getLastEntry();
+        if (kDebugMode) {
+          print(neueDaten);
+        }
         _neuerZeitpunkt = DateTime.now().toString();
-        _neueSystole = _neueDaten[0]['Systole'].toString();
-        _neueDiastole = _neueDaten[0]['Diastole'].toString();
-        _neuerPuls = _neueDaten[0]['Puls'].toString();
-        if (_neueDaten[0]['Gewicht'].toString().isNotEmpty && _neueDaten[0]['Gewicht'] != null) {
-          _neuesGewicht = _neueDaten[0]['Gewicht'].toString();
+        _neueSystole = neueDaten[0]['Systole'].toString();
+        _neueDiastole = neueDaten[0]['Diastole'].toString();
+        _neuerPuls = neueDaten[0]['Puls'].toString();
+        if (neueDaten[0]['Gewicht'].toString().isNotEmpty && neueDaten[0]['Gewicht'] != null) {
+          _neuesGewicht = neueDaten[0]['Gewicht'].toString();
         } else {
           _neuesGewicht = "";
         }
@@ -113,10 +116,11 @@ class _DetailPageState extends State<DetailPage> {
     ctrDiastole.value = TextEditingValue(text: _neueDiastole);
     ctrPuls.value = TextEditingValue(text: _neuerPuls);
     ctrGewicht.value = TextEditingValue(text: _neuesGewicht);
-    if (mounted)
+    if (mounted) {
       setState(() {
         _isLoading = false;
       });
+    }
   }
 
   @override
@@ -137,7 +141,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrSystole.value = TextEditingValue(text: neuerWert.toString());
       _neueSystole = neuerWert.toString();
       _hasChanged = true;
-      print(_neueSystole);
+      if (kDebugMode) {
+        print(_neueSystole);
+      }
     });
   }
 
@@ -152,7 +158,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrSystole.value = TextEditingValue(text: neuerWert.toString());
       _neueSystole = neuerWert.toString();
       _hasChanged = true;
-      print(_neueSystole);
+      if (kDebugMode) {
+        print(_neueSystole);
+      }
     });
   }
 
@@ -167,7 +175,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrDiastole.value = TextEditingValue(text: neuerWert.toString());
       _neueDiastole = neuerWert.toString();
       _hasChanged = true;
-      print(_neueDiastole);
+      if (kDebugMode) {
+        print(_neueDiastole);
+      }
     });
   }
 
@@ -182,7 +192,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrDiastole.value = TextEditingValue(text: neuerWert.toString());
       _neueDiastole = neuerWert.toString();
       _hasChanged = true;
-      print(_neueDiastole);
+      if (kDebugMode) {
+        print(_neueDiastole);
+      }
     });
   }
 
@@ -197,7 +209,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrPuls.value = TextEditingValue(text: neuerWert.toString());
       _neuerPuls = neuerWert.toString();
       _hasChanged = true;
-      print(_neuerPuls);
+      if (kDebugMode) {
+        print(_neuerPuls);
+      }
     });
   }
 
@@ -212,7 +226,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrPuls.value = TextEditingValue(text: neuerWert.toString());
       _neuerPuls = neuerWert.toString();
       _hasChanged = true;
-      print(_neuerPuls);
+      if (kDebugMode) {
+        print(_neuerPuls);
+      }
     });
   }
 
@@ -229,7 +245,9 @@ class _DetailPageState extends State<DetailPage> {
       ctrGewicht.value = TextEditingValue(text: neuerWert!.toStringAsFixed(1));
       _neuesGewicht = neuerWert.toString();
       _hasChanged = true;
-      print(_neuesGewicht);
+      if (kDebugMode) {
+        print(_neuesGewicht);
+      }
     });
   }
 
@@ -246,13 +264,17 @@ class _DetailPageState extends State<DetailPage> {
       ctrGewicht.value = TextEditingValue(text: neuerWert!.toStringAsFixed(1));
       _neuesGewicht = neuerWert.toString();
       _hasChanged = true;
-      print(_neuesGewicht);
+      if (kDebugMode) {
+        print(_neuesGewicht);
+      }
     });
   }
 
   String? isNumeric(String val) {
     try {
-      print("isNumeric() - $val");
+      if (kDebugMode) {
+        print("isNumeric() - $val");
+      }
       var regex = RegExp(r'\d+');
       if (val.contains(regex) == false) {
         return "nur Zahlen!";
@@ -298,7 +320,7 @@ class _DetailPageState extends State<DetailPage> {
               visible: _hasChanged,
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
+                    backgroundColor: Colors.green,
                   ),
                   onPressed: () async {
                     // Wenn alle Validatoren der Felder des Formulars gültig sind.
@@ -307,7 +329,9 @@ class _DetailPageState extends State<DetailPage> {
                       myProvider.updateAll();
                       _hasChanged = false;
                     } else {
-                      print("Formular ist nicht gültig");
+                      if (kDebugMode) {
+                        print("Formular ist nicht gültig");
+                      }
                     }
                   },
                   child: Row(
@@ -345,7 +369,7 @@ class _DetailPageState extends State<DetailPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           DateTimePicker(
-                            style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                             type: DateTimePickerType.dateTimeSeparate,
                             dateMask: 'dd.MM.yyyy',
@@ -354,11 +378,11 @@ class _DetailPageState extends State<DetailPage> {
                             dateLabelText: 'Datum',
                             timeLabelText: 'Uhrzeit',
                             use24HourFormat: true,
-                            locale: Locale('de', 'DE'),
+                            // locale: const Locale('de', 'DE'),
                             timeFieldWidth: (MediaQuery.of(context).size.width - _padding_left - _padding_right) / 2.0,
-                            icon: Icon(Icons.event),
+                            icon: const Icon(Icons.event),
                             initialValue: _neuerZeitpunkt,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               filled: true,
                               fillColor: Colors.black12,
                               contentPadding: EdgeInsets.fromLTRB(0.0, 20, 0.0, 20),
@@ -370,11 +394,11 @@ class _DetailPageState extends State<DetailPage> {
                             onChanged: (val) {
                               setState(() {
                                 _hasChanged = true;
-                                val != null ? _neuerZeitpunkt = DateTime.parse(val).toString() : '';
+                                _neuerZeitpunkt = DateTime.parse(val).toString();
                               });
                             },
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                           // Systole
                           // -------
@@ -387,25 +411,25 @@ class _DetailPageState extends State<DetailPage> {
                                 flex: 1,
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => decrSystole(),
-                                    child: Text('-')),
+                                    child: const Text('-')),
                               ),
                               // SizedBox(width: 5),
                               Flexible(
                                 flex: _flexval,
                                 child: TextFormField(
-                                  style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                                   controller: ctrSystole,
                                   // initialValue: _neueSystole,
                                   keyboardType: TextInputType.number,
                                   autocorrect: true,
                                   textAlign: TextAlign.center,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     filled: true,
                                     fillColor: Colors.black12,
                                     contentPadding: EdgeInsets.fromLTRB(0.0, 20, 0.0, 20),
@@ -433,17 +457,17 @@ class _DetailPageState extends State<DetailPage> {
                                 flex: 1,
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => incrSystole(),
-                                    child: Text('+')),
+                                    child: const Text('+')),
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                           // Diastole
                           // --------
@@ -455,24 +479,24 @@ class _DetailPageState extends State<DetailPage> {
                               Flexible(
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => decrDiastole(),
-                                    child: Text('-')),
+                                    child: const Text('-')),
                               ),
                               Flexible(
                                 flex: _flexval,
                                 child: TextFormField(
-                                  style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                   controller: ctrDiastole,
                                   // initialValue: _neueDiastole,
-                                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                                   autocorrect: true,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     filled: true,
                                     fillColor: Colors.black12,
                                     contentPadding: EdgeInsets.fromLTRB(0.0, 20, 0.0, 20),
@@ -498,17 +522,17 @@ class _DetailPageState extends State<DetailPage> {
                               Flexible(
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => incrDiastole(),
-                                    child: Text('+')),
+                                    child: const Text('+')),
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                           // Puls
                           // ----
@@ -520,24 +544,24 @@ class _DetailPageState extends State<DetailPage> {
                               Flexible(
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => decrPuls(),
-                                    child: Text('-')),
+                                    child: const Text('-')),
                               ),
                               Flexible(
                                 flex: _flexval,
                                 child: TextFormField(
-                                  style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                   controller: ctrPuls,
                                   // initialValue: _neuerPuls.toString(),
-                                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                                   autocorrect: true,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     filled: true,
                                     fillColor: Colors.black12,
                                     contentPadding: EdgeInsets.fromLTRB(0.0, 20, 0.0, 20),
@@ -563,17 +587,17 @@ class _DetailPageState extends State<DetailPage> {
                               Flexible(
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => incrPuls(),
-                                    child: Text('+')),
+                                    child: const Text('+')),
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                           // Gewicht
                           // -------
@@ -585,24 +609,24 @@ class _DetailPageState extends State<DetailPage> {
                               Flexible(
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => decrGewicht(),
-                                    child: Text('-')),
+                                    child: const Text('-')),
                               ),
                               Flexible(
                                 flex: _flexval,
                                 child: TextFormField(
-                                  style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                   controller: ctrGewicht,
                                   // initialValue: _neuesGewicht.toString(),
                                   keyboardType: TextInputType.number,
                                   autocorrect: true,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     filled: true,
                                     fillColor: Colors.black12,
                                     contentPadding: EdgeInsets.fromLTRB(0.0, 20, 0.0, 20),
@@ -628,24 +652,24 @@ class _DetailPageState extends State<DetailPage> {
                               Flexible(
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      primary: globals.BgColorNeutral,
+                                      backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: TextStyle(color: Colors.black, fontSize: 40.0),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
                                       // fixedSize: Size(55, 55),
                                     ),
                                     onPressed: () => incrGewicht(),
-                                    child: Text('+')),
+                                    child: const Text('+')),
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextFormField(
-                            style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                             initialValue: _neueBemerkung,
                             keyboardType: TextInputType.text,
                             //expands: true,
                             autocorrect: true,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               filled: true,
                               fillColor: Colors.black12,
                               labelText: 'Bemerkung',
@@ -656,7 +680,7 @@ class _DetailPageState extends State<DetailPage> {
                             onChanged: (val) {
                               _hasChanged = true;
                               setState(() {
-                                if ( val.toString().length > 0 ) {
+                                if ( val.toString().isNotEmpty ) {
                                   _neueBemerkung = val;
                                 } else {
                                   _neueBemerkung = '';

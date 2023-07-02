@@ -3,15 +3,17 @@ library globals;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sysdiapulsgew/services/dbhelper.dart';
 
 PackageInfo gPackageInfo = PackageInfo(appName: "", packageName: "", version: "", buildNumber: "");
 int screenwidth = 0;
 int screenheight = 0;
 String lokalDBDir = "/storage/emulated/0/";
-String lokalDBPfad = lokalDBDir + "SysDiaPulsGew/";
+String lokalDBPfad = lokalDBDir + "Download/";
 String lokalDBNameOhnePfad = "SysDiaPulsGew.db";
 String lokalDBNameMitPfad = lokalDBPfad + lokalDBNameOhnePfad;
 bool updAVG_needed = false;
+double gGroesse = 1.80;
 
 int aktID = -1;
 const EntryWidthSysDia = 55.0;
@@ -61,7 +63,56 @@ Color Gewicht_normal = const Color.fromRGBO(0, 255, 0, 1);            // 00ff00
 Color Gewicht_normal_blass = const Color.fromRGBO(248, 255, 247, 1);  // f8fff7
 Color Gewicht_fehlt = Colors.white;
 
+Color BMI_Untergewicht = const Color.fromRGBO(124, 252, 252, 1);     // 7cfcfc
+Color BMI_Normalgewicht = const Color.fromRGBO(124, 252, 124, 1);             // 7cfc7c
+Color BMI_Uebergewicht = const Color.fromRGBO(252, 252, 124, 1);            // fcfc7c
+Color BMI_Adipositas_I = const Color.fromRGBO(252, 187, 145, 1);              // fcbb91
+Color BMI_Adipositas_II = const Color.fromRGBO(252, 145, 145, 1);             // fc9191
+
+Color BMI_Untergewicht_blass = const Color.fromRGBO(235, 255, 255, 1);     // ebffff
+Color BMI_Normalgewicht_blass = const Color.fromRGBO(235, 255, 235, 1);             // ebffeb
+Color BMI_Uebergewicht_blass = const Color.fromRGBO(255, 255, 235, 1);            // ffffeb
+Color BMI_Adipositas_I_blass = const Color.fromRGBO(254, 243, 235, 1);              // fef3eb
+Color BMI_Adipositas_II_blass = const Color.fromRGBO(254, 235, 235, 1);             // feebeb
+
+double berechneBMI(double Gewicht) {
+  return Gewicht / ((gGroesse/100) * (gGroesse/100));
+}
 // Farbfunktionen
+Color BMI_Farbe1(double Gewicht) {
+  double Wert = berechneBMI(Gewicht);
+  if ( Wert == -1.0 ) {
+    return BgColorNeutral;
+  } else if ( Wert < 18.5 ) {
+    return BMI_Untergewicht;
+  } else if ( Wert < 25.0 ) {
+    return BMI_Normalgewicht;
+  } else if ( Wert < 30.0 ) {
+    return BMI_Uebergewicht;
+  } else if ( Wert < 40.0 ) {
+    return BMI_Adipositas_I;
+  } else {
+    return BMI_Adipositas_II;
+  }
+}
+
+Color BMI_Farbe2(double Gewicht) {
+  double Wert = berechneBMI(Gewicht);
+  if ( Wert == -1.0 ) {
+    return BgColorNeutral;
+  } else if ( Wert < 18.5 ) {
+    return BMI_Untergewicht_blass;
+  } else if ( Wert < 25.0 ) {
+    return BMI_Normalgewicht_blass;
+  } else if ( Wert < 30.0 ) {
+    return BMI_Uebergewicht_blass;
+  } else if ( Wert < 40.0 ) {
+    return BMI_Adipositas_I_blass;
+  } else {
+    return BMI_Adipositas_II_blass;
+  }
+}
+
 Color Farbe1Systole(int Wert) {
   if ( Wert == -1 ) {
     return BgColorNeutral;

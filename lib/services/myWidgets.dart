@@ -19,14 +19,14 @@ class myListRowWidgetOneLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // width: this.Breite,
-      alignment: this.alignment,
+      alignment: alignment,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(this.Titel1,
-            textScaleFactor: this.ScaleFactor,
-            style: this.ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),
+          Text(Titel1,
+            textScaleFactor: ScaleFactor,
+            style: ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),
           ),
         ],
       ),
@@ -34,22 +34,22 @@ class myListRowWidgetOneLine extends StatelessWidget {
         border: Border(
             top: BorderSide(
                 width: 0.0,
-                color: (this.isHeader) ? Colors.grey : globals.BgColorNeutral
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
             ),
             left: BorderSide(
                 width: 0.0,
-                color: (this.isHeader) ? Colors.grey : globals.BgColorNeutral
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
             ),
             right: BorderSide(
                 width: 0.0,
-                color: (this.isHeader) ? Colors.grey : globals.BgColorNeutral
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
             ),
             bottom: BorderSide(
                 width: 3.0,
-                color: this.Farbe1
+                color: Farbe1
             )
         ),
-        color: this.Farbe2,
+        color: Farbe2,
       ),
     );
   }
@@ -63,6 +63,7 @@ class myListRowWidgetTwoLines extends StatelessWidget {
   final Color? Farbe2;
   final double Breite;
   final double ScaleFactor;
+  final double Padding;
   const myListRowWidgetTwoLines({
     Key? key,
     required this.isHeader,
@@ -71,41 +72,43 @@ class myListRowWidgetTwoLines extends StatelessWidget {
     required this.Farbe1,
     required this.Farbe2,
     required this.Breite,
-    required this.ScaleFactor
+    required this.ScaleFactor,
+    required this.Padding,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: this.Breite,
+      width: Breite,
+      padding: EdgeInsets.all(Padding),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(this.Titel1, textScaleFactor: this.ScaleFactor,style: this.ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),),
-          Text(this.Titel2, textScaleFactor: this.ScaleFactor,style: this.ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),),
+          Text(Titel1, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),),
+          Text(Titel2, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),),
         ],
       ),
       decoration: BoxDecoration(
         border: Border(
             top: BorderSide(
                 width: 0.0,
-                color: (this.isHeader) ? Colors.grey : globals.BgColorNeutral
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
             ),
             left: BorderSide(
                 width: 0.0,
-                color: (this.isHeader) ? Colors.grey : globals.BgColorNeutral
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
             ),
             right: BorderSide(
                 width: 0.0,
-                color: (this.isHeader) ? Colors.grey : globals.BgColorNeutral
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
             ),
             bottom: BorderSide(
                 width: 3.0,
-                color: this.Farbe1
+                color: Farbe1
             )
         ),
-        color: this.Farbe2,
+        color: Farbe2,
       ),
     );
   }
@@ -128,12 +131,18 @@ class datenZeile extends StatelessWidget {
   }) : super(key: key);
 
   String dasDatum(String Zeitpunkt) {
-    if ( Zeitpunkt.length == 0 ) return "kein Datum";
-    else return Zeitpunkt.substring(8, 10) + "." + Zeitpunkt.substring(5, 7) + "." + Zeitpunkt.substring(0, 4);
+    if ( Zeitpunkt.isEmpty ) {
+      return "kein Datum";
+    } else {
+      return "${Zeitpunkt.substring(8, 10)}.${Zeitpunkt.substring(5, 7)}.${Zeitpunkt.substring(0, 4)}";
+    }
   }
   String dieUhrzeit(String Zeitpunkt) {
-    if ( Zeitpunkt.length == 0 ) return "keine Uhrzeit";
-    else return Zeitpunkt.substring(11, 16);
+    if ( Zeitpunkt.isEmpty ) {
+      return "keine Uhrzeit";
+    } else {
+      return Zeitpunkt.substring(11, 16);
+    }
   }
 
   @override
@@ -145,6 +154,8 @@ class datenZeile extends StatelessWidget {
     double _scaleFactor = isTablet ? globals.scaleFactorTablet : globals.scaleFactorPhone;
     int _Bemlen = isTablet ? globals.BemlenTablet : globals.BemlenPhone;
     double _BreiteZeitpunkt = MediaQuery.of(context).size.width / 3.0;
+    int Pulsdruck = Systole - Diastole;
+    print(Gewicht.toString());
 
     return Column(
       children: [
@@ -157,16 +168,20 @@ class datenZeile extends StatelessWidget {
                 flex: 1,
                 child: myListRowWidgetTwoLines(
                   isHeader: false,
-                  Titel1: dasDatum(this.Zeitpunkt),
-                  Titel2: dieUhrzeit(this.Zeitpunkt),
+                  Titel1: dasDatum(Zeitpunkt),
+                  Titel2: dieUhrzeit(Zeitpunkt),
                   Farbe1: globals.BgColorNeutral,
                   Farbe2: globals.BgColorNeutral,
                   Breite: _BreiteZeitpunkt,
-                  ScaleFactor: _scaleFactor,),
+                  ScaleFactor: _scaleFactor,
+                  Padding: 8.0,
+                ),
               ),
               Flexible(
                 flex: 2,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Row(
@@ -175,9 +190,9 @@ class datenZeile extends StatelessWidget {
                           Flexible(
                             child: myListRowWidgetOneLine(
                               isHeader: false,
-                              Titel1: this.Systole.toString(),
-                              Farbe1: globals.Farbe1Systole(this.Systole),
-                              Farbe2: globals.Farbe2Systole(this.Systole),
+                              Titel1: Systole.toString(),
+                              Farbe1: globals.Farbe1Systole(Systole),
+                              Farbe2: globals.Farbe2Systole(Systole),
                               Breite: _BreiteZeitpunkt / 2.0,
                               ScaleFactor: _scaleFactor,
                               alignment: Alignment.center,
@@ -186,9 +201,9 @@ class datenZeile extends StatelessWidget {
                           Flexible(
                             child: myListRowWidgetOneLine(
                               isHeader: false,
-                              Titel1: this.Diastole.toString(),
-                              Farbe1: globals.Farbe1Diastole(this.Diastole),
-                              Farbe2: globals.Farbe2Diastole(this.Diastole),
+                              Titel1: Diastole.toString(),
+                              Farbe1: globals.Farbe1Diastole(Diastole),
+                              Farbe2: globals.Farbe2Diastole(Diastole),
                               Breite: _BreiteZeitpunkt / 2.0,
                               ScaleFactor: _scaleFactor,
                               alignment: Alignment.center,
@@ -197,9 +212,9 @@ class datenZeile extends StatelessWidget {
                           Flexible(
                             child: myListRowWidgetOneLine(
                               isHeader: false,
-                              Titel1: this.Puls.toString().isNotEmpty ? this.Puls.toString() : "---",
-                              Farbe1: this.Puls.toString().isNotEmpty ? globals.Farbe1Puls(this.Puls!) : globals.BgColorNeutral,
-                              Farbe2: this.Puls.toString().isNotEmpty ? globals.Farbe2Puls(this.Puls!) : globals.BgColorNeutral,
+                              Titel1: Puls != null ? this.Puls.toString() : "---",
+                              Farbe1: Puls != null ? globals.Farbe1Puls(Puls!) : globals.BgColorNeutral,
+                              Farbe2: Puls != null ? globals.Farbe2Puls(Puls!) : globals.BgColorNeutral,
                               Breite: _BreiteZeitpunkt / 2.0,
                               ScaleFactor: _scaleFactor,
                               alignment: Alignment.center,
@@ -208,9 +223,9 @@ class datenZeile extends StatelessWidget {
                           Flexible(
                             child: myListRowWidgetOneLine(
                               isHeader: false,
-                              Titel1: this.Gewicht.toString().isNotEmpty && this.Gewicht != null ? this.Gewicht.toString() : "---",
-                              Farbe1: this.Gewicht.toString().isNotEmpty ? globals.Farbe1Gewicht(this.Gewicht.toString()) : globals.BgColorNeutral,
-                              Farbe2: this.Gewicht.toString().isNotEmpty ? globals.Farbe2Gewicht(this.Gewicht.toString()) : globals.BgColorNeutral,
+                              Titel1: Gewicht != null ? Gewicht.toString() : "---",
+                              Farbe1: Gewicht != null ? globals.Farbe1Gewicht(Gewicht.toString()!) : globals.BgColorNeutral,
+                              Farbe2: Gewicht != null ? globals.Farbe2Gewicht(Gewicht.toString()!) : globals.BgColorNeutral,
                               Breite: _BreiteZeitpunkt / 2.0,
                               ScaleFactor: _scaleFactor,
                               alignment: Alignment.center,
@@ -219,12 +234,51 @@ class datenZeile extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 5,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerLeft,
+                            widthFactor: 1.5,
+                            child: Container(
+                              color: Pulsdruck < 40
+                                ? Colors.yellow[100]
+                                : Pulsdruck <= 65.0
+                                  ? Colors.green[200]
+                                  : Pulsdruck <= 75.0
+                                    ? Colors.red[100]
+                                    : Pulsdruck <= 90
+                                      ? Colors.red[300]
+                                      : Colors.red,
+                              child: Text('$Pulsdruck', style: const TextStyle(fontSize: 10.0, ), textAlign: TextAlign.center,),
+                            ),
+                          ),
+                        ),
+                        const Flexible(
+                          flex: 1,
+                          child: Text(' '),
+                        ),
+                        Flexible(
+                          flex: 1,
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerRight,
+                            widthFactor: 0.75,
+                            child: Container(
+                              color: Gewicht != null ? globals.BMI_Farbe2(Gewicht!) : globals.BgColorNeutral,
+                              child: Gewicht != null ? Text(globals.berechneBMI(Gewicht!).toStringAsFixed(1), style: const TextStyle(fontSize: 10.0, ), textAlign: TextAlign.center,) : Text(' ')
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // const SizedBox(height: 5,),
                     Expanded(
                       child: myListRowWidgetOneLine(
                         isHeader: false,
-                        Titel1: this.Bemerkung.isNotEmpty && this.Bemerkung != null
-                            ? this.Bemerkung.length > _Bemlen ? this.Bemerkung.substring(0,_Bemlen) + "...»" : this.Bemerkung
+                        Titel1: Bemerkung.isNotEmpty && Bemerkung != null
+                            ? Bemerkung.length > _Bemlen ? Bemerkung.substring(0,_Bemlen) + "...»" : Bemerkung
                             : "",
                         Farbe1: globals.BgColorNeutral,
                         Farbe2: globals.BgColorNeutral,

@@ -25,14 +25,14 @@ class _StatistikPageState extends State<StatistikPage> {
     SliderBox(
         child: Column(
           children: [
-            const Text("über alle Messungen", textScaleFactor: 1.7,),
+            Expanded(child: Container(alignment: Alignment.center, color: Colors.grey[200], child: const Text("über alle Messungen", textAlign: TextAlign.center, textScaleFactor: 1.7,))),
             FittedBox(
               fit: BoxFit.fitWidth,
               child: Column(
                 children: [
-                  const SizedBox(height: 30,),
-                  const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
                   const SizedBox(height: 20,),
+                  const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       myWidgets.myListRowWidgetTwoLines(
@@ -43,6 +43,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Diastole\n(mmHg)',
@@ -52,6 +53,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Puls\n(bps)',
@@ -61,12 +63,13 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30,),
-                  const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
                   const SizedBox(height: 20,),
+                  const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       myWidgets.myListRowWidgetTwoLines(
@@ -77,6 +80,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Diastole\n(mmHg)',
@@ -86,6 +90,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Puls\n(bps)',
@@ -95,12 +100,13 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30,),
-                  const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
                   const SizedBox(height: 20,),
+                  const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       myWidgets.myListRowWidgetTwoLines(
@@ -111,6 +117,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Diastole\n(mmHg)',
@@ -120,6 +127,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Puls\n(bps)',
@@ -129,9 +137,11 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                     ],
                   ),
+                  const SizedBox(height: 30,),
                 ],
               ),
             )
@@ -141,14 +151,14 @@ class _StatistikPageState extends State<StatistikPage> {
     SliderBox(
       child: Column(
         children: [
-          const Text("über die Messungen der letzten Woche", textScaleFactor: 1.7,),
+          Expanded(child: Container(alignment: Alignment.center, color: Colors.grey[200], child: const Text("über die Messungen\nder letzten Woche", textAlign: TextAlign.center, textScaleFactor: 1.7,))),
           FittedBox(
             fit: BoxFit.fitWidth,
             child: Column(
               children: [
-                const SizedBox(height: 30,),
-                const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
                 const SizedBox(height: 20,),
+                const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
+                const SizedBox(height: 10,),
                 Row(
                   children: [
                     myWidgets.myListRowWidgetTwoLines(
@@ -159,6 +169,7 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                     myWidgets.myListRowWidgetTwoLines(
                       Titel1: 'Diastole\n(mmHg)',
@@ -168,6 +179,7 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                     myWidgets.myListRowWidgetTwoLines(
                       Titel1: 'Puls\n(bps)',
@@ -177,12 +189,13 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                   ],
                 ),
-                const SizedBox(height: 30,),
-                const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
                 const SizedBox(height: 20,),
+                const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
+                const SizedBox(height: 10,),
                 Row(
                   children: [
                     myWidgets.myListRowWidgetTwoLines(
@@ -193,6 +206,7 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                     myWidgets.myListRowWidgetTwoLines(
                       Titel1: 'Diastole\n(mmHg)',
@@ -202,6 +216,7 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                     myWidgets.myListRowWidgetTwoLines(
                       Titel1: 'Puls\n(bps)',
@@ -211,12 +226,13 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                   ],
                 ),
-                const SizedBox(height: 30,),
-                const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
                 const SizedBox(height: 20,),
+                const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
+                const SizedBox(height: 10,),
                 Row(
                   children: [
                     myWidgets.myListRowWidgetTwoLines(
@@ -227,6 +243,7 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                     myWidgets.myListRowWidgetTwoLines(
                       Titel1: 'Diastole\n(mmHg)',
@@ -236,6 +253,7 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                     myWidgets.myListRowWidgetTwoLines(
                       Titel1: 'Puls\n(bps)',
@@ -245,9 +263,11 @@ class _StatistikPageState extends State<StatistikPage> {
                       Breite: iBreite,
                       ScaleFactor: iScaleFactor,
                       isHeader: false,
+                      Padding: 8.0,
                     ),
                   ],
                 ),
+                const SizedBox(height: 30,),
               ],
             ),
           )
@@ -257,14 +277,14 @@ class _StatistikPageState extends State<StatistikPage> {
     SliderBox(
         child: Column(
           children: [
-            const Text("über die Messungen des letzten Monats", textScaleFactor: 1.7,),
+            Expanded(child: Container(alignment: Alignment.center, color: Colors.grey[200], child: const Text("über die Messungen\ndes letzten Monats", textAlign: TextAlign.center, textScaleFactor: 1.7,))),
             FittedBox(
               fit: BoxFit.fitWidth,
               child: Column(
                 children: [
-                  const SizedBox(height: 30,),
-                  const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
                   const SizedBox(height: 20,),
+                  const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       myWidgets.myListRowWidgetTwoLines(
@@ -275,6 +295,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Diastole\n(mmHg)',
@@ -284,6 +305,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Puls\n(bps)',
@@ -293,12 +315,13 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30,),
-                  const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
                   const SizedBox(height: 20,),
+                  const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       myWidgets.myListRowWidgetTwoLines(
@@ -309,6 +332,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Diastole\n(mmHg)',
@@ -318,6 +342,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Puls\n(bps)',
@@ -327,12 +352,13 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30,),
-                  const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
                   const SizedBox(height: 20,),
+                  const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       myWidgets.myListRowWidgetTwoLines(
@@ -343,6 +369,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Diastole\n(mmHg)',
@@ -352,6 +379,7 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                       myWidgets.myListRowWidgetTwoLines(
                         Titel1: 'Puls\n(bps)',
@@ -361,9 +389,11 @@ class _StatistikPageState extends State<StatistikPage> {
                         Breite: iBreite,
                         ScaleFactor: iScaleFactor,
                         isHeader: false,
+                        Padding: 8.0,
                       ),
                     ],
                   ),
+                  const SizedBox(height: 30,),
                 ],
               ),
             )
