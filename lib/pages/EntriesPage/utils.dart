@@ -1,5 +1,6 @@
 // Copyright 2019 Aleksander Woźniak
 // SPDX-License-Identifier: Apache-2.0
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
@@ -34,7 +35,14 @@ class Event {
   String getBemerkung() => _Bemerkung;
 
   @override
-  String toString() => _ID.toString() + ' - ' + _Zeitpunkt + ' - ' + _Bemerkung;
+  String toString() {
+    String Jahr = _Zeitpunkt.substring(0, 4);
+    String Monat = _Zeitpunkt.substring(5, 7);
+    String Tag = _Zeitpunkt.substring(8, 10);
+    String Stunde = _Zeitpunkt.substring(11, 13);
+    String Minute = _Zeitpunkt.substring(14, 16);
+    return '$Tag.$Monat.$Jahr $Stunde:$Minute\n$_Systole:$_Diastole $_Puls ' + getGewicht().toString() + '\n$_Bemerkung';
+  }
 }
 
 /// Example events.
@@ -76,8 +84,11 @@ ladeEintraege() async {
     LimitFromSettings = await dbHelper.getTabEntryCount();
     iAnzEntries = (await dbHelper.getEntryCount())!;
     if ( iAnzEntries > 0 ) {
-      if ( iAnzEntries < LimitFromSettings ) Limit = iAnzEntries;
-      else Limit = LimitFromSettings;
+      if ( iAnzEntries < LimitFromSettings ) {
+        Limit = iAnzEntries;
+      } else {
+        Limit = LimitFromSettings;
+      }
     } else {
       Limit = 0;
     }

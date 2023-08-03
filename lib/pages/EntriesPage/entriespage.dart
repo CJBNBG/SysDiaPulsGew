@@ -1,5 +1,6 @@
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:sysdiapulsgew/myUpdateProvider.dart';
+import 'package:sysdiapulsgew/pages/DailyEntriesTablePage/dailyentriestablepage.dart';
 import 'package:sysdiapulsgew/services/screenhelper.dart';
 import '../../services/myWidgets.dart' as myWidgets;
 import 'package:flutter/foundation.dart';
@@ -30,7 +31,7 @@ DateTime? _rangeEnd;
 // ----------------------------------------------------------------------------------------
 // Funktionen/Module, die in der ganzen Datei verfügbar sein müssen
 // ----------------------------------------------------------------------------------------
-_frageLoeschenTabelle(BuildContext context, int index) async {
+_frageLoeschenEintrag(BuildContext context, int index) async {
   showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
@@ -104,7 +105,7 @@ _deleteItemTabelle(BuildContext context, int ndx) async {
     if (id != null) {
       await dbHelper.deleteDataItem(id);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Eintrag gelöscht', style: TextStyle(backgroundColor: Colors.grey))),
+        const SnackBar(content: Text('Eintrag gelöscht', style: TextStyle(backgroundColor: Colors.black12))),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,7 +119,7 @@ _deleteItemTabelle(BuildContext context, int ndx) async {
   }
 }
 
-_editItemTabelle(BuildContext context, int ndx) async {
+_editiereEintrag(BuildContext context, int ndx) async {
   _selectedEvents.value = await _getEventsForDay(_selectedDay!);
   int id = _selectedEvents.value[ndx].getID();
   if (id == null) {
@@ -231,13 +232,13 @@ class _EntriesPageState extends State<EntriesPage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.settings_sharp),
+              icon: const Icon(Icons.calendar_month),
               onPressed: () {
                 //Navigator.pop(context);
                 Navigator.push(
                   context,
                   PageTransition(
-                    child: const SettingsPage(),
+                    child: const dailyEntriesTablePage(),
                     alignment: Alignment.topCenter,
                     type: PageTransitionType.leftToRightWithFade,
                   ),
@@ -323,7 +324,7 @@ class _EntriesPageState extends State<EntriesPage> {
                         // color: Colors.grey[300],
                         child: InkWell(
                           onTap: () async {
-                            await _editItemTabelle(context, index);
+                            await _editiereEintrag(context, index);
                             _isLoadingCalendar = true;
                             _selectedDay = _focusedDay;
                             _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
@@ -334,7 +335,7 @@ class _EntriesPageState extends State<EntriesPage> {
                             });
                           },
                           onDoubleTap: () async {
-                            await _frageLoeschenTabelle(context, index);
+                            await _frageLoeschenEintrag(context, index);
                             _isLoadingCalendar = true;
                             _selectedDay = _focusedDay;
                             _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));

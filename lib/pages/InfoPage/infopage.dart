@@ -15,6 +15,7 @@ const EntryWidthBMI = (ContainerWidth-2.0*PaddingWidth-8.0)/5.0;
 String strAnzDSe = '';
 String strZeitpunkt = '?';
 String strTage = '?';
+const double hoehe = 51.0;
 
 String strLinkToLiga = "https://www.hochdruckliga.de/fileadmin/downloads/mitgliederbereich/downloads/broschueren/Pocket_Leitlinien_Arterielle_Hypertonie.pdf";
 
@@ -29,13 +30,15 @@ class _InfoPageState extends State<InfoPage> {
 
   void _AnzDSe() async {
     int? ret = await dbHelper.getEntryCount();
-    if ( mounted ) setState(() {
+    if ( mounted ) {
+      setState(() {
       if (ret != null) {
         strAnzDSe = ret.toString();
       } else {
         strAnzDSe = '?';
       }
     });
+    }
   }
 
   void _getLastEntry() async {
@@ -66,28 +69,107 @@ class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments;
-    return Container(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Über diese App'
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SingleChildScrollView(
-                child: Container(
-                  width: ContainerWidth,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Card(
-                        elevation: 5.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(PaddingWidth),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: globals.CardColor,
+        elevation: 4.0,
+        title: const Text('Über diese App'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SingleChildScrollView(
+              child: SizedBox(
+                width: ContainerWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Card(
+                      elevation: 5.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(PaddingWidth),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(0, 10.0, 0, 0),
+                              child: Text(
+                                "Autor:",
+                                textScaleFactor: 1.25,
+                                style: TextStyle(
+                                  //color: Colors.grey[600],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+                              child: Text(
+                                "Claus J. Bauer",
+                                textScaleFactor: 2.0,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 2.0, 0, 0),
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    "Kontakt:",
+                                    textScaleFactor: 1.25,
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _launchEMail(context); //action
+                                    },
+                                    child: const Text(
+                                      'EMail an den Autor', //title
+                                      textAlign: TextAlign.end, //aligment
+                                      textScaleFactor: 1.25,
+                                      style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 1.0, 0, 0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Version: ",
+                                    textScaleFactor: 1.0,
+                                  ),
+                                  Text(
+                                    int.parse(globals.gPackageInfo.buildNumber) > 0 ? '${globals.gPackageInfo.version} (${globals.gPackageInfo.buildNumber})' : globals.gPackageInfo.version, //title
+                                    textScaleFactor: 1.0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            myListWidget(Titel: "Name der App: ", Wert: globals.gPackageInfo.appName, ScaleFactor: 1.0,),
+                            // myListWidget(Titel: "Packagename: ", Wert: globals.gPackageInfo.packageName, ScaleFactor: 1.0,),
+                            // myListWidget(Titel: "Buildsignature: ", Wert: globals.gPackageInfo.buildSignature, ScaleFactor: 0.67,),
+                            myListWidget(Titel: "Anzeigeformat: ", Wert: '${globals.screenwidth} x ${globals.screenheight}', ScaleFactor: 1.0,),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Card(
+                      elevation: 5.0,
+                      child: Padding(
+                        padding: EdgeInsets.all(PaddingWidth),
+                        child: SizedBox(
+                          width: ContainerWidth,
+                          //height: 55,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +177,7 @@ class _InfoPageState extends State<InfoPage> {
                               const Padding(
                                 padding: EdgeInsets.fromLTRB(0, 10.0, 0, 0),
                                 child: Text(
-                                  "Autor:",
+                                  "Informationen zur Datenbank:",
                                   textScaleFactor: 1.25,
                                   style: TextStyle(
                                     //color: Colors.grey[600],
@@ -103,555 +185,492 @@ class _InfoPageState extends State<InfoPage> {
                                   ),
                                 ),
                               ),
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-                                child: Text(
-                                  "Claus J. Bauer",
-                                  textScaleFactor: 2.0,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 2.0, 0, 0),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      "Kontakt:",
-                                      textScaleFactor: 1.25,
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        _launchEMail(); //action
-                                      },
-                                      child: const Text(
-                                        'EMail an den Autor', //title
-                                        textAlign: TextAlign.end, //aligment
-                                        textScaleFactor: 1.25,
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 1.0, 0, 0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Version: ",
-                                      textScaleFactor: 1.0,
-                                    ),
-                                    Text(
-                                      int.parse(globals.gPackageInfo.buildNumber) > 0 ? globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')' : globals.gPackageInfo.version, //title
-                                      textScaleFactor: 1.0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              myListWidget(Titel: "Name der App: ", Wert: globals.gPackageInfo.appName, ScaleFactor: 1.0,),
-                              // myListWidget(Titel: "Packagename: ", Wert: globals.gPackageInfo.packageName, ScaleFactor: 1.0,),
-                              // myListWidget(Titel: "Buildsignature: ", Wert: globals.gPackageInfo.buildSignature, ScaleFactor: 0.67,),
-                              myListWidget(Titel: "Anzeigeformat: ", Wert: globals.screenwidth.toString() + ' x ' + globals.screenheight.toString(), ScaleFactor: 1.0,),
+                              myListWidget(Titel: "Anzahl Einträge: ", Wert: strAnzDSe, ScaleFactor: 1.0,),
+                              myListWidget(Titel: "letzter Eintrag vom: ", Wert: strZeitpunkt, ScaleFactor: 1.0,),
+                              myListWidget(Titel: "", Wert: '($strTage Tage)', ScaleFactor: 1.0,),
                             ],
                           ),
                         ),
                       ),
-                      Card(
-                        elevation: 5.0,
-                        child: Padding(
-                          padding: EdgeInsets.all(PaddingWidth),
-                          child: Container(
-                            width: ContainerWidth,
-                            //height: 55,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 10.0, 0, 0),
-                                  child: Text(
-                                    "Informationen zur Datenbank:",
-                                    textScaleFactor: 1.25,
-                                    style: TextStyle(
-                                      //color: Colors.grey[600],
-                                      fontWeight: FontWeight.bold,
+                    ),
+
+
+                    // ab hier werden die verwendeten Farben dargestellt
+                    // -------------------------------------------------
+                    Card(
+                      elevation: 5.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(PaddingWidth),
+                        child: SizedBox(
+                          width: ContainerWidth,
+                          // height: 405,
+                          //color: Colors.lightBlue[100],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 10.0,),
+                              const Text(
+                                'verwendete Farben:',
+                                textScaleFactor: 1.25,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 20.0,),
+                              const myListWidget(Titel: "Systole (mmHg):", Wert: "", ScaleFactor: 1.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'optimal:',
+                                      Titel2: 'unter 120',
+                                      Farbe1: globals.SysDia_optimal,
+                                      Farbe2: globals.SysDia_optimal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
                                     ),
                                   ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'normal:',
+                                      Titel2: '120 - 129',
+                                      Farbe1: globals.SysDia_normal,
+                                      Farbe2: globals.SysDia_normal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'hochnormal:',
+                                      Titel2: '130 - 139',
+                                      Farbe1: globals.SysDia_hochnormal,
+                                      Farbe2: globals.SysDia_hochnormal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'Stufe 1:',
+                                      Titel2: '140 - 159',
+                                      Farbe1: globals.SysDia_Stufe_1,
+                                      Farbe2: globals.SysDia_Stufe_1_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'Stufe 2:',
+                                      Titel2: '160 - 179',
+                                      Farbe1: globals.SysDia_Stufe_2,
+                                      Farbe2: globals.SysDia_Stufe_2_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'Stufe 3:',
+                                      Titel2: 'ab 180',
+                                      Farbe1: globals.SysDia_Stufe_3,
+                                      Farbe2: globals.SysDia_Stufe_3_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20.0,),
+                              const myListWidget(Titel: "Diastole (mmHg):", Wert: "", ScaleFactor: 1.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'optimal:',
+                                      Titel2: 'unter 80',
+                                      Farbe1: globals.SysDia_optimal,
+                                      Farbe2: globals.SysDia_optimal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'normal:',
+                                      Titel2: '80 - 84',
+                                      Farbe1: globals.SysDia_normal,
+                                      Farbe2: globals.SysDia_normal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'hochnormal:',
+                                      Titel2: '85 - 89',
+                                      Farbe1: globals.SysDia_hochnormal,
+                                      Farbe2: globals.SysDia_hochnormal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'Stufe 1:',
+                                      Titel2: '90 - 99',
+                                      Farbe1: globals.SysDia_Stufe_1,
+                                      Farbe2: globals.SysDia_Stufe_1_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'Stufe 2:',
+                                      Titel2: '100 - 109',
+                                      Farbe1: globals.SysDia_Stufe_2,
+                                      Farbe2: globals.SysDia_Stufe_2_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'Stufe 3:',
+                                      Titel2: 'ab 110',
+                                      Farbe1: globals.SysDia_Stufe_3,
+                                      Farbe2: globals.SysDia_Stufe_3_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20.0,),
+                              const myListWidget(Titel: "Puls (bpm):", Wert: "", ScaleFactor: 1.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'langsam:',
+                                      Titel2: 'unter 60',
+                                      Farbe1: globals.Puls_langsam,
+                                      Farbe2: globals.Puls_langsam_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'normal:',
+                                      Titel2: '60 - 99',
+                                      Farbe1: globals.Puls_normal,
+                                      Farbe2: globals.Puls_normal_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthSysDia,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: 'schnell:',
+                                      Titel2: 'ab 100',
+                                      Farbe1: globals.Puls_schnell,
+                                      Farbe2: globals.Puls_schnell_blass,
+                                      Breite: EntryWidthSysDia,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20.0,),
+                              Container(
+                                color: Colors.black12,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Flexible(
+                                      flex: 5,
+                                      child: Text('Wenn Sie die Einteilung bei der Deutschen Hochdruckliga nachlesen möchten, dann bitte...',
+                                        textScaleFactor: 1.0,
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 3,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute<dynamic>(
+                                                builder: (_) => const PDFViewerCachedFromUrl(
+                                                  url: 'https://www.hochdruckliga.de/fileadmin/downloads/mitgliederbereich/downloads/broschueren/Pocket_Leitlinien_Arterielle_Hypertonie.pdf',
+                                                ),
+                                              ),
+                                            ),
+                                            child: const Text('hier klicken'),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                myListWidget(Titel: "Anzahl Einträge: ", Wert: strAnzDSe, ScaleFactor: 1.0,),
-                                myListWidget(Titel: "letzter Eintrag vom: ", Wert: strZeitpunkt, ScaleFactor: 1.0,),
-                                myListWidget(Titel: "", Wert: '($strTage Tage)', ScaleFactor: 1.0,),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 20.0,),
+                              const myListWidget(Titel: "BMI (kg/m²):", Wert: "", ScaleFactor: 1.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthBMI,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: '(1)',
+                                      Titel2: '<18.5',
+                                      Farbe1: globals.BMI_Untergewicht,
+                                      Farbe2: globals.BMI_Untergewicht_blass,
+                                      Breite: EntryWidthBMI,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthBMI,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: '(2)',
+                                      Titel2: '<25',
+                                      Farbe1: globals.BMI_Normalgewicht,
+                                      Farbe2: globals.BMI_Normalgewicht_blass,
+                                      Breite: EntryWidthBMI,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthBMI,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: '(3)',
+                                      Titel2: '<30',
+                                      Farbe1: globals.BMI_Uebergewicht,
+                                      Farbe2: globals.BMI_Uebergewicht_blass,
+                                      Breite: EntryWidthBMI,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthBMI,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: '(4)',
+                                      Titel2: '<40',
+                                      Farbe1: globals.BMI_Adipositas_I,
+                                      Farbe2: globals.BMI_Adipositas_I_blass,
+                                      Breite: EntryWidthBMI,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    // height: hoehe,
+                                    width: EntryWidthBMI,
+                                    color: Colors.lightBlue[200],
+                                    child: myWidgets.myListRowWidgetTwoLines(
+                                      Titel1: '(5)',
+                                      Titel2: '>=40',
+                                      Farbe1: globals.BMI_Adipositas_II,
+                                      Farbe2: globals.BMI_Adipositas_II_blass,
+                                      Breite: EntryWidthBMI,
+                                      ScaleFactor: 0.9,
+                                      isHeader: false,
+                                      Padding: 8.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20.0,),
+                              const Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('(1): Untergewicht',
+                                    textScaleFactor: 1.0,
+                                    softWrap: false,
+                                  ),
+                                  Text('(2): Normalgewicht',
+                                    textScaleFactor: 1.0,
+                                    softWrap: false,
+                                  ),
+                                  Text('(3): Übergewicht',
+                                    textScaleFactor: 1.0,
+                                    softWrap: false,
+                                  ),
+                                  Text('(4): adipös',
+                                    textScaleFactor: 1.0,
+                                    softWrap: false,
+                                  ),
+                                  Text('(5): extrem adipös',
+                                    textScaleFactor: 1.0,
+                                    softWrap: false,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20.0,),
+                              Container(
+                                color: Colors.black12,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Flexible(
+                                      flex: 5,
+                                      child: Text('Wenn Sie die Einteilung der BMI-Klassen der International Fitness Association (IFA) nachlesen möchten, dann bitte...',
+                                        textScaleFactor: 1.0,
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 3,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute<dynamic>(
+                                                builder: (_) => const PDFViewerCachedFromUrl(
+                                                  url: 'https://www.ifafitness.com/downloads/BMI.pdf',
+                                                ),
+                                              ),
+                                            ),
+                                            child: const Text('hier klicken'),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-
-
-                      // ab hier werden die verwendeten Farben dargestellt
-                      // -------------------------------------------------
-                      Card(
-                        elevation: 5.0,
-                        child: Padding(
-                          padding: EdgeInsets.all(PaddingWidth),
-                          child: Container(
-                            width: ContainerWidth,
-                            // height: 405,
-                            //color: Colors.lightBlue[100],
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 10.0,),
-                                const Text(
-                                  'verwendete Farben:',
-                                  textScaleFactor: 1.25,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                // Row(
-                                //   mainAxisAlignment: MainAxisAlignment.end,
-                                //   children: [
-                                //     const Text('Quelle:',
-                                //       textScaleFactor: 0.8,
-                                //     ),
-                                //     TextButton(
-                                //       onPressed: () {
-                                //         // bShowPdf = true; //action
-                                //       },
-                                //       child: const Text(
-                                //         'hier klicken', //title
-                                //         textAlign: TextAlign.end, //aligment
-                                //         textScaleFactor: 0.8,
-                                //         style: TextStyle(
-                                //           decoration: TextDecoration.underline,
-                                //         ),
-                                //       ),
-                                //     ),
-                                //     // SfPdfViewer.network(strLinkToLiga),
-                                //   ],
-                                // ),
-                                const SizedBox(height: 20.0,),
-                                const myListWidget(Titel: "Systole (mmHg):", Wert: "", ScaleFactor: 1.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'optimal:',
-                                        Titel2: 'unter 120',
-                                        Farbe1: globals.SysDia_optimal,
-                                        Farbe2: globals.SysDia_optimal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'normal:',
-                                        Titel2: '120 - 129',
-                                        Farbe1: globals.SysDia_normal,
-                                        Farbe2: globals.SysDia_normal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'hochnormal:',
-                                        Titel2: '130 - 139',
-                                        Farbe1: globals.SysDia_hochnormal,
-                                        Farbe2: globals.SysDia_hochnormal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'Stufe 1:',
-                                        Titel2: '140 - 159',
-                                        Farbe1: globals.SysDia_Stufe_1,
-                                        Farbe2: globals.SysDia_Stufe_1_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'Stufe 2:',
-                                        Titel2: '160 - 179',
-                                        Farbe1: globals.SysDia_Stufe_2,
-                                        Farbe2: globals.SysDia_Stufe_2_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'Stufe 3:',
-                                        Titel2: 'ab 180',
-                                        Farbe1: globals.SysDia_Stufe_3,
-                                        Farbe2: globals.SysDia_Stufe_3_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0,),
-                                myListWidget(Titel: "Diastole (mmHg):", Wert: "", ScaleFactor: 1.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'optimal:',
-                                        Titel2: 'unter 80',
-                                        Farbe1: globals.SysDia_optimal,
-                                        Farbe2: globals.SysDia_optimal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'normal:',
-                                        Titel2: '80 - 84',
-                                        Farbe1: globals.SysDia_normal,
-                                        Farbe2: globals.SysDia_normal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'hochnormal:',
-                                        Titel2: '85 - 89',
-                                        Farbe1: globals.SysDia_hochnormal,
-                                        Farbe2: globals.SysDia_hochnormal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'Stufe 1:',
-                                        Titel2: '90 - 99',
-                                        Farbe1: globals.SysDia_Stufe_1,
-                                        Farbe2: globals.SysDia_Stufe_1_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'Stufe 2:',
-                                        Titel2: '100 - 109',
-                                        Farbe1: globals.SysDia_Stufe_2,
-                                        Farbe2: globals.SysDia_Stufe_2_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'Stufe 3:',
-                                        Titel2: 'ab 110',
-                                        Farbe1: globals.SysDia_Stufe_3,
-                                        Farbe2: globals.SysDia_Stufe_3_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0,),
-                                myListWidget(Titel: "Puls (bpm):", Wert: "", ScaleFactor: 1.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'langsam:',
-                                        Titel2: 'unter 60',
-                                        Farbe1: globals.Puls_langsam,
-                                        Farbe2: globals.Puls_langsam_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'normal:',
-                                        Titel2: '60 - 99',
-                                        Farbe1: globals.Puls_normal,
-                                        Farbe2: globals.Puls_normal_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthSysDia, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: 'schnell:',
-                                        Titel2: 'ab 100',
-                                        Farbe1: globals.Puls_schnell,
-                                        Farbe2: globals.Puls_schnell_blass,
-                                        Breite: EntryWidthSysDia,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0,),
-                                Container(
-                                  color: Colors.black12,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        flex: 5,
-                                        child: const Text('Wenn Sie die Einteilung bei der Deutschen Hochdruckliga nachlesen möchten, dann bitte...',
-                                          textScaleFactor: 1.0,
-                                          softWrap: true,
-                                        ),
-                                      ),
-                                      Flexible(
-                                        flex: 3,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            TextButton(
-                                              onPressed: () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute<dynamic>(
-                                                  builder: (_) => const PDFViewerFromUrl(
-                                                    url: 'https://www.hochdruckliga.de/fileadmin/downloads/mitgliederbereich/downloads/broschueren/Pocket_Leitlinien_Arterielle_Hypertonie.pdf',
-                                                  ),
-                                                ),
-                                              ),
-                                              child: const Text('hier klicken'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 20.0,),
-                                myListWidget(Titel: "BMI (kg/m²):", Wert: "", ScaleFactor: 1.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: '(1)',
-                                        Titel2: '<18.5',
-                                        Farbe1: globals.BMI_Untergewicht,
-                                        Farbe2: globals.BMI_Untergewicht_blass,
-                                        Breite: EntryWidthBMI,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: '(2)',
-                                        Titel2: '<25',
-                                        Farbe1: globals.BMI_Normalgewicht,
-                                        Farbe2: globals.BMI_Normalgewicht_blass,
-                                        Breite: EntryWidthBMI,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: '(3)',
-                                        Titel2: '<30',
-                                        Farbe1: globals.BMI_Uebergewicht,
-                                        Farbe2: globals.BMI_Uebergewicht_blass,
-                                        Breite: EntryWidthBMI,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: '(4)',
-                                        Titel2: '<40',
-                                        Farbe1: globals.BMI_Adipositas_I,
-                                        Farbe2: globals.BMI_Adipositas_I_blass,
-                                        Breite: EntryWidthBMI,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50, width: EntryWidthBMI, color: Colors.lightBlue[200],
-                                      child: myWidgets.myListRowWidgetTwoLines(
-                                        Titel1: '(5)',
-                                        Titel2: '>=40',
-                                        Farbe1: globals.BMI_Adipositas_II,
-                                        Farbe2: globals.BMI_Adipositas_II_blass,
-                                        Breite: EntryWidthBMI,
-                                        ScaleFactor: 1.0,
-                                        isHeader: false,
-                                        Padding: 8.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0,),
-                                const Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('(1): Untergewicht',
-                                      textScaleFactor: 1.0,
-                                      softWrap: false,
-                                    ),
-                                    Text('(2): Normalgewicht',
-                                      textScaleFactor: 1.0,
-                                      softWrap: false,
-                                    ),
-                                    Text('(3): Übergewicht',
-                                      textScaleFactor: 1.0,
-                                      softWrap: false,
-                                    ),
-                                    Text('(4): adipös',
-                                      textScaleFactor: 1.0,
-                                      softWrap: false,
-                                    ),
-                                    Text('(5): extrem adipös',
-                                      textScaleFactor: 1.0,
-                                      softWrap: false,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0,),
-                                Container(
-                                  color: Colors.black12,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Flexible(
-                                        flex: 5,
-                                        child: Text('Wenn Sie die Einteilung der BMI-Klassen der International Fitness Association (IFA) nachlesen möchten, dann bitte...',
-                                          textScaleFactor: 1.0,
-                                          softWrap: true,
-                                        ),
-                                      ),
-                                      Flexible(
-                                        flex: 3,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            TextButton(
-                                              onPressed: () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute<dynamic>(
-                                                  builder: (_) => const PDFViewerFromUrl(
-                                                    url: 'https://www.ifafitness.com/downloads/BMI.pdf',
-                                                  ),
-                                                ),
-                                              ),
-                                              child: const Text('hier klicken'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                    )
+                  ],
                 ),
               ),
-            ],
-          ),
-        )
+            ),
+          ],
+        ),
       )
     );
   }
@@ -686,13 +705,51 @@ class myListWidget extends StatelessWidget {
   }
 }
 
-void _launchEMail() async {
-  final Uri _url =
-      Uri.parse('mailto:claus@clausjbauer.de?subject=[SysDiaPulsGew]&body=Hier bitte den Text an den Autor ergänzen...');
-  if (await canLaunchUrl(_url)) {
-    await launchUrl(_url);
-  } else {
-    throw 'Fehler beim Aufruf von $_url.toString()';
+String? encodeQueryParameters(Map<String, String> params) {
+  return params.entries
+      .map((MapEntry<String, String> e) =>
+  '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+      .join('&');
+}
+void _launchEMail(BuildContext context) async {
+  String Version = int.parse(globals.gPackageInfo.buildNumber) > 0 ? globals.gPackageInfo.version + ' (' + globals.gPackageInfo.buildNumber + ')' : globals.gPackageInfo.version;
+  final Uri url = Uri(
+    scheme: 'mailto',
+    path: 'claus@clausjbauer.de',
+    queryParameters: {
+      'subject': '[SysDiaPG ($Version)]',
+      'body': 'Hier bitte den Text an den Autor eintragen...',
+    }
+  );
+  try {
+    await launchUrl(mode: LaunchMode.externalApplication, url);
+  } catch(e) {
+    final snackBar = SnackBar(
+      backgroundColor: Colors.red[200],
+      content: Text('EMail kann nicht gesendet werden: $e'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    print('Fehler $e beim Absenden $url');
+  }
+}
+
+class PDFViewerCachedFromUrl extends StatelessWidget {
+  const PDFViewerCachedFromUrl({Key? key, required this.url}) : super(key: key);
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('durch Wischen blättern'),
+      ),
+      body: const PDF().cachedFromUrl(
+        url,
+        placeholder: (double progress) => Center(child: Text('$progress %')),
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+    );
   }
 }
 

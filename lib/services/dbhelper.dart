@@ -253,18 +253,23 @@ class dbHelper {
   static Future<int?> getEntryCount() async {
     int? retAnz = 0;
     final db = await dbHelper.db();
-    var result;
-    if ( db.isOpen ) {
-      String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
-      result = await db.rawQuery(SQL_Statement, []);
-      await db.close();
-      if ( result.isNotEmpty ) {
-        retAnz = int.tryParse(result[0]['Cnt'].toString());
+    try {
+      var result;
+      if ( db.isOpen ) {
+        String SQL_Statement = "SELECT Count(*) AS Cnt FROM tDaten";
+        result = await db.rawQuery(SQL_Statement, []);
+        if ( result.isNotEmpty ) {
+          retAnz = int.tryParse(result[0]['Cnt'].toString());
+        } else {
+          retAnz = 0;
+        }
       } else {
-        retAnz = 0;
+        print('getEntryCount: Datenbank konnte nicht geöffnet werden');
       }
-    } else {
-      print('getEntryCount: Datenbank konnte nicht geöffnet werden');
+    } catch(e) {
+      print('getEntryCount: Fehler bei der Ermittlung der Anzahl an Einträgen $e');
+    } finally {
+      await db.close();
     }
     // if (kDebugMode) {
     //   print( DateTime.now().toString() + " - getEntryCount(): Datenbank geschlossen - $result");
@@ -737,9 +742,9 @@ class dbHelper {
     }
     await db.close();
     Result = (await updateSettingsItem(_ID, "AnzTabEintraege", "INT", newCount, null, null) > 0);
-    // if (kDebugMode) {
-    //   print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
-    // }
+    if (kDebugMode) {
+      print( DateTime.now().toString() + " - setTabEntryCount($newCount): Datenbank geschlossen - $Result");
+    }
     return Result;
   }
 

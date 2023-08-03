@@ -13,6 +13,8 @@ import '../../services/DataInterface.dart';
 import '../../services/myWidgets.dart' as myWidgets;
 import 'package:sysdiapulsgew/services/screenhelper.dart';
 
+import '../DailyEntriesTablePage/dailyentriestablepage.dart';
+
 double _scaleFactor = 1.0;
 // int _Bemlen = 1;
 double _BreiteZeitpunkt = 1.0;
@@ -32,6 +34,7 @@ class EntriesTablePage extends StatefulWidget {
 }
 
 class _EntriesTablePageState extends State<EntriesTablePage> {
+
   _deleteItem(BuildContext context, int ndx) async {
     int id = _alleEintraege[ndx][DataInterface.colID];
     if (id != null) {
@@ -61,7 +64,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
     await Navigator.push(
       context,
       PageTransition(
-        child: DetailPage(),
+        child: const DetailPage(),
         alignment: Alignment.topCenter,
         type: PageTransitionType.leftToRightWithFade,
       ),
@@ -77,22 +80,21 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
         elevation: 5.0,
         // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
         title: Container(
-          color: Color.fromRGBO(255, 219, 219, 1),
+          color: Theme.of(context).colorScheme.onError,
           child: Row(children: [
             // Icon(Icons.priority_high, color: Colors.red,),
-            Container(
-              child: const Expanded(
-                child: FittedBox(
-                  fit: BoxFit.fitWidth,
-                  alignment: Alignment.center,
-                  child: Text(
-                    "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    textScaleFactor: 2.0,
-                    style: TextStyle(
-                      color: Colors.red,
-                    ),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.center,
+                child: Text(
+                  "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 2.0,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -100,7 +102,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
             // Icon(Icons.priority_high, color: Colors.red,),
           ]),
         ),
-        content: Text(
+        content: const Text(
           "Möchten Sie diesen Eintrag wirklich löschen?",
           textAlign: TextAlign.center,
           softWrap: true,
@@ -114,11 +116,11 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  // style: ButtonStyle(
-                  //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
-                  // ),
+                    // style: ButtonStyle(
+                    //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
+                    // ),
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Nein')),
+                    child: const Text('Nein', textScaleFactor: 2.0,)),
                 ElevatedButton(
                   // style: ButtonStyle(
                   //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
@@ -128,7 +130,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                     await _initDaten();
                     Navigator.pop(context);
                   },
-                  child: const Text('Ja'),
+                  child: const Text('Ja',  textScaleFactor: 2.0,),
                 ),
               ],
             ),
@@ -144,7 +146,7 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
     await Navigator.push(
       context,
       PageTransition(
-        child: DetailPage(),
+        child: const DetailPage(),
         alignment: Alignment.topCenter,
         type: PageTransitionType.leftToRightWithFade,
       ),
@@ -192,17 +194,19 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
   }
 
   String dasDatum(String Zeitpunkt) {
-    if (Zeitpunkt.length == 0)
+    if (Zeitpunkt.isEmpty)
       return "kein Datum";
-    else
-      return Zeitpunkt.substring(8, 10) + "." + Zeitpunkt.substring(5, 7) + "." + Zeitpunkt.substring(0, 4);
+    else {
+      return "${Zeitpunkt.substring(8, 10)}.${Zeitpunkt.substring(5, 7)}.${Zeitpunkt.substring(0, 4)}";
+    }
   }
 
   String dieUhrzeit(String Zeitpunkt) {
-    if (Zeitpunkt.length == 0)
+    if (Zeitpunkt.isEmpty)
       return "keine Uhrzeit";
-    else
+    else {
       return Zeitpunkt.substring(11, 16);
+    }
   }
 
   @override
@@ -219,11 +223,10 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
 
   @override
   Widget build(BuildContext context) {
-    var myProvider = Provider.of<myUpdateProvider>(context, listen: false);
-    bool isLandscape = Screen.isLandscape(context);
+    // bool isLandscape = Screen.isLandscape(context);
     // bool isLargePhone = Screen.diagonal(context) > 720;
     // bool isNarrow = Screen.widthInches(context) < 3.5;
-    bool isTablet = Screen.diagonalInches(context) >= 8.5; // war 7s
+    // bool isTablet = Screen.diagonalInches(context) >= 8.5; // war 7s
     _BreiteZeitpunkt = Screen.width(context) / 3.0;
 
     return SafeArea(
@@ -231,6 +234,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
         // Header
         // ------
         appBar: AppBar(
+          backgroundColor: globals.CardColor,
+          elevation: 4.0,
           title: Text('Einträge'),
           actions: [
             IconButton(
@@ -247,20 +252,20 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                 );
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.settings_sharp),
-              onPressed: () {
-                //Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    child: const SettingsPage(),
-                    alignment: Alignment.topCenter,
-                    type: PageTransitionType.leftToRightWithFade,
-                  ),
-                );
-              },
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.calendar_month),
+            //   onPressed: () {
+            //     //Navigator.pop(context);
+            //     Navigator.push(
+            //       context,
+            //       PageTransition(
+            //         child: const dailyEntriesTablePage(),
+            //         alignment: Alignment.topCenter,
+            //         type: PageTransitionType.leftToRightWithFade,
+            //       ),
+            //     );
+            //   },
+            // ),
           ],
         ),
 
@@ -275,9 +280,9 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                   Flexible(
                     flex: 1,
                     child: Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                       // alignment: Alignment.center,
-                      color: Colors.grey,
+                      color: globals.CardColor,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -285,15 +290,15 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                           // Headerzeile
                           // -----------------------------------------------------
                           Flexible(
-                            flex: 1,
-                            child: myWidgets.myListRowWidgetOneLine(
-                              isHeader: true,
-                              Titel1: "Zeitpunkt",
-                              Farbe1: Colors.grey,
-                              Farbe2: Colors.grey[500],
-                              Breite: _BreiteZeitpunkt,
-                              ScaleFactor: _scaleFactor,
-                              alignment: Alignment.center)),
+                              flex: 1,
+                              child: myWidgets.myListRowWidgetOneLine(
+                                  isHeader: true,
+                                  Titel1: "Zeitpunkt",
+                                  Farbe1: globals.CardColor,
+                                  Farbe2: globals.CardColor,
+                                  Breite: _BreiteZeitpunkt,
+                                  ScaleFactor: _scaleFactor,
+                                  alignment: Alignment.center)),
                           Flexible(
                             flex: 2,
                             child: Column(
@@ -301,14 +306,15 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                 SizedBox(
                                   height: 50.0,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
                                     children: [
                                       myWidgets.myListRowWidgetTwoLines(
                                         isHeader: true,
                                         Titel1: 'Systole',
                                         Titel2: '(mmHg)',
-                                        Farbe1: Colors.grey,
-                                        Farbe2: Colors.grey[500],
+                                        Farbe1: globals.CardColor,
+                                        Farbe2: globals.CardColor,
                                         Breite: _BreiteZeitpunkt / 2.0,
                                         ScaleFactor: _scaleFactor,
                                         Padding: 0.0,
@@ -317,8 +323,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                         isHeader: true,
                                         Titel1: 'Diastole',
                                         Titel2: '(mmHg)',
-                                        Farbe1: Colors.grey,
-                                        Farbe2: Colors.grey[500],
+                                        Farbe1: globals.CardColor,
+                                        Farbe2: globals.CardColor,
                                         Breite: _BreiteZeitpunkt / 2.0,
                                         ScaleFactor: _scaleFactor,
                                         Padding: 0.0,
@@ -327,8 +333,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                         isHeader: true,
                                         Titel1: 'Puls',
                                         Titel2: '(bpm)',
-                                        Farbe1: Colors.grey,
-                                        Farbe2: Colors.grey[500],
+                                        Farbe1: globals.CardColor,
+                                        Farbe2: globals.CardColor,
                                         Breite: _BreiteZeitpunkt / 2.0,
                                         ScaleFactor: _scaleFactor,
                                         Padding: 0.0,
@@ -337,8 +343,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                         isHeader: true,
                                         Titel1: 'Gewicht',
                                         Titel2: '(kg)',
-                                        Farbe1: Colors.grey,
-                                        Farbe2: Colors.grey[500],
+                                        Farbe1: globals.CardColor,
+                                        Farbe2: globals.CardColor,
                                         Breite: _BreiteZeitpunkt / 2.0,
                                         ScaleFactor: _scaleFactor,
                                         Padding: 0.0,
@@ -346,35 +352,62 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                                     ],
                                   ),
                                 ),
-                                SizedBox( height: 3, child: Container( color: Colors.black54, ), ),
-                                const Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      flex: 1,
-                                      child: FractionallySizedBox(
-                                        alignment: Alignment.centerLeft,
-                                        widthFactor: 1.5,
-                                        child: Text('Pulsdruck (mmHg)', style: TextStyle(fontSize: 10.0, ), textAlign: TextAlign.center,),
+                                SizedBox(
+                                  height: 3,
+                                  child: Container(
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                Container(
+                                  color: globals.CardColor,
+                                  child: const Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        flex: 1,
+                                        child: FractionallySizedBox(
+                                          alignment: Alignment.centerLeft,
+                                          widthFactor: 1.5,
+                                          child: Text(
+                                            'Pulsdruck (mmHg)',
+                                            style: TextStyle(
+                                              fontSize: 10.0,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    Flexible( flex: 1, child: Padding( padding: EdgeInsets.all(0.0), child: Text(' '), ), ),
-                                    Flexible(
-                                      flex: 1,
-                                      child: FractionallySizedBox(
-                                        alignment: Alignment.centerRight,
-                                        widthFactor: 0.75,
-                                        child: Text('BMI', style: TextStyle(fontSize: 10.0, ), textAlign: TextAlign.center,),
+                                      Flexible(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(0.0),
+                                          child: Text(' '),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      Flexible(
+                                        flex: 1,
+                                        child: FractionallySizedBox(
+                                          alignment: Alignment.centerRight,
+                                          widthFactor: 0.75,
+                                          child: Text(
+                                            'BMI',
+                                            style: TextStyle(
+                                              fontSize: 10.0,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Expanded(
                                   child: myWidgets.myListRowWidgetOneLine(
                                     isHeader: true,
                                     Titel1: 'Bemerkung',
-                                    Farbe1: Colors.grey,
-                                    Farbe2: Colors.grey[500],
+                                    Farbe1: globals.CardColor,
+                                    Farbe2: globals.CardColor,
                                     Breite: _BreiteZeitpunkt * 2.0,
                                     ScaleFactor: _scaleFactor,
                                     alignment: Alignment.centerLeft,
@@ -388,9 +421,9 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                     ),
                   ),
                   Flexible(
-                    flex: 4,
+                    flex: 6,
                     child: _isLoading
-                        ? Center(
+                        ? const Center(
                             child: CircularProgressIndicator(),
                           )
                         : CustomScrollView(
@@ -399,7 +432,8 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
                               // -----------------------------------------------------
                               SliverFixedExtentList(
                                   itemExtent: globals.EntryHeight, // noch verbesserungsfähig!!!!!!
-                                  delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+                                  delegate: SliverChildBuilderDelegate(
+                                      (BuildContext context, int index) {
                                     return InkWell(
                                       onTap: () async {
                                         await _editItem(context, index);
@@ -426,19 +460,19 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
         // Floating Button
         // ---------------
         floatingActionButton: FloatingActionButton(
+          backgroundColor: globals.CardColor,
           onPressed: () {
             showDialog<String>(
               context: context,
               builder: (BuildContext context) => AlertDialog(
                 title: const Text('neuen Eintrag erfassen'),
-                content: Text("Soll ein neuer Eintrag erfasst werden?"),
+                content: const Text("Soll ein neuer Eintrag erfasst werden?"),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () {
-                      Navigator.pop(context, 'Nein');
-                    },
-                    child: const Text('Nein')
-                  ),
+                      onPressed: () {
+                        Navigator.pop(context, 'Nein');
+                      },
+                      child: const Text('Nein')),
                   TextButton(
                     onPressed: () {
                       _neuerEintrag(context);
@@ -458,46 +492,46 @@ class _EntriesTablePageState extends State<EntriesTablePage> {
         persistentFooterButtons: [
           Container(
             width: MediaQuery.of(context).copyWith().size.width,
-            color: Colors.lightBlue[100],
+            height: 50.0,
+            color: globals.CardColor,
+            // color: Colors.lightBlue[100],
             child: Row(
               children: [
                 Expanded(
                   flex: 5,
-                  child: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        _alleEintraege.length.toString() + " von " + _iAnzEntries.toString() + " Einträgen",
-                        style: TextStyle(color: Colors.black),
-                        textAlign: TextAlign.center,
-                      )),
+                  child: Text(
+                    "Sie sehen ${_alleEintraege.length} von $_iAnzEntries Einträgen.",
+                    style: const TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                _Limit == -1
-                    ? Expanded(
-                        flex: 5,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            _isLoading = true;
-                            await _initDaten();
-                          },
-                          child: Text(
-                            "letzte " + _LimitFromSettings.toString() + " anzeigen",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
-                    : Expanded(
-                        flex: 5,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            _isLoading = true;
-                            await _initDaten();
-                          },
-                          child: Text(
-                            "alle anzeigen",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
+                // _Limit == -1
+                //     ? Expanded(
+                //         flex: 5,
+                //         child: ElevatedButton(
+                //           onPressed: () async {
+                //             _isLoading = true;
+                //             await _initDaten();
+                //           },
+                //           child: Text(
+                //             "letzte $_LimitFromSettings anzeigen",
+                //             textAlign: TextAlign.center,
+                //           ),
+                //         ),
+                //       )
+                //     : Expanded(
+                //         flex: 5,
+                //         child: ElevatedButton(
+                //           onPressed: () async {
+                //             _isLoading = true;
+                //             await _initDaten();
+                //           },
+                //           child: const Text(
+                //             "alle anzeigen",
+                //             textAlign: TextAlign.center,
+                //           ),
+                //         ),
+                //       )
               ],
             ),
           ),

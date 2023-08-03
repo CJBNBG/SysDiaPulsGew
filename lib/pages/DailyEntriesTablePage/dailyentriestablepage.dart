@@ -1,15 +1,15 @@
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../DetailPage/detailpage.dart';
 import '../EntriesTablePage/entriestablepage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import '../InfoPage/infopage.dart';
-import '../SettingsPage/settingspage.dart';
 import '../../my-globals.dart' as globals;
 import 'package:intl/intl.dart';
 import '../EntriesPage/utils.dart';
+import '../../services/myWidgets.dart' as myWidgets;
 
 bool _isLoading = true;
 
@@ -21,66 +21,39 @@ class dailyEntriesTablePage extends StatefulWidget {
 }
 
 class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
-  int _selectedIndex = 0;
-  void _onItemTapped(int index) async {
-    if ( mounted ) {
-      switch (index) {
-        case 0:                     // Start oder Home
-          Navigator.pop(context);
-          break;
-        case 1:                     // Liste der Einträge
-          await Navigator.push(
-            context,
-            PageTransition(
-              child: const EntriesTablePage(),
-              alignment: Alignment.topCenter,
-              type: PageTransitionType.leftToRightWithFade,
-            ),
-          );
-          break;
-        default:
-          print("unbekannter index: " + index.toString());
-          break;
-      }
-      setState(() {
-        _selectedIndex = 0;
-      });
-    }
-  }
-  String strAnzDSe = "?";
-
-  void _ladeDaten() async {
-    try {
-      final d1 = await dbHelper.getEntryCount();
-      if ( mounted ) {
-        setState(() {
-          if (d1 != null) {
-            strAnzDSe = d1.toString();
-          } else {
-            strAnzDSe = "0";
-          }
-        });
-      }
-    } on Error catch( _, e ) {
-      print("Fehler in _ladeDaten(): $e");
-    }
-    if ( mounted ) setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _initDaten() async {
-    _ladeDaten();
-  }
+  // int _selectedIndex = 0;
+  // void _onItemTapped(int index) async {
+  //   if ( mounted ) {
+  //     switch (index) {
+  //       case 0:                     // Start oder Home
+  //         Navigator.pop(context);
+  //         break;
+  //       case 1:                     // Liste der Einträge
+  //         await Navigator.push(
+  //           context,
+  //           PageTransition(
+  //             child: const EntriesTablePage(),
+  //             alignment: Alignment.topCenter,
+  //             type: PageTransitionType.leftToRightWithFade,
+  //           ),
+  //         );
+  //         break;
+  //       default:
+  //         print("unbekannter index: " + index.toString());
+  //         break;
+  //     }
+  //     setState(() {
+  //       _selectedIndex = 0;
+  //     });
+  //   }
+  // }
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
     _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
-    // _selectedDays.add(_focusedDay.value);
-    // _selectedEvents = ValueNotifier(_getEventsForDay(_focusedDay.value));
-    _initDaten();
+    _isLoading = false;
   }
 
   @override
@@ -90,13 +63,7 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
     super.dispose();
   }
 
-  // bool get canClearSelection =>
-  //     _selectedDays.isNotEmpty || _rangeStart != null || _rangeEnd != null;
-
   List<Event> _getEventsForDay(DateTime day) {
-    setState() {
-      _isLoading = false;
-    }
     return kEvents[day] ?? [];
   }
 
@@ -111,21 +78,7 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
     return _getEventsForDays(days);
   }
 
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    // setState(() {
-    //   if (_selectedDays.contains(selectedDay)) {
-    //     _selectedDays.remove(selectedDay);
-    //   } else {
-    //     _selectedDays.add(selectedDay);
-    //   }
-    //
-    //   _focusedDay.value = focusedDay;
-    //   _rangeStart = null;
-    //   _rangeEnd = null;
-    //   _rangeSelectionMode = RangeSelectionMode.toggledOff;
-    // });
-    //
-    // _selectedEvents.value = _getEventsForDays(_selectedDays);
+  _onDaySelected(DateTime selectedDay, DateTime focusedDay) async {
     if (!isSameDay(_selectedDay, selectedDay)) {
       setState(() {
         _selectedDay = selectedDay;
@@ -134,27 +87,12 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
         _rangeEnd = null;
         _rangeSelectionMode = RangeSelectionMode.toggledOff;
       });
-
-      _selectedEvents.value = _getEventsForDay(selectedDay);
     }
+
+    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
   }
 
   void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
-    // setState(() {
-    //   _focusedDay.value = focusedDay;
-    //   _rangeStart = start;
-    //   _rangeEnd = end;
-    //   _selectedDays.clear();
-    //   _rangeSelectionMode = RangeSelectionMode.toggledOn;
-    // });
-    //
-    // if (start != null && end != null) {
-    //   _selectedEvents.value = _getEventsForRange(start, end);
-    // } else if (start != null) {
-    //   _selectedEvents.value = _getEventsForDay(start);
-    // } else if (end != null) {
-    //   _selectedEvents.value = _getEventsForDay(end);
-    // }
     setState(() {
       _selectedDay = null;
       _focusedDay = focusedDay;
@@ -173,87 +111,285 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // Header
-      // ------
-      appBar: AppBar(
-        title: Text( 'Einträge'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outlined),
-            onPressed: () {
-              //Navigator.pop(context);
-              Navigator.push(
-                context,
-                PageTransition(
-                  child: const InfoPage(),
-                  alignment: Alignment.topCenter,
-                  type: PageTransitionType.leftToRightWithFade,),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_sharp),
-            onPressed: () {
-              //Navigator.pop(context);
-              Navigator.push(
-                context,
-                PageTransition(
-                  child: const SettingsPage(),
-                  alignment: Alignment.topCenter,
-                  type: PageTransitionType.leftToRightWithFade,),
-              );
-            },
+  _frageLoeschen(BuildContext context, int id) async {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        elevation: 5.0,
+        // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
+        title: Container(
+          // color: const Color.fromRGBO(255, 219, 219, 1),
+          color: Theme.of(context).colorScheme.onError,
+          child: Row(children: [
+            // Icon(Icons.priority_high, color: Colors.red,),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.center,
+                child: Text(
+                  "ACHTUNG:\nDiese Aktion kann\nnicht rückgängig\ngemacht werden!",
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.8,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            // Icon(Icons.priority_high, color: Colors.red,),
+          ]),
+        ),
+        content: const Text(
+          "Möchten Sie diesen Eintrag wirklich löschen?",
+          textAlign: TextAlign.center,
+          softWrap: true,
+          textScaleFactor: 2.0,
+        ),
+        actions: <Widget>[
+          // SizedBox(width: 20.0,),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
+                  // ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Nein',
+                    textScaleFactor: 2.0,
+                  ),
+                ),
+                ElevatedButton(
+                  // style: ButtonStyle(
+                  //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
+                  // ),
+                  onPressed: () async {
+                    await _deleteItem(context, id);
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Ja',
+                    textScaleFactor: 2.0,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-
-      // Body
-      // ----
-      body: _isLoading
-      ? const Center(
-        child: CircularProgressIndicator(),
-        )
-      : newTableCalendar(),
-
-      bottomNavigationBar:
-      BottomNavigationBar(items: <BottomNavigationBarItem>[
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Start',
-        ),
-        BottomNavigationBarItem(
-          icon: badges.Badge(
-            child: Icon(MdiIcons.calendarClock),
-            badgeColor: Theme.of(context).primaryColor,
-            position: badges.BadgePosition.topEnd(),
-            shape: badges.BadgeShape.square,
-            borderRadius: BorderRadius.circular(8),
-            padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
-            badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),
-          ),
-          label: 'Liste',
-        ),
-      ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).primaryColor,
-        onTap: _onItemTapped,
       ),
     );
   }
 
-  // late final PageController _pageController;
-  late final ValueNotifier<List<Event>> _selectedEvents;
-  // final ValueNotifier<DateTime> _focusedDay = ValueNotifier(DateTime.now());
+  _deleteItem(BuildContext context, int id) async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    await dbHelper.deleteDataItem(id).then((value) async {
+      await ladeEvents();
+      await _onDaySelected(_selectedDay!, _focusedDay);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Eintrag gelöscht')),
+    );
+  }
+
+  _editItem(BuildContext context, int id) async {
+    globals.aktID = id;
+    await Navigator.push(
+      context,
+      PageTransition(
+        child: const DetailPage(),
+        alignment: Alignment.topCenter,
+        type: PageTransitionType.leftToRightWithFade,
+      ),
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = true;
+        });
+      }
+    });
+    await ladeEvents();
+    await _onDaySelected(_selectedDay!, _focusedDay);
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  _neuerEintrag(BuildContext context) async {
+    globals.aktID = -1;
+    int? Jahr = _selectedDay?.year;
+    String sJahr = Jahr.toString();
+    int? Monat = _selectedDay?.month;
+    String sMonat = NumberFormat('00', 'de_DE').format(Monat);
+    int? Tag = _selectedDay?.day;
+    String sTag = NumberFormat('00', 'de_DE').format(Tag);
+    int Stunde = DateTime.now().hour;
+    String sStunde = NumberFormat('00', 'de_DE').format(Stunde);
+    int Minute = DateTime.now().minute;
+    String sMinute = NumberFormat('00', 'de_DE').format(Minute);
+    DateTime neuZp = DateTime.parse('$sJahr-$sMonat-$sTag $sStunde:$sMinute');
+    print(neuZp);
+    globals.zeitpunktNeuerEintrag = neuZp.toString();
+    print(neuZp);
+    Navigator.pop(context, 'OK');
+    await Navigator.push(
+      context,
+      PageTransition(
+        child: const DetailPage(),
+        alignment: Alignment.topCenter,
+        type: PageTransitionType.leftToRightWithFade,
+      ),
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = true;
+        });
+      }
+    });
+    await ladeEvents();
+    await _onDaySelected(_selectedDay!, _focusedDay);
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        // Header
+        // ------
+        appBar: AppBar(
+          backgroundColor: globals.CardColor,
+          elevation: 4.0,
+          title: const Text('Einträge'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.info_outlined),
+              onPressed: () {
+                //Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: const InfoPage(),
+                    alignment: Alignment.topCenter,
+                    type: PageTransitionType.leftToRightWithFade,
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.article_outlined),
+              onPressed: () {
+                //Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: const EntriesTablePage(),
+                    alignment: Alignment.topCenter,
+                    type: PageTransitionType.leftToRightWithFade,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+
+        // Body
+        // ----
+        body: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : newTableCalendar(),
+
+        // Floating Button
+        // ---------------
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: globals.CardColor,
+          onPressed: () {
+            showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text(
+                  'neuen Eintrag erfassen',
+                ),
+                content: const Text("Soll ein neuer Eintrag erfasst werden?"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context, 'Nein');
+                    },
+                    child: const Text(
+                      'Nein',
+                      textScaleFactor: 2.0,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      _neuerEintrag(context);
+                    },
+                    child: const Text(
+                      'Ja',
+                      textScaleFactor: 2.0,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          child: Icon(MdiIcons.plus),
+          //backgroundColor: Colors.blue,
+        ),
+
+        // bottomNavigationBar:
+        // BottomNavigationBar(items: <BottomNavigationBarItem>[
+        //   const BottomNavigationBarItem(
+        //     icon: Icon(Icons.home),
+        //     label: 'Start',
+        //   ),
+        //   BottomNavigationBarItem(
+        //     icon: badges.Badge(
+        //       badgeColor: Theme.of(context).primaryColor,
+        //       position: badges.BadgePosition.topEnd(),
+        //       shape: badges.BadgeShape.square,
+        //       borderRadius: BorderRadius.circular(8),
+        //       padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
+        //       badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),
+        //       child: Icon(MdiIcons.calendarClock),
+        //     ),
+        //     label: 'Liste',
+        //   ),
+        // ],
+        //   currentIndex: _selectedIndex,
+        //   selectedItemColor: Theme.of(context).primaryColor,
+        //   onTap: _onItemTapped,
+        // ),
+      ),
+    );
+  }
+
+  late ValueNotifier<List<Event>> _selectedEvents;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  // final Set<DateTime> _selectedDays = LinkedHashSet<DateTime>(
-  //   equals: isSameDay,
-  //   hashCode: getHashCode,
-  // );
-  CalendarFormat _calendarFormat = CalendarFormat.twoWeeks;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
@@ -262,63 +398,66 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        // ValueListenableBuilder<DateTime>(
-        //   valueListenable: _focusedDay,
-        //   builder: (context, value, _) {
-        //     return _CalendarHeader(
-        //       focusedDay: value,
-        //       clearButtonVisible: canClearSelection,
-        //       onTodayButtonTap: () {
-        //         setState(() => _focusedDay.value = DateTime.now());
-        //       },
-        //       onClearButtonTap: () {
-        //         setState(() {
-        //           _rangeStart = null;
-        //           _rangeEnd = null;
-        //           _selectedDays.clear();
-        //           _selectedEvents.value = [];
-        //         });
-        //       },
-        //       onLeftArrowTap: () {
-        //         _pageController.previousPage(
-        //           duration: Duration(milliseconds: 300),
-        //           curve: Curves.easeOut,
-        //         );
-        //       },
-        //       onRightArrowTap: () {
-        //         _pageController.nextPage(
-        //           duration: Duration(milliseconds: 300),
-        //           curve: Curves.easeOut,
-        //         );
-        //       },
-        //     );
-        //   },
-        // ),
         TableCalendar<Event>(
+          rowHeight: 45.0,
           calendarStyle: CalendarStyle(
             selectedDecoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+              color: globals.CardColor,
               shape: BoxShape.circle,
             ),
             todayDecoration: BoxDecoration(
-              color: Theme.of(context).primaryColorLight,
+              color: globals.CardColor,
             ),
-            weekendTextStyle: TextStyle(color: Colors.black45),
+            weekendTextStyle: const TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+            defaultTextStyle: const TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
+            todayTextStyle: const TextStyle(
+              fontSize: 20.0,
+            ),
+            outsideTextStyle: const TextStyle(
+              fontSize: 20.0,
+              color: Colors.black26,
+            ),
           ),
           locale: 'de_DE',
-          weekendDays: [DateTime.saturday, DateTime.sunday],
+          weekendDays: const [DateTime.saturday, DateTime.sunday],
           startingDayOfWeek: StartingDayOfWeek.monday,
           firstDay: kFirstDay,
           lastDay: kLastDay,
           focusedDay: _focusedDay,
           headerVisible: true,
           headerStyle: HeaderStyle(
+            decoration: BoxDecoration(
+              color: globals.CardColor,
+            ),
+            titleTextStyle: const TextStyle(
+              fontSize: 22.0,
+              fontWeight: FontWeight.bold,
+            ),
+            titleCentered: true,
             formatButtonShowsNext: true,
             formatButtonVisible: false,
             // titleTextFormatter: (day,locale) => DateFormat.yM(locale).format(day),
           ),
+          daysOfWeekHeight: 30.0,
           daysOfWeekStyle: DaysOfWeekStyle(
-            weekendStyle: TextStyle(color: Colors.black45),
+            decoration: BoxDecoration(
+              color: globals.CardColor,
+            ),
+            weekendStyle: const TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.black45),
+            weekdayStyle: const TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           selectedDayPredicate: (day) {
             // getEventsFromDBForDay(day);
@@ -329,10 +468,10 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
           calendarFormat: _calendarFormat,
           rangeSelectionMode: _rangeSelectionMode,
           eventLoader: _getEventsForDay,
-        //   holidayPredicate: (day) {
-        //     // Every 20th day of the month will be treated as a holiday
-        //     return day.day == 20;
-        //   },
+          //   holidayPredicate: (day) {
+          //     // Every 20th day of the month will be treated as a holiday
+          //     return day.day == 20;
+          //   },
           onDaySelected: _onDaySelected,
           onRangeSelected: _onRangeSelected,
           // onCalendarCreated: (controller) => _pageController = controller,
@@ -343,29 +482,41 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
             }
           },
         ),
-        const SizedBox(height: 8.0),
+        Container(
+          color: Colors.black12,
+          height: 3.0,
+        ),
         Expanded(
           child: ValueListenableBuilder<List<Event>>(
             valueListenable: _selectedEvents,
             builder: (context, value, _) {
-              return ListView.builder(
-                itemCount: value.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 4.0,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: ListTile(
-                      onTap: () => print('${value[index]}'),
-                      title: Text('${value[index]}'),
-                    ),
-                  );
-                },
+              return CustomScrollView(
+                slivers: <Widget>[
+                  // ab hier werden die tatsächlichen Einträge aufgelistet
+                  // -----------------------------------------------------
+                  SliverFixedExtentList(
+                      itemExtent:
+                          globals.EntryHeight, // noch verbesserungsfähig!!!!!!
+                      delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                        return InkWell(
+                          onTap: () async {
+                            await _editItem(context, value[index].getID());
+                          },
+                          onDoubleTap: () async {
+                            await _frageLoeschen(context, value[index].getID());
+                          },
+                          child: myWidgets.datenZeile(
+                            Zeitpunkt: value[index].getZeitpunkt(),
+                            Systole: value[index].getSystole(),
+                            Diastole: value[index].getDiastole(),
+                            Puls: value[index].getPuls(),
+                            Gewicht: value[index].getGewicht(),
+                            Bemerkung: value[index].getBemerkung(),
+                          ),
+                        );
+                      }, childCount: value.length)),
+                ],
               );
             },
           ),
@@ -424,62 +575,62 @@ class _dailyEntriesTablePageState extends State<dailyEntriesTablePage> {
   // }
 }
 
-class _CalendarHeader extends StatelessWidget {
-  final DateTime focusedDay;
-  final VoidCallback onLeftArrowTap;
-  final VoidCallback onRightArrowTap;
-  final VoidCallback onTodayButtonTap;
-  final VoidCallback onClearButtonTap;
-  final bool clearButtonVisible;
-
-  const _CalendarHeader({
-    Key? key,
-    required this.focusedDay,
-    required this.onLeftArrowTap,
-    required this.onRightArrowTap,
-    required this.onTodayButtonTap,
-    required this.onClearButtonTap,
-    required this.clearButtonVisible,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final headerText = DateFormat.yMMM().format(focusedDay);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const SizedBox(width: 16.0),
-          SizedBox(
-            width: 120.0,
-            child: Text(
-              headerText,
-              style: TextStyle(fontSize: 26.0),
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.calendar_today, size: 20.0),
-            visualDensity: VisualDensity.compact,
-            onPressed: onTodayButtonTap,
-          ),
-          if (clearButtonVisible)
-            IconButton(
-              icon: Icon(Icons.clear, size: 20.0),
-              visualDensity: VisualDensity.compact,
-              onPressed: onClearButtonTap,
-            ),
-          const Spacer(),
-          IconButton(
-            icon: Icon(Icons.chevron_left),
-            onPressed: onLeftArrowTap,
-          ),
-          IconButton(
-            icon: Icon(Icons.chevron_right),
-            onPressed: onRightArrowTap,
-          ),
-        ],
-      ),
-    );
-  }
-}
+// class _CalendarHeader extends StatelessWidget {
+//   final DateTime focusedDay;
+//   final VoidCallback onLeftArrowTap;
+//   final VoidCallback onRightArrowTap;
+//   final VoidCallback onTodayButtonTap;
+//   final VoidCallback onClearButtonTap;
+//   final bool clearButtonVisible;
+//
+//   const _CalendarHeader({
+//     Key? key,
+//     required this.focusedDay,
+//     required this.onLeftArrowTap,
+//     required this.onRightArrowTap,
+//     required this.onTodayButtonTap,
+//     required this.onClearButtonTap,
+//     required this.clearButtonVisible,
+//   }) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final headerText = DateFormat.yMMM().format(focusedDay);
+//
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 8.0),
+//       child: Row(
+//         children: [
+//           const SizedBox(width: 16.0),
+//           SizedBox(
+//             width: 120.0,
+//             child: Text(
+//               headerText,
+//               style: TextStyle(fontSize: 26.0),
+//             ),
+//           ),
+//           IconButton(
+//             icon: Icon(Icons.calendar_today, size: 20.0),
+//             visualDensity: VisualDensity.compact,
+//             onPressed: onTodayButtonTap,
+//           ),
+//           if (clearButtonVisible)
+//             IconButton(
+//               icon: Icon(Icons.clear, size: 20.0),
+//               visualDensity: VisualDensity.compact,
+//               onPressed: onClearButtonTap,
+//             ),
+//           const Spacer(),
+//           IconButton(
+//             icon: Icon(Icons.chevron_left),
+//             onPressed: onLeftArrowTap,
+//           ),
+//           IconButton(
+//             icon: Icon(Icons.chevron_right),
+//             onPressed: onRightArrowTap,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sysdiapulsgew/pages/DailyEntriesTablePage/dailyentriestablepage.dart';
 import 'package:sysdiapulsgew/pages/DiagramPage/diagrampage.dart';
@@ -19,19 +17,15 @@ import 'package:sysdiapulsgew/pages/StatistikPage/statistikdata.dart' as stats;
 import 'package:sysdiapulsgew/pages/ImportExportPage/importexportpage.dart';
 import 'package:sysdiapulsgew/services/dbhelper.dart';
 import 'package:sysdiapulsgew/pages/EntriesTablePage/entriestablepage.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'my-globals.dart' as globals;
 import 'myUpdateProvider.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_localization/flutter_localization.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/date_symbol_data_local.dart';
 // import 'package:syncfusion_flutter_core/core.dart';
 
 void main() {
   // Register Syncfusion license
   // SyncfusionLicense.registerLicense("Mgo+DSMBaFt+QHJqVk1hXk5Hd0BLVGpAblJ3T2ZQdVt5ZDU7a15RRnVfRFxiSH5TdUBnWHpYdg==;Mgo+DSMBPh8sVXJ1S0R+X1pFdEBBXHxAd1p/VWJYdVt5flBPcDwsT3RfQF5jT39Sd0VjWnpacXNVQA==;ORg4AjUWIQA/Gnt2VFhiQlJPd11dXmJWd1p/THNYflR1fV9DaUwxOX1dQl9gSXhSd0RjWXxbdHVdQGY=;MjM4MTc3OEAzMjMxMmUzMDJlMzBnVzUwbzNSV2EraDltNXVFVDh1SUFhaUVMNFdEeTBnUzJFckJOU1Y3UG9rPQ==;MjM4MTc3OUAzMjMxMmUzMDJlMzBINTJRcjNEemU5cmNHcXJJR3RTVjEyWU8rdkZOSFJjUHRKQWR2NDJyd253PQ==;NRAiBiAaIQQuGjN/V0d+Xk9HfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn5Vd0RiWX9ddXBXQGVa;MjM4MTc4MUAzMjMxMmUzMDJlMzBLY3pFWXdubE1Xa1krVC90alhNNlQrZ0EzOExpSkxkSW5sc3N3WVpPajlvPQ==;MjM4MTc4MkAzMjMxMmUzMDJlMzBGYUdmT24zd2IwYk0xMXZOaVZmYU9JQUtCckR5UTFWTVp3VlphYkpNNjlvPQ==;Mgo+DSMBMAY9C3t2VFhiQlJPd11dXmJWd1p/THNYflR1fV9DaUwxOX1dQl9gSXhSd0RjWXxbdHdWT2Y=;MjM4MTc4NEAzMjMxMmUzMDJlMzBSZGw3OE9wcEFYMmtIT0tVeTFyL2IxZDg2ZUpNS1g4aUxFZk4rRm9CeXRzPQ==;MjM4MTc4NUAzMjMxMmUzMDJlMzBiejJ6Z2twV1d5emJtWjNTRU84WDc3SzloTERYajVZdGdtWGlPUytDblJjPQ==;MjM4MTc4NkAzMjMxMmUzMDJlMzBLY3pFWXdubE1Xa1krVC90alhNNlQrZ0EzOExpSkxkSW5sc3N3WVpPajlvPQ==");
-  // initializeDateFormatting().then((_) =>
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
     /// can use [MyApp] while mocking the providers
@@ -44,8 +38,6 @@ void main() {
   );
 }
 
-dynamic _platform;
-
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -54,10 +46,23 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final FlutterLocalization _localization = FlutterLocalization.instance;
 
   @override
   void initState() {
-    initializeDateFormatting('de_DE', null);
+    // initializeDateFormatting('de_DE', null);
+    _localization.init(
+      mapLocales: [
+        const MapLocale(
+          'de',
+          AppLocale.DE,
+          countryCode: 'DE',
+          fontFamily: 'Font DE',
+        ),
+      ],
+      initLanguageCode: 'de',
+    );
+    _localization.onTranslatedLanguage = _onTranslatedLanguage;
     super.initState();
     // die App soll ausschließlich im Hochkantformat arbeiten
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -66,18 +71,24 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void _onTranslatedLanguage(Locale? locale) {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    _platform = Theme.of(context).platform;
     globals.BgColorNeutral = Theme.of(context).scaffoldBackgroundColor;
     return MaterialApp(
       title: 'SysDiaPG',
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue,
+        fontFamily: _localization.fontFamily,
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+        // primarySwatch: Colors.lightBlue,
       ),
       home: const MyHomePage(title: 'SysDiaPG'),
-      // localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      // supportedLocales: const <Locale>[Locale('de', 'DE')], //, Locale('pt', 'BR')],
+      localizationsDelegates: _localization.localizationsDelegates,
+      supportedLocales: _localization.supportedLocales,
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/entriestablepage':
@@ -170,7 +181,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loadAllData() async {
     if ( await dbHelper.istDB_OK() ) {
-      await _getStoragePermission();
       await _initPackageInfo();
       await _initGroesse();
       await _loadAVGData();
@@ -185,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (kDebugMode) {
         print(globals.calendarStart);
       }
-      List<Map<String, dynamic>> allEntries = await dbHelper.getDataItems(-1);
+      // List<Map<String, dynamic>> allEntries = await dbHelper.getDataItems(-1);
     } else {
       if (kDebugMode) {
         print("Datenbank ist NICHT OK!!!!");
@@ -243,64 +253,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return _packageInfo;
   }
 
-  bool permissionGranted = false;
-  Future _getStoragePermission() async {
-    final folder = Directory(globals.lokalDBPfad);
-    final otherFolder = await getExternalStorageDirectories(type: StorageDirectory.downloads);
-    print("ExternalStorageDirectories=$otherFolder");
-    // final _result = await Permission.storage.request();
-    final _result = await Permission.storage.status;
-    switch (_result) {
-      case PermissionStatus.granted:
-      case PermissionStatus.limited:
-        print("Zugriff erlaubt");
-        break;
-
-      case PermissionStatus.denied:
-      case PermissionStatus.restricted:
-      case PermissionStatus.permanentlyDenied:
-      case PermissionStatus.provisional:          // nur bei iOS
-      default:
-        print("Zugriff verweigert: $_result");
-    }
-    if (await Permission.storage.request().isGranted) {
-      if ( mounted ) {
-        setState(() {
-          permissionGranted = true;
-        });
-      }
-    } else {
-      if ( mounted ) {
-        setState(() {
-          permissionGranted = false;
-        });
-      }
-    }
-    if ( permissionGranted == true ) {
-      print("Zugriffsrechte für $folder liegen vor");
-    } else {
-      print("Zugriffsrechte für $folder fehlen");
-    }
-  }
-
-  Future<Directory?> getExternalStorageDirectory() async {
-    final String? path = await _platform.getExternalStoragePath();
-    if (path == null) {
-      return null;
-    } else {
-      globals.lokalDBDir = path;
-      globals.lokalDBPfad = "${path}SysDiaPulsGew/";
-      globals.lokalDBNameMitPfad = globals.lokalDBPfad + globals.lokalDBNameOhnePfad;
-    }
-    if (kDebugMode) {
-      print("getExternalStorageDirectory: $path");
-      print("lokalDBDir: ${globals.lokalDBDir}");
-      print("lokalDBPfad: ${globals.lokalDBPfad}");
-      print("lokalDBNameMitPfad: ${globals.lokalDBNameMitPfad}");
-    }
-    return Directory(path);
-  }
-
   Future<void> _initPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
     if ( mounted ) {
@@ -350,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await Navigator.push(
             context,
             PageTransition(
-              child: const EntriesTablePage(),
+              child: const dailyEntriesTablePage(),
               alignment: Alignment.topCenter,
               type: PageTransitionType.leftToRightWithFade,),
           );
@@ -370,7 +322,9 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: globals.CardColor,
           title: const Text('SysDiaPG'),
+          elevation: 4.0,
           actions: <Widget>[
             // die Widgets werden von rechts außen nach links aufgeführt
             IconButton(
@@ -431,7 +385,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    _launchURL(); //action
+                                    _launchURL(context); //action
                                   },
                                   child: const Text(
                                     'hier klicken', //title
@@ -488,16 +442,19 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         bottomNavigationBar:
-        BottomNavigationBar(items: <BottomNavigationBarItem>[
+        BottomNavigationBar(
+          backgroundColor: globals.CardColor,
+          elevation: 7.0,
+          items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.analytics_outlined),
+            icon: Icon(Icons.bar_chart_outlined),
             label: 'Statistik',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(MdiIcons.chartScatterPlot),
             label: 'Diagramm',
           ),
@@ -509,7 +466,7 @@ class _MyHomePageState extends State<MyHomePage> {
               borderRadius: BorderRadius.circular(8),
               padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
               badgeContent: Text(strAnzDSe,style: TextStyle(color: globals.BgColorNeutral),textScaleFactor: 0.8,),
-              child: const Icon(Icons.table_rows),
+              child: const Icon(Icons.calendar_month),
             ),
             label: 'Einträge',
           ),
@@ -558,7 +515,7 @@ class myMenuWidget extends StatefulWidget {
       await Navigator.push(
         context,
         PageTransition(
-          child: const EntriesTablePage(),
+          child: const dailyEntriesTablePage(),
           alignment: Alignment.topCenter,
           type: PageTransitionType.leftToRightWithFade,),
       );
@@ -639,7 +596,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue[200],
+              color: globals.CardColor,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -661,7 +618,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.table_rows),
+            leading: const Icon(Icons.calendar_month),
             title: const Text(
               'Einträge ansehen...',
               textScaleFactor: 1.5,
@@ -683,7 +640,7 @@ class _myMenuWidgetState extends State<myMenuWidget> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.analytics_outlined),
+            leading: const Icon(Icons.bar_chart_outlined),
             title: const Text(
               'Statistik...',
               textScaleFactor: 1.5,
@@ -765,17 +722,20 @@ class meineZeile extends StatelessWidget {
   }
 }
 
-void _launchURL() async {
-  final Uri _url = Uri.parse('https://pixabay.com/photos/blood-pressure-stethoscope-medical-1584223/');
-  if (await canLaunchUrl(_url)) {
-    await launchUrl(_url);
-  } else {
-    throw 'Fehler beim Aufruf von $_url';
+void _launchURL(BuildContext context) async {
+  final Uri url = Uri.parse('https://pixabay.com/photos/blood-pressure-stethoscope-medical-1584223/');
+  try {
+    await launchUrl(mode: LaunchMode.externalApplication, url);
+  } catch(e) {
+    final snackBar = SnackBar(
+      backgroundColor: Colors.red[200],
+      content: Text('Überprüfen Sie Ihre Internetverbindung: $e'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
 
 mixin AppLocale {
   static const String title = 'title';
-
   static const Map<String, dynamic> DE = {title: 'Lokalisierung'};
 }

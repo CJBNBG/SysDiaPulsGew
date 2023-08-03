@@ -7,7 +7,7 @@ import './statistikdata.dart' as stats;
 
 bool _isLoading = true;
 const iBreite = globals.CardWidth / 3.0;
-const iScaleFactor = 1.2;
+const iScaleFactor = 1.25;
 
 class StatistikPage extends StatefulWidget {
   const StatistikPage({Key? key}) : super(key: key);
@@ -24,382 +24,455 @@ class _StatistikPageState extends State<StatistikPage> {
   final List<Widget> _list = [
     SliderBox(
         child: Column(
-          children: [
-            Expanded(child: Container(alignment: Alignment.center, color: Colors.grey[200], child: const Text("über alle Messungen", textAlign: TextAlign.center, textScaleFactor: 1.7,))),
-            FittedBox(
-              fit: BoxFit.fitWidth,
-              child: Column(
+      children: [
+        Expanded(
+            child: Container(
+          alignment: Alignment.center,
+          color: globals.CardColor,
+          child: const Text(
+            "über alle Messungen",
+            textAlign: TextAlign.center,
+            textScaleFactor: 1.25,
+          ),
+        )),
+        FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("vormittags (06:00 - 12:00)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
                 children: [
-                  const SizedBox(height: 20,),
-                  const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
-                  const SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Systole\n(mmHg)',
-                        Titel2: stats.strSysVorm[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1SysVorm[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2SysVorm[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Diastole\n(mmHg)',
-                        Titel2: stats.strDiaVorm[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1DiaVorm[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2DiaVorm[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Puls\n(bps)',
-                        Titel2: stats.strPulsVorm[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1PulsVorm[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2PulsVorm[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                    ],
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysVorm[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1SysVorm[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2SysVorm[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
                   ),
-                  const SizedBox(height: 20,),
-                  const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
-                  const SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Systole\n(mmHg)',
-                        Titel2: stats.strSysNachm[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1SysNachm[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2SysNachm[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Diastole\n(mmHg)',
-                        Titel2: stats.strDiaNachm[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1DiaNachm[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2DiaNachm[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Puls\n(bps)',
-                        Titel2: stats.strPulsNachm[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1PulsNachm[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2PulsNachm[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                    ],
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaVorm[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1DiaVorm[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2DiaVorm[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
                   ),
-                  const SizedBox(height: 20,),
-                  const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
-                  const SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Systole\n(mmHg)',
-                        Titel2: stats.strSysAbends[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1SysAbends[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2SysAbends[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Diastole\n(mmHg)',
-                        Titel2: stats.strDiaAbends[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1DiaAbends[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2DiaAbends[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Puls\n(bps)',
-                        Titel2: stats.strPulsAbends[stats.IndexAlle]['alle'],
-                        Farbe1: stats.Farbe1PulsAbends[stats.IndexAlle]['alle'],
-                        Farbe2: stats.Farbe2PulsAbends[stats.IndexAlle]['alle'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                    ],
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsVorm[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1PulsVorm[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2PulsVorm[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
                   ),
-                  const SizedBox(height: 30,),
                 ],
               ),
-            )
-          ],
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("nachmittags (12:00 - 18:00)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysNachm[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1SysNachm[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2SysNachm[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaNachm[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1DiaNachm[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2DiaNachm[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsNachm[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1PulsNachm[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2PulsNachm[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("abends (18:00 - 23:59)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysAbends[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1SysAbends[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2SysAbends[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaAbends[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1DiaAbends[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2DiaAbends[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsAbends[stats.IndexAlle]['alle'],
+                    Farbe1: stats.Farbe1PulsAbends[stats.IndexAlle]['alle'],
+                    Farbe2: stats.Farbe2PulsAbends[stats.IndexAlle]['alle'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
+          ),
         )
-    ),
-    SliderBox(
-      child: Column(
-        children: [
-          Expanded(child: Container(alignment: Alignment.center, color: Colors.grey[200], child: const Text("über die Messungen\nder letzten Woche", textAlign: TextAlign.center, textScaleFactor: 1.7,))),
-          FittedBox(
-            fit: BoxFit.fitWidth,
-            child: Column(
-              children: [
-                const SizedBox(height: 20,),
-                const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
-                const SizedBox(height: 10,),
-                Row(
-                  children: [
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Systole\n(mmHg)',
-                      Titel2: stats.strSysVorm[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1SysVorm[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2SysVorm[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Diastole\n(mmHg)',
-                      Titel2: stats.strDiaVorm[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1DiaVorm[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2DiaVorm[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Puls\n(bps)',
-                      Titel2: stats.strPulsVorm[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1PulsVorm[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2PulsVorm[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20,),
-                const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
-                const SizedBox(height: 10,),
-                Row(
-                  children: [
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Systole\n(mmHg)',
-                      Titel2: stats.strSysNachm[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1SysNachm[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2SysNachm[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Diastole\n(mmHg)',
-                      Titel2: stats.strDiaNachm[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1DiaNachm[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2DiaNachm[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Puls\n(bps)',
-                      Titel2: stats.strPulsNachm[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1PulsNachm[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2PulsNachm[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20,),
-                const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
-                const SizedBox(height: 10,),
-                Row(
-                  children: [
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Systole\n(mmHg)',
-                      Titel2: stats.strSysAbends[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1SysAbends[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2SysAbends[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Diastole\n(mmHg)',
-                      Titel2: stats.strDiaAbends[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1DiaAbends[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2DiaAbends[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                    myWidgets.myListRowWidgetTwoLines(
-                      Titel1: 'Puls\n(bps)',
-                      Titel2: stats.strPulsAbends[stats.Index1W]['-7'],
-                      Farbe1: stats.Farbe1PulsAbends[stats.Index1W]['-7'],
-                      Farbe2: stats.Farbe2PulsAbends[stats.Index1W]['-7'],
-                      Breite: iBreite,
-                      ScaleFactor: iScaleFactor,
-                      isHeader: false,
-                      Padding: 8.0,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30,),
-              ],
-            ),
-          )
-        ],
-      )
-    ),
+      ],
+    )),
     SliderBox(
         child: Column(
-          children: [
-            Expanded(child: Container(alignment: Alignment.center, color: Colors.grey[200], child: const Text("über die Messungen\ndes letzten Monats", textAlign: TextAlign.center, textScaleFactor: 1.7,))),
-            FittedBox(
-              fit: BoxFit.fitWidth,
-              child: Column(
+      children: [
+        Expanded(
+            child: Container(
+                alignment: Alignment.center,
+                color: globals.CardColor,
+                child: const Text(
+                  "über die Messungen\nder letzten Woche",
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.25,
+                ))),
+        FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("vormittags (06:00 - 12:00)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
                 children: [
-                  const SizedBox(height: 20,),
-                  const Text("vormittags (06:00 - 12:00)", textScaleFactor: iScaleFactor),
-                  const SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Systole\n(mmHg)',
-                        Titel2: stats.strSysVorm[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1SysVorm[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2SysVorm[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Diastole\n(mmHg)',
-                        Titel2: stats.strDiaVorm[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1DiaVorm[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2DiaVorm[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Puls\n(bps)',
-                        Titel2: stats.strPulsVorm[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1PulsVorm[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2PulsVorm[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                    ],
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysVorm[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1SysVorm[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2SysVorm[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
                   ),
-                  const SizedBox(height: 20,),
-                  const Text("nachmittags (12:00 - 18:00)", textScaleFactor: iScaleFactor),
-                  const SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Systole\n(mmHg)',
-                        Titel2: stats.strSysNachm[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1SysNachm[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2SysNachm[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Diastole\n(mmHg)',
-                        Titel2: stats.strDiaNachm[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1DiaNachm[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2DiaNachm[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Puls\n(bps)',
-                        Titel2: stats.strPulsNachm[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1PulsNachm[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2PulsNachm[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                    ],
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaVorm[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1DiaVorm[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2DiaVorm[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
                   ),
-                  const SizedBox(height: 20,),
-                  const Text("abends (18:00 - 23:59)", textScaleFactor: iScaleFactor),
-                  const SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Systole\n(mmHg)',
-                        Titel2: stats.strSysAbends[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1SysAbends[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2SysAbends[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Diastole\n(mmHg)',
-                        Titel2: stats.strDiaAbends[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1DiaAbends[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2DiaAbends[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                      myWidgets.myListRowWidgetTwoLines(
-                        Titel1: 'Puls\n(bps)',
-                        Titel2: stats.strPulsAbends[stats.Index1M]['-31'],
-                        Farbe1: stats.Farbe1PulsAbends[stats.Index1M]['-31'],
-                        Farbe2: stats.Farbe2PulsAbends[stats.Index1M]['-31'],
-                        Breite: iBreite,
-                        ScaleFactor: iScaleFactor,
-                        isHeader: false,
-                        Padding: 8.0,
-                      ),
-                    ],
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsVorm[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1PulsVorm[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2PulsVorm[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
                   ),
-                  const SizedBox(height: 30,),
                 ],
               ),
-            )
-          ],
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("nachmittags (12:00 - 18:00)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysNachm[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1SysNachm[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2SysNachm[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaNachm[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1DiaNachm[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2DiaNachm[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsNachm[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1PulsNachm[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2PulsNachm[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("abends (18:00 - 23:59)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysAbends[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1SysAbends[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2SysAbends[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaAbends[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1DiaAbends[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2DiaAbends[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsAbends[stats.Index1W]['-7'],
+                    Farbe1: stats.Farbe1PulsAbends[stats.Index1W]['-7'],
+                    Farbe2: stats.Farbe2PulsAbends[stats.Index1W]['-7'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
+          ),
         )
-    ),
+      ],
+    )),
+    SliderBox(
+        child: Column(
+      children: [
+        Expanded(
+            child: Container(
+                alignment: Alignment.center,
+                color: globals.CardColor,
+                child: const Text(
+                  "über die Messungen\ndes letzten Monats",
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.25,
+                ))),
+        FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("vormittags (06:00 - 12:00)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysVorm[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1SysVorm[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2SysVorm[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaVorm[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1DiaVorm[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2DiaVorm[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsVorm[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1PulsVorm[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2PulsVorm[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("nachmittags (12:00 - 18:00)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysNachm[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1SysNachm[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2SysNachm[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaNachm[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1DiaNachm[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2DiaNachm[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsNachm[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1PulsNachm[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2PulsNachm[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text("abends (18:00 - 23:59)",
+                  textScaleFactor: iScaleFactor),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Systole\n(mmHg)',
+                    Titel2: stats.strSysAbends[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1SysAbends[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2SysAbends[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Diastole\n(mmHg)',
+                    Titel2: stats.strDiaAbends[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1DiaAbends[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2DiaAbends[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                  myWidgets.myListRowWidgetTwoLines(
+                    Titel1: 'Puls\n(bps)',
+                    Titel2: stats.strPulsAbends[stats.Index1M]['-31'],
+                    Farbe1: stats.Farbe1PulsAbends[stats.Index1M]['-31'],
+                    Farbe2: stats.Farbe2PulsAbends[stats.Index1M]['-31'],
+                    Breite: iBreite,
+                    ScaleFactor: iScaleFactor,
+                    isHeader: false,
+                    Padding: 8.0,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
+          ),
+        )
+      ],
+    )),
   ];
 
   @override
@@ -428,18 +501,23 @@ class _StatistikPageState extends State<StatistikPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: globals.CardColor,
+          elevation: 4.0,
           title: const Text("Statistik"),
         ),
         body: _isLoading
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : Stack(
-          children: <Widget>[
-            Container(color: Colors.grey[100], height: double.infinity),
-            Container(color: globals.BgColorNeutral, child: container, margin: const EdgeInsets.only(bottom: 50)),
-          ],
-        ),
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Stack(
+                children: <Widget>[
+                  Container(color: Colors.grey[100], height: double.infinity),
+                  Container(
+                      color: globals.BgColorNeutral,
+                      child: container,
+                      margin: const EdgeInsets.only(bottom: 10)),
+                ],
+              ),
       ),
     );
   }

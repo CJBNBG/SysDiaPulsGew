@@ -24,12 +24,12 @@ class _ImportExportPageState extends State<ImportExportPage> {
             elevation: 5.0,
             // backgroundColor: Color.fromRGBO(255, 235, 235, 1),
             title: Container(
-              color: Color.fromRGBO(255, 219, 219, 1),
+              color: Theme.of(context).colorScheme.onError,
               child: Row(
                   children:[
                     // Icon(Icons.priority_high, color: Colors.red,),
                     Container(
-                      child: const Expanded(
+                      child: Expanded(
                         child: FittedBox(
                           fit: BoxFit.fitWidth,
                           alignment: Alignment.center,
@@ -39,7 +39,10 @@ class _ImportExportPageState extends State<ImportExportPage> {
                             softWrap: true,
                             textAlign: TextAlign.center,
                             textScaleFactor: 2.0,
-                            style: TextStyle(color: Colors.red, ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -51,7 +54,9 @@ class _ImportExportPageState extends State<ImportExportPage> {
             content: Text(
               "Soll der aktuelle Datenbestand durch den importierten Datenbestand ersetzt werden?",
               textAlign: TextAlign.center,
-              softWrap: true,),
+              softWrap: true,
+              textScaleFactor: 2.0,
+            ),
             actions: <Widget>[
               Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 15.0),
@@ -63,14 +68,14 @@ class _ImportExportPageState extends State<ImportExportPage> {
                       //   backgroundColor: MaterialStateProperty.all(Colors.green[100]),/8/8+9
                       // ),
                         onPressed: () => Navigator.pop(context, 'Nein'),
-                        child: const Text('Nein')
+                        child: const Text('Nein',  textScaleFactor: 2.0,)
                     ),
                     ElevatedButton(
                       // style: ButtonStyle(
                       //   backgroundColor: MaterialStateProperty.all(Colors.blue[100]),
                       // ),
                       onPressed: () async => await _doImportIt(dateiname),
-                      child: const Text('Ja'),
+                      child: const Text('Ja',  textScaleFactor: 2.0,),
                     ),
                   ],
                 ),
@@ -217,7 +222,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
               height: 50.0,
             ),
             Container(
-              width: 150.0,
+              width: View.of(context).physicalSize.width * 0.12,
               height: 50.0,
               child: ElevatedButton(
                 onPressed: () async {
@@ -226,10 +231,11 @@ class _ImportExportPageState extends State<ImportExportPage> {
                   print("_context=$_context");
                   await _doSelectImportfile();
                 },
-                child: const Row(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Importieren"),
-                    SizedBox(width: 20.0,),
+                    const Text("Importieren"),
+                    const SizedBox(width: 20.0,),
                     Icon(MdiIcons.databaseArrowDown),
                   ],
                 )
@@ -239,7 +245,7 @@ class _ImportExportPageState extends State<ImportExportPage> {
               height: 25.0,
             ),
             Container(
-              width: 150.0,
+              width: View.of(context).physicalSize.width * 0.12,
               height: 50.0,
               child: ElevatedButton(
                   onPressed: () async {
@@ -248,10 +254,11 @@ class _ImportExportPageState extends State<ImportExportPage> {
                     print("_context=$_context");
                     await _doRueckfragenExport(context);
                   },
-                  child: const Row(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Exportieren"),
-                      SizedBox(width: 20.0,),
+                      const Text("Exportieren"),
+                      const SizedBox(width: 20.0,),
                       Icon(MdiIcons.databaseArrowUp),
                     ],
                   )

@@ -1,7 +1,9 @@
 library myWidgets;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../my-globals.dart' as globals;
 import 'screenhelper.dart';
+import 'package:intl/intl.dart';
 
 class myListRowWidgetOneLine extends StatelessWidget {
   final bool isHeader;
@@ -20,16 +22,6 @@ class myListRowWidgetOneLine extends StatelessWidget {
     return Container(
       // width: this.Breite,
       alignment: alignment,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(Titel1,
-            textScaleFactor: ScaleFactor,
-            style: ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),
-          ),
-        ],
-      ),
       decoration: BoxDecoration(
         border: Border(
             top: BorderSide(
@@ -50,6 +42,16 @@ class myListRowWidgetOneLine extends StatelessWidget {
             )
         ),
         color: Farbe2,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(Titel1,
+            textScaleFactor: ScaleFactor,
+            style: ScaleFactor < 1.0 ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(fontWeight: FontWeight.normal),
+          ),
+        ],
       ),
     );
   }
@@ -81,14 +83,6 @@ class myListRowWidgetTwoLines extends StatelessWidget {
     return Container(
       width: Breite,
       padding: EdgeInsets.all(Padding),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(Titel1, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),),
-          Text(Titel2, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? TextStyle(fontWeight: FontWeight.bold) : TextStyle(fontWeight: FontWeight.normal),),
-        ],
-      ),
       decoration: BoxDecoration(
         border: Border(
             top: BorderSide(
@@ -110,6 +104,76 @@ class myListRowWidgetTwoLines extends StatelessWidget {
         ),
         color: Farbe2,
       ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(Titel1, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(fontWeight: FontWeight.normal),),
+          Text(Titel2, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(fontWeight: FontWeight.normal),),
+        ],
+      ),
+    );
+  }
+}
+
+class myListRowWidgetThreeLines extends StatelessWidget {
+  final bool isHeader;
+  final String Titel1;
+  final String Titel2;
+  final String Titel3;
+  final Color Farbe1;
+  final Color? Farbe2;
+  final double Breite;
+  final double ScaleFactor;
+  final double Padding;
+  const myListRowWidgetThreeLines({
+    Key? key,
+    required this.isHeader,
+    required this.Titel1,
+    required this.Titel2,
+    required this.Titel3,
+    required this.Farbe1,
+    required this.Farbe2,
+    required this.Breite,
+    required this.ScaleFactor,
+    required this.Padding,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: Breite,
+      padding: EdgeInsets.all(Padding),
+      decoration: BoxDecoration(
+        border: Border(
+            top: BorderSide(
+                width: 0.0,
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
+            ),
+            left: BorderSide(
+                width: 0.0,
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
+            ),
+            right: BorderSide(
+                width: 0.0,
+                color: (isHeader) ? Colors.grey : globals.BgColorNeutral
+            ),
+            bottom: BorderSide(
+                width: 3.0,
+                color: Farbe1
+            )
+        ),
+        color: Farbe2,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(Titel1, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(fontWeight: FontWeight.normal),),
+          Text(Titel2, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(fontWeight: FontWeight.normal),),
+          Text(Titel3, textScaleFactor: ScaleFactor,style: ScaleFactor < 1.0 ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle(fontWeight: FontWeight.normal),),
+        ],
+      ),
     );
   }
 }
@@ -130,32 +194,64 @@ class datenZeile extends StatelessWidget {
     required this.Bemerkung
   }) : super(key: key);
 
-  String dasDatum(String Zeitpunkt) {
-    if ( Zeitpunkt.isEmpty ) {
+  String derWochentag(String xZeitpunkt) {
+    DateTime theDate = DateTime.parse(xZeitpunkt);
+    String strWochentag = DateFormat('EEEE').format(theDate);
+    switch (strWochentag.toUpperCase()) {
+      case 'MONDAY':
+        strWochentag = "Montag";
+        break;
+      case 'TUESDAY':
+        strWochentag = "Dienstag";
+        break;
+      case 'WEDNESDAY':
+        strWochentag = "Mittwoch";
+        break;
+      case 'THURSDAY':
+        strWochentag = "Donnerstag";
+        break;
+      case 'FRIDAY':
+        strWochentag = "Freitag";
+        break;
+      case 'SATURDAY':
+        strWochentag = "Samstag";
+        break;
+      case 'SUNDAY':
+        strWochentag = "Sonntag";
+        break;
+      default:
+    }
+    if ( xZeitpunkt.isEmpty ) {
       return "kein Datum";
     } else {
-      return "${Zeitpunkt.substring(8, 10)}.${Zeitpunkt.substring(5, 7)}.${Zeitpunkt.substring(0, 4)}";
+      return strWochentag;
     }
   }
-  String dieUhrzeit(String Zeitpunkt) {
-    if ( Zeitpunkt.isEmpty ) {
+  String dasDatum(String xZeitpunkt) {
+    if ( xZeitpunkt.isEmpty ) {
+      return "kein Datum";
+    } else {
+      return "${xZeitpunkt.substring(8, 10)}.${xZeitpunkt.substring(5, 7)}.${xZeitpunkt.substring(0, 4)}";
+    }
+  }
+  String dieUhrzeit(String xZeitpunkt) {
+    if ( xZeitpunkt.isEmpty ) {
       return "keine Uhrzeit";
     } else {
-      return Zeitpunkt.substring(11, 16);
+      return xZeitpunkt.substring(11, 16);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isLandscape = Screen.isLandscape(context);
+    // bool isLandscape = Screen.isLandscape(context);
     // bool isLargePhone = Screen.diagonal(context) > 720;
     // bool isNarrow = Screen.widthInches(context) < 3.5;
     bool isTablet = Screen.diagonalInches(context) >= 8.5; // war 7s
-    double _scaleFactor = isTablet ? globals.scaleFactorTablet : globals.scaleFactorPhone;
-    int _Bemlen = isTablet ? globals.BemlenTablet : globals.BemlenPhone;
-    double _BreiteZeitpunkt = MediaQuery.of(context).size.width / 3.0;
+    double scaleFactor = isTablet ? globals.scaleFactorTablet : globals.scaleFactorPhone;
+    int Bemlen = isTablet ? globals.BemlenTablet : globals.BemlenPhone;
+    double BreiteZeitpunkt = MediaQuery.of(context).size.width / 3.0;
     int Pulsdruck = Systole - Diastole;
-    print(Gewicht.toString());
 
     return Column(
       children: [
@@ -166,14 +262,15 @@ class datenZeile extends StatelessWidget {
             children: [
               Flexible(
                 flex: 1,
-                child: myListRowWidgetTwoLines(
+                child: myListRowWidgetThreeLines(
                   isHeader: false,
-                  Titel1: dasDatum(Zeitpunkt),
-                  Titel2: dieUhrzeit(Zeitpunkt),
+                  Titel1: derWochentag(Zeitpunkt),
+                  Titel2: dasDatum(Zeitpunkt),
+                  Titel3: dieUhrzeit(Zeitpunkt),
                   Farbe1: globals.BgColorNeutral,
                   Farbe2: globals.BgColorNeutral,
-                  Breite: _BreiteZeitpunkt,
-                  ScaleFactor: _scaleFactor,
+                  Breite: BreiteZeitpunkt,
+                  ScaleFactor: scaleFactor,
                   Padding: 8.0,
                 ),
               ),
@@ -193,8 +290,8 @@ class datenZeile extends StatelessWidget {
                               Titel1: Systole.toString(),
                               Farbe1: globals.Farbe1Systole(Systole),
                               Farbe2: globals.Farbe2Systole(Systole),
-                              Breite: _BreiteZeitpunkt / 2.0,
-                              ScaleFactor: _scaleFactor,
+                              Breite: BreiteZeitpunkt / 2.0,
+                              ScaleFactor: scaleFactor,
                               alignment: Alignment.center,
                             ),
                           ),
@@ -204,8 +301,8 @@ class datenZeile extends StatelessWidget {
                               Titel1: Diastole.toString(),
                               Farbe1: globals.Farbe1Diastole(Diastole),
                               Farbe2: globals.Farbe2Diastole(Diastole),
-                              Breite: _BreiteZeitpunkt / 2.0,
-                              ScaleFactor: _scaleFactor,
+                              Breite: BreiteZeitpunkt / 2.0,
+                              ScaleFactor: scaleFactor,
                               alignment: Alignment.center,
                             ),
                           ),
@@ -215,8 +312,8 @@ class datenZeile extends StatelessWidget {
                               Titel1: Puls != null ? this.Puls.toString() : "---",
                               Farbe1: Puls != null ? globals.Farbe1Puls(Puls!) : globals.BgColorNeutral,
                               Farbe2: Puls != null ? globals.Farbe2Puls(Puls!) : globals.BgColorNeutral,
-                              Breite: _BreiteZeitpunkt / 2.0,
-                              ScaleFactor: _scaleFactor,
+                              Breite: BreiteZeitpunkt / 2.0,
+                              ScaleFactor: scaleFactor,
                               alignment: Alignment.center,
                             ),
                           ),
@@ -224,10 +321,10 @@ class datenZeile extends StatelessWidget {
                             child: myListRowWidgetOneLine(
                               isHeader: false,
                               Titel1: Gewicht != null ? Gewicht.toString() : "---",
-                              Farbe1: Gewicht != null ? globals.Farbe1Gewicht(Gewicht.toString()!) : globals.BgColorNeutral,
-                              Farbe2: Gewicht != null ? globals.Farbe2Gewicht(Gewicht.toString()!) : globals.BgColorNeutral,
-                              Breite: _BreiteZeitpunkt / 2.0,
-                              ScaleFactor: _scaleFactor,
+                              Farbe1: Gewicht != null ? globals.Farbe1Gewicht(Gewicht.toString()) : globals.BgColorNeutral,
+                              Farbe2: Gewicht != null ? globals.Farbe2Gewicht(Gewicht.toString()) : globals.BgColorNeutral,
+                              Breite: BreiteZeitpunkt / 2.0,
+                              ScaleFactor: scaleFactor,
                               alignment: Alignment.center,
                             ),
                           ),
@@ -277,13 +374,13 @@ class datenZeile extends StatelessWidget {
                     Expanded(
                       child: myListRowWidgetOneLine(
                         isHeader: false,
-                        Titel1: Bemerkung.isNotEmpty && Bemerkung != null
-                            ? Bemerkung.length > _Bemlen ? Bemerkung.substring(0,_Bemlen) + "...»" : Bemerkung
+                        Titel1: Bemerkung.isNotEmpty
+                            ? Bemerkung.length > Bemlen ? "${Bemerkung.substring(0,Bemlen)}...»" : Bemerkung
                             : "",
                         Farbe1: globals.BgColorNeutral,
                         Farbe2: globals.BgColorNeutral,
-                        Breite: _BreiteZeitpunkt * 2.0,
-                        ScaleFactor: _scaleFactor,
+                        Breite: BreiteZeitpunkt * 2.0,
+                        ScaleFactor: scaleFactor,
                         alignment: Alignment.centerLeft,
                       ),
                     ),

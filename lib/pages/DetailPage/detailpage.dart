@@ -39,6 +39,7 @@ class _DetailPageState extends State<DetailPage> {
   String _neuerZeitpunkt = '';
   String _neueSystole = '';
   String _neueDiastole = '';
+  String _neuerPulsdruck = '';
   String _neuerPuls = '';
   String _neuesGewicht = '';
   String _neueBemerkung = '';
@@ -80,9 +81,10 @@ class _DetailPageState extends State<DetailPage> {
         if (kDebugMode) {
           print(neueDaten);
         }
-        _neuerZeitpunkt = DateTime.now().toString();
+        _neuerZeitpunkt = globals.zeitpunktNeuerEintrag;
         _neueSystole = neueDaten[0]['Systole'].toString();
         _neueDiastole = neueDaten[0]['Diastole'].toString();
+        _neuerPulsdruck = (neueDaten[0]['Systole'] - neueDaten[0]['Diastole']).toString();
         _neuerPuls = neueDaten[0]['Puls'].toString();
         if (neueDaten[0]['Gewicht'].toString().isNotEmpty && neueDaten[0]['Gewicht'] != null) {
           _neuesGewicht = neueDaten[0]['Gewicht'].toString();
@@ -91,9 +93,10 @@ class _DetailPageState extends State<DetailPage> {
         }
         _neueBemerkung = '';
       } else {
-        _neuerZeitpunkt = DateTime.now().toString();
+        _neuerZeitpunkt = globals.zeitpunktNeuerEintrag;
         _neueSystole = '120';
         _neueDiastole = '80';
+        _neuerPulsdruck = '40';
         _neuerPuls = '60';
         _neuesGewicht = '77.7';
         _neueBemerkung = '';
@@ -104,6 +107,7 @@ class _DetailPageState extends State<DetailPage> {
       _neuerZeitpunkt = _datensatz[0]['Zeitpunkt'].toString();
       _neueSystole = _datensatz[0]['Systole'].toString();
       _neueDiastole = _datensatz[0]['Diastole'].toString();
+      _neuerPulsdruck = (_datensatz[0]['Systole'] - _datensatz[0]['Diastole']).toString();
       _neuerPuls = _datensatz[0]['Puls'].toString();
       if (_datensatz[0]['Gewicht'].toString().isNotEmpty && _datensatz[0]['Gewicht'] != null) {
         _neuesGewicht = _datensatz[0]['Gewicht'].toString();
@@ -137,6 +141,8 @@ class _DetailPageState extends State<DetailPage> {
     } else {
       neuerWert++;
     }
+    int? Diastole = int.tryParse(_neueDiastole);
+    _neuerPulsdruck = (neuerWert - Diastole!).toString();
     setState(() {
       ctrSystole.value = TextEditingValue(text: neuerWert.toString());
       _neueSystole = neuerWert.toString();
@@ -154,6 +160,8 @@ class _DetailPageState extends State<DetailPage> {
     } else {
       if (neuerWert > 0) neuerWert--;
     }
+    int? Diastole = int.tryParse(_neueDiastole);
+    _neuerPulsdruck = (neuerWert - Diastole!).toString();
     setState(() {
       ctrSystole.value = TextEditingValue(text: neuerWert.toString());
       _neueSystole = neuerWert.toString();
@@ -171,6 +179,8 @@ class _DetailPageState extends State<DetailPage> {
     } else {
       neuerWert++;
     }
+    int? Systole = int.tryParse(_neueSystole);
+    _neuerPulsdruck = (Systole! - neuerWert).toString();
     setState(() {
       ctrDiastole.value = TextEditingValue(text: neuerWert.toString());
       _neueDiastole = neuerWert.toString();
@@ -188,6 +198,8 @@ class _DetailPageState extends State<DetailPage> {
     } else {
       if (neuerWert > 0) neuerWert--;
     }
+    int? Systole = int.tryParse(_neueSystole);
+    _neuerPulsdruck = (Systole! - neuerWert).toString();
     setState(() {
       ctrDiastole.value = TextEditingValue(text: neuerWert.toString());
       _neueDiastole = neuerWert.toString();
@@ -272,9 +284,6 @@ class _DetailPageState extends State<DetailPage> {
 
   String? isNumeric(String val) {
     try {
-      if (kDebugMode) {
-        print("isNumeric() - $val");
-      }
       var regex = RegExp(r'\d+');
       if (val.contains(regex) == false) {
         return "nur Zahlen!";
@@ -285,6 +294,7 @@ class _DetailPageState extends State<DetailPage> {
       if (double.tryParse(val)! <= 0) {
         return 'nur größer als 0!';
       }
+      return null;
     } catch (_, e) {
       return "falsche Eingabe $e";
     }
@@ -314,7 +324,7 @@ class _DetailPageState extends State<DetailPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(aktID > -1 ? " Details (ID: $aktID)" : "Details (NEU)"),
+          title: Text(aktID > -1 ? " Details" : "Details (NEU)"),
           actions: [
             Visibility(
               visible: _hasChanged,
@@ -335,24 +345,12 @@ class _DetailPageState extends State<DetailPage> {
                     }
                   },
                   child: Row(
-                    children: const [
+                    children: [
                       Text('übernehmen'),
                       Icon(MdiIcons.checkBold),
                     ],
                   )),
             ),
-            // IconButton(
-            //   onPressed: () {
-            //     // Wenn alle Validatoren der Felder des Formulars gültig sind.
-            //     if (_formKey.currentState!.validate()) {
-            //       _aendereDatensatz();
-            //     } else {
-            //       print("Formular ist nicht gültig");
-            //     }
-            //   },
-            //   icon: const Icon(MdiIcons.checkBold),
-            //   iconSize: 30.0,
-            // ),
           ],
         ),
         body: _isLoading
@@ -375,10 +373,11 @@ class _DetailPageState extends State<DetailPage> {
                             dateMask: 'dd.MM.yyyy',
                             firstDate: DateTime(2020),
                             lastDate: DateTime(2100),
+                            // calendarTitle: 'Datum des Eintrags',
                             dateLabelText: 'Datum',
                             timeLabelText: 'Uhrzeit',
                             use24HourFormat: true,
-                            // locale: const Locale('de', 'DE'),
+                            locale: const Locale('de', 'DE'),
                             timeFieldWidth: (MediaQuery.of(context).size.width - _padding_left - _padding_right) / 2.0,
                             icon: const Icon(Icons.event),
                             initialValue: _neuerZeitpunkt,
@@ -413,8 +412,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => decrSystole(),
                                     child: const Text('-')),
@@ -459,15 +458,46 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => incrSystole(),
                                     child: const Text('+')),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
+                          // const SizedBox(height: 20),
+
+                          // Pulsdruck
+                          // ---------
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                width: 80.0,
+                                color: int.tryParse(_neuerPulsdruck)! < 40
+                                    ? Colors.yellow[100]
+                                    : int.tryParse(_neuerPulsdruck)! <= 65.0
+                                    ? Colors.green[200]
+                                    : int.tryParse(_neuerPulsdruck)! <= 75.0
+                                    ? Colors.red[100]
+                                    : int.tryParse(_neuerPulsdruck)! <= 90
+                                    ? Colors.red[300]
+                                    : Colors.red,
+                                child: Text(
+                                  _neuerPulsdruck,
+                                  style: const TextStyle(fontSize: 20.0, ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Container(
+                                width: 75.0,
+                                child: Text(' '),
+                              ),
+                            ],
+                          ),
+                          // const SizedBox(height: 10),
 
                           // Diastole
                           // --------
@@ -481,8 +511,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => decrDiastole(),
                                     child: const Text('-')),
@@ -496,9 +526,10 @@ class _DetailPageState extends State<DetailPage> {
                                   // initialValue: _neueDiastole,
                                   keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                                   autocorrect: true,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.black12,
+                                    // fillColor: globals.Farbe1Systole(ctrDiastole.value as int),
                                     contentPadding: EdgeInsets.fromLTRB(0.0, 20, 0.0, 20),
                                     constraints: BoxConstraints(
                                         // maxWidth: 180,
@@ -524,8 +555,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => incrDiastole(),
                                     child: const Text('+')),
@@ -546,8 +577,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => decrPuls(),
                                     child: const Text('-')),
@@ -589,8 +620,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => incrPuls(),
                                     child: const Text('+')),
@@ -611,8 +642,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => decrGewicht(),
                                     child: const Text('-')),
@@ -646,7 +677,12 @@ class _DetailPageState extends State<DetailPage> {
                                       return isNumeric(val);
                                     }
                                   },
-                                  onSaved: (val) => setState(() => _neuesGewicht = val!),
+                                  onSaved: (val) {
+                                    setState(() {
+                                      _hasChanged = true;
+                                      _neuesGewicht = val!;
+                                    });
+                                  },
                                 ),
                               ),
                               Flexible(
@@ -654,8 +690,8 @@ class _DetailPageState extends State<DetailPage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: globals.BgColorNeutral,
                                       elevation: 2.0,
-                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0),
-                                      // fixedSize: Size(55, 55),
+                                      textStyle: const TextStyle(color: Colors.black, fontSize: 40.0, fontWeight: FontWeight.bold),
+                                      fixedSize: Size(35, 70),
                                     ),
                                     onPressed: () => incrGewicht(),
                                     child: const Text('+')),
@@ -666,7 +702,8 @@ class _DetailPageState extends State<DetailPage> {
                           TextFormField(
                             style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                             initialValue: _neueBemerkung,
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
                             //expands: true,
                             autocorrect: true,
                             decoration: const InputDecoration(
@@ -688,37 +725,6 @@ class _DetailPageState extends State<DetailPage> {
                               });
                             },
                           ),
-                          // SizedBox(height: 10),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     ElevatedButton(
-                          //         style: ElevatedButton.styleFrom(
-                          //           textStyle: TextStyle(color: Colors.black, fontSize: 35.0),
-                          //           primary: Colors.grey,
-                          //         ),
-                          //         onPressed: () {
-                          //           // reset() setzt alle Felder wieder auf den Initialwert zurück.
-                          //           _formKey.currentState!.reset();
-                          //           // kehrt zur Liste der Einträge zurück
-                          //           Navigator.pop(context);
-                          //         },
-                          //         child: Text('Abbrechen')),
-                          //     ElevatedButton(
-                          //         style: ElevatedButton.styleFrom(
-                          //           textStyle: TextStyle(color: Colors.black, fontSize: 35.0),
-                          //         ),
-                          //         onPressed: () {
-                          //           // Wenn alle Validatoren der Felder des Formulars gültig sind.
-                          //           if (_formKey.currentState!.validate()) {
-                          //             _aendereDatensatz();
-                          //           } else {
-                          //             print("Formular ist nicht gültig");
-                          //           }
-                          //         },
-                          //         child: Text('OK')),
-                          //   ],
-                          // )
                         ],
                       ),
                     ),

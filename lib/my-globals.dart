@@ -3,7 +3,6 @@ library globals;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sysdiapulsgew/services/dbhelper.dart';
 
 PackageInfo gPackageInfo = PackageInfo(appName: "", packageName: "", version: "", buildNumber: "");
 int screenwidth = 0;
@@ -14,6 +13,9 @@ String lokalDBNameOhnePfad = "SysDiaPulsGew.db";
 String lokalDBNameMitPfad = lokalDBPfad + lokalDBNameOhnePfad;
 bool updAVG_needed = false;
 double gGroesse = 1.80;
+late String zeitpunktNeuerEintrag;
+
+Color CardColor = const Color.fromARGB(255, 227, 236, 245);
 
 int aktID = -1;
 const EntryWidthSysDia = 55.0;
@@ -116,7 +118,7 @@ Color BMI_Farbe2(double Gewicht) {
 Color Farbe1Systole(int Wert) {
   if ( Wert == -1 ) {
     return BgColorNeutral;
-  } else if ( Wert<120 ) {                             // optimal
+  } else if ( Wert<120 ) {                      // optimal
     return SysDia_optimal;
   } else if ( Wert >= 120 && Wert < 130 ) {     // normal
     return SysDia_normal;
@@ -239,6 +241,7 @@ bool isNumeric(String val) {
     }
     return true;
   } catch (_, e) {
+    print("isNumeric Fehler: $e");
     return false;
   }
 }
